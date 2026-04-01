@@ -10,6 +10,23 @@
 
 require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
+const https = require('https');
+const http = require('http');
+
+function callRevalidate() {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://smartinfoblog.co.kr';
+  const secret = process.env.REVALIDATE_SECRET || 'blog-revalidate';
+  const url = `${siteUrl}/api/revalidate?secret=${secret}`;
+  const lib = url.startsWith('https') ? https : http;
+  return new Promise((resolve) => {
+    const req = lib.request(url, { method: 'POST' }, (res) => {
+      console.log(`  🔄 캐시 갱신: ${res.statusCode}`);
+      resolve();
+    });
+    req.on('error', () => resolve());
+    req.end();
+  });
+}
 
 const prisma = new PrismaClient();
 
@@ -168,6 +185,7 @@ async function main() {
       },
     });
 
+    if (publishedCount > 0) await callRevalidate();
     console.log(`\n✅ ${publishedCount}개 ${mode === 'immediate' ? '발행 완료' : '예약 완료'}`);
   } catch (error) {
     console.error('오류:', error);
