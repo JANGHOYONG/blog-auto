@@ -34,7 +34,7 @@ export default function ArticleCard({ post, size = 'default' }: Props) {
             {post.title}
           </Link>
           <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-            {post.publishedAt?.toLocaleDateString('ko-KR')}
+            {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('ko-KR') : ''}
           </p>
         </div>
       </article>
@@ -64,7 +64,7 @@ export default function ArticleCard({ post, size = 'default' }: Props) {
           <span className="category-badge text-xs">{post.category.name}</span>
           {post.publishedAt && (
             <time className="text-xs" style={{ color: 'var(--text-muted)' }}>
-              {post.publishedAt.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}
+              {new Date(post.publishedAt).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}
             </time>
           )}
         </div>
