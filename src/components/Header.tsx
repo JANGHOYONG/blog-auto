@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
 
 const CATEGORIES = [
@@ -17,7 +16,6 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const { theme, setTheme } = useTheme();
   const router = useRouter();
   const siteName = process.env.NEXT_PUBLIC_SITE_NAME || 'Smart Info Blog';
 
@@ -30,50 +28,46 @@ export default function Header() {
   };
 
   return (
-    <header
-      className="sticky top-0 z-40 border-b"
-      style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}
-    >
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16 gap-4">
+    <header className="sticky top-0 z-40 bg-white border-b" style={{ borderColor: 'var(--border)' }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex items-center h-16 gap-4">
+
           {/* 로고 */}
-          <Link href="/" className="font-bold text-xl shrink-0" style={{ color: 'var(--primary)' }}>
+          <Link href="/" className="shrink-0 font-bold text-lg tracking-wide" style={{ color: 'var(--primary)' }}>
             {siteName}
           </Link>
 
-          {/* 데스크탑 내비게이션 */}
-          <nav className="hidden md:flex items-center gap-1 flex-1">
+          {/* 데스크탑 카테고리 내비 */}
+          <nav className="hidden md:flex items-center gap-1 flex-1 justify-center">
             {CATEGORIES.map((cat) => (
               <Link
                 key={cat.slug}
                 href={`/${cat.slug}`}
-                className="btn-ghost text-sm"
+                className="px-3 py-1.5 text-sm font-medium rounded-lg transition-colors hover:text-primary"
+                style={{ color: 'var(--text-muted)' }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--primary)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
               >
                 {cat.name}
               </Link>
             ))}
           </nav>
 
-          {/* 우측 액션 */}
-          <div className="flex items-center gap-1">
-            {/* 검색 */}
+          {/* 우측: 검색 */}
+          <div className="flex items-center gap-1 ml-auto">
             {searchOpen ? (
-              <form onSubmit={handleSearch} className="flex items-center">
+              <form onSubmit={handleSearch} className="flex items-center gap-1">
                 <input
                   autoFocus
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="검색어 입력..."
-                  className="w-40 md:w-56 px-3 py-1.5 text-sm rounded-lg border outline-none"
-                  style={{
-                    background: 'var(--bg)',
-                    borderColor: 'var(--border)',
-                    color: 'var(--text)',
-                  }}
+                  className="w-36 sm:w-52 px-3 py-1.5 text-sm rounded-xl border outline-none"
+                  style={{ background: 'var(--bg)', borderColor: 'var(--border)', color: 'var(--text)' }}
                   onBlur={() => { if (!query) setSearchOpen(false); }}
                 />
-                <button type="submit" className="btn-ghost p-2 ml-1">
+                <button type="submit" className="btn-ghost p-2">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
@@ -87,30 +81,13 @@ export default function Header() {
               </button>
             )}
 
-            {/* 다크모드 토글 */}
-            <button
-              className="btn-ghost p-2"
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              aria-label="테마 변경"
-            >
-              {theme === 'dark' ? (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-              )}
-            </button>
-
             {/* 모바일 메뉴 버튼 */}
             <button
               className="md:hidden btn-ghost p-2"
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label="메뉴"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {menuOpen
                   ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -122,29 +99,27 @@ export default function Header() {
 
         {/* 모바일 메뉴 */}
         {menuOpen && (
-          <div className="md:hidden py-2 border-t" style={{ borderColor: 'var(--border)' }}>
+          <div className="md:hidden py-3 border-t" style={{ borderColor: 'var(--border)' }}>
             {CATEGORIES.map((cat) => (
               <Link
                 key={cat.slug}
                 href={`/${cat.slug}`}
-                className="block px-4 py-3 text-sm transition-colors"
+                className="block px-2 py-2.5 text-sm font-medium rounded-lg"
                 style={{ color: 'var(--text)' }}
                 onClick={() => setMenuOpen(false)}
               >
                 {cat.name}
               </Link>
             ))}
-            <Link
-              href="/about"
-              className="block px-4 py-3 text-sm"
-              style={{ color: 'var(--text-muted)' }}
-              onClick={() => setMenuOpen(false)}
-            >
+            <Link href="/about" className="block px-2 py-2.5 text-sm" style={{ color: 'var(--text-muted)' }} onClick={() => setMenuOpen(false)}>
               소개
             </Link>
           </div>
         )}
       </div>
+
+      {/* 테라코타 하단 포인트 라인 */}
+      <div className="h-0.5 w-full" style={{ background: 'var(--primary)' }} />
     </header>
   );
 }

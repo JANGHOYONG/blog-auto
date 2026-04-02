@@ -55,6 +55,7 @@ model Post {
   scheduledAt     DateTime?
   viewCount       Int       @default(0)
   readTime        Int?
+  thumbnail       String?   // Unsplash 대표 이미지 URL
 
   categoryId  Int
   category    Category @relation(fields: [categoryId], references: [id])
