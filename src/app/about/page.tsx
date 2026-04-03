@@ -67,8 +67,8 @@ export default function AboutPage() {
           {[
             { icon: '✅', text: '정확하고 신뢰할 수 있는 정보 제공' },
             { icon: '📱', text: '모바일에서도 쾌적하게 읽을 수 있는 반응형 디자인' },
-            { icon: '🌙', text: '눈에 편한 다크모드 지원' },
-            { icon: '🔍', text: '원하는 정보를 빠르게 찾는 검색 기능' },
+            { icon: '📅', text: '매일 새로운 콘텐츠 업데이트' },
+{ icon: '🔍', text: '원하는 정보를 빠르게 찾는 검색 기능' },
             { icon: '🔗', text: '관련 글 추천으로 더 깊은 정보 탐색 가능' },
             { icon: '📋', text: '목차 제공으로 긴 글도 쉽게 탐색 가능' },
           ].map(({ icon, text }) => (

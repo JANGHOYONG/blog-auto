@@ -40,6 +40,7 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               {[
                 { href: '/about', label: '블로그 소개' },
+                { href: '/privacy', label: '개인정보처리방침' },
                 { href: '/search', label: '검색' },
                 { href: '/sitemap.xml', label: '사이트맵' },
                 { href: '/api/rss', label: 'RSS 피드' },
@@ -56,6 +57,11 @@ export default function Footer() {
         <div className="border-t pt-6 text-sm text-center" style={{ borderColor: 'rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.6)' }}>
           <p>© {year} {siteName}. All rights reserved.</p>
           <p className="mt-1">본 사이트의 정보는 참고용이며, 중요한 결정 전에 전문가와 상담하시기 바랍니다.</p>
+          <p className="mt-2">
+            <Link href="/privacy" className="hover:text-white transition-colors mx-2" style={{ color: 'rgba(255,255,255,0.6)' }}>개인정보처리방침</Link>
+            <span style={{ color: 'rgba(255,255,255,0.3)' }}>|</span>
+            <Link href="/about" className="hover:text-white transition-colors mx-2" style={{ color: 'rgba(255,255,255,0.6)' }}>블로그 소개</Link>
+          </p>
         </div>
       </div>
     </footer>
