@@ -37,68 +37,76 @@ async function generateShortsScript(post) {
     messages: [
       {
         role: 'system',
-        content: `당신은 5060 시니어를 위한 건강 유튜브 쇼츠 전문 PD입니다.
-총 영상 길이가 50초 이내가 되도록 슬라이드 5개를 설계합니다.
+        content: `당신은 시청자 체류시간을 극대화하는 건강 유튜브 쇼츠 전문 PD입니다.
+5060 시니어가 손가락을 멈추고 끝까지 보게 만드는 50초 쇼츠를 설계합니다.
 
 [절대 규칙]
-- 슬라이드: 정확히 5개 (hook 1 + point 3 + cta 1)
-- narration: 슬라이드당 한 문장, 반드시 20자 이상 35자 이하 (초과 금지)
-- text: 핵심어만, 줄바꿈 포함 최대 20자
-- imageQuery: Pexels 사진 검색용 영어 단어 2-3개 (사람·음식·자연 등 시각적 이미지)
-- 50~60대 친근한 말투, 어려운 의학 용어 금지`,
+- 슬라이드: 정확히 5개 (hook → 문제심화 → 핵심1 → 핵심2 → cta)
+- narration: 슬라이드당 한 문장, 반드시 25자 이상 38자 이하 (초과 절대 금지)
+- text: 핵심어만, 줄바꿈 포함 최대 18자
+- imageQuery: Pexels 사진 검색용 영어 단어 2-3개 (밝고 선명한 이미지)
+- 전문 의료진이 알려주는 신뢰감 있는 말투
+- hook은 반드시 충격적 사실이나 반전 질문으로 시작`,
       },
       {
         role: 'user',
-        content: `다음 글을 50초 쇼츠로 만들어주세요.
+        content: `다음 글을 50초 이내 쇼츠로 만들어주세요.
 
 제목: ${post.title}
 요약: ${post.excerpt}
 
+[5슬라이드 구조 - 반드시 이 순서]
+1. hook: 충격적 사실이나 반전 질문으로 손가락을 멈추게
+2. 문제 심화: 50·60대에 왜 특히 위험한지
+3. 핵심 해결법 1
+4. 핵심 해결법 2 (의외성·반전 포함)
+5. cta: 행동 촉구
+
 JSON 응답:
 {
-  "youtubeTitle": "유튜브 제목 (40자 이내, #Shorts 포함)",
-  "description": "영상 설명 100자 이내",
+  "youtubeTitle": "유튜브 제목 (38자 이내, 클릭 유도 강한 표현, #Shorts 포함)",
+  "description": "영상 설명 80자 이내",
   "tags": ["건강", "5060건강", "시니어건강", "관련태그1", "관련태그2"],
   "slides": [
     {
       "type": "hook",
-      "emoji": "❓",
-      "label": "오늘의 핵심",
-      "text": "훅 문장\\n(최대 16자)",
-      "narration": "강한 도입 한 문장. 최대 35자.",
-      "imageQuery": "senior health doctor"
+      "emoji": "🚨",
+      "label": "지금 바로 확인",
+      "text": "충격적 사실\\n최대 16자",
+      "narration": "반전 질문이나 충격적 통계로 시작. 38자 이하.",
+      "imageQuery": "worried senior health concern"
     },
     {
       "type": "point",
-      "emoji": "1️⃣",
-      "label": "첫 번째",
-      "text": "핵심1\\n(최대 14자)",
-      "narration": "첫 번째 포인트 한 문장. 최대 35자.",
-      "imageQuery": "healthy food vegetables"
+      "emoji": "⚠️",
+      "label": "50·60대 주의",
+      "text": "왜 위험한가\\n최대 14자",
+      "narration": "50·60대에 특히 위험한 이유 한 문장. 38자 이하.",
+      "imageQuery": "senior health risk medical"
     },
     {
       "type": "point",
-      "emoji": "2️⃣",
-      "label": "두 번째",
-      "text": "핵심2\\n(최대 14자)",
-      "narration": "두 번째 포인트 한 문장. 최대 35자.",
-      "imageQuery": "exercise walking elderly"
+      "emoji": "✅",
+      "label": "해결법 1",
+      "text": "첫 번째 방법\\n최대 14자",
+      "narration": "구체적인 첫 번째 해결법. 38자 이하.",
+      "imageQuery": "healthy food doctor advice"
     },
     {
       "type": "point",
-      "emoji": "3️⃣",
-      "label": "세 번째",
-      "text": "핵심3\\n(최대 14자)",
-      "narration": "세 번째 포인트 한 문장. 최대 35자.",
-      "imageQuery": "medical wellness lifestyle"
+      "emoji": "💡",
+      "label": "의외의 비밀",
+      "text": "대부분 모르는\\n최대 14자",
+      "narration": "예상 밖의 두 번째 해결법이나 반전 정보. 38자 이하.",
+      "imageQuery": "health secret tip lifestyle"
     },
     {
       "type": "cta",
       "emoji": "👇",
       "label": "더 알아보기",
-      "text": "구독하고\\n건강 챙기세요!",
-      "narration": "자세한 내용은 블로그에서 확인하세요. 구독 부탁드립니다.",
-      "imageQuery": "happy healthy senior"
+      "text": "구독하고\\n건강 지키세요",
+      "narration": "자세한 내용은 블로그에서 확인하세요. 구독 눌러주세요.",
+      "imageQuery": "happy healthy senior couple"
     }
   ]
 }`,
@@ -281,9 +289,9 @@ ${slide.type !== 'cta' ? `<div class="type-badge">${slide.label || ''}</div>` : 
 async function generateSlideAudio(narration, outPath) {
   const res = await openai.audio.speech.create({
     model: 'tts-1-hd',
-    voice: 'nova',
+    voice: 'onyx',   // 신뢰감 있는 전문가 남성 목소리
     input: narration,
-    speed: 0.92,
+    speed: 0.93,
   });
   const buf = Buffer.from(await res.arrayBuffer());
   fs.writeFileSync(outPath, buf);

@@ -50,20 +50,27 @@ async function generateLongformScript(post) {
     messages: [
       {
         role: 'system',
-        content: `당신은 5060 시니어를 위한 건강 영상 콘텐츠 작가입니다.
-블로그 본문의 정보를 최대한 활용해서 7~10분짜리 세로형 건강 영상 스크립트를 만듭니다.
+        content: `당신은 시청자 체류시간을 극대화하는 건강 정보 영상 전문 작가입니다.
+5060 시니어를 대상으로, 처음부터 끝까지 이탈 없이 보게 만드는 영상을 만듭니다.
 
-핵심 원칙:
-- 블로그에 있는 구체적인 수치, 통계, 사례를 그대로 활용할 것
-- 따뜻하고 친근한 말투 (동네 의사 선생님이 직접 이야기하는 느낌)
-- 자연스러운 구어체 (문어체 금지)
-- 각 챕터는 1분 30초~2분 분량 (400~550자)
-- imageQuery: 챕터 내용에 맞는 시각적 이미지 영어 검색어 2-3개`,
+[대본 구조 원칙 - 반드시 지킬 것]
+1. 훅(Hook): 첫 챕터에서 충격적인 사실이나 반전 질문으로 시작. 시청자가 "이거 꼭 봐야 해!"를 느끼게.
+2. 문제 심화: 왜 50·60대에 특히 위험한지, 구체적 수치로 공포심과 공감 유발.
+3. 핵심 정보 (본론): 블로그 내용의 구체적 정보를 단계별·번호별로 명확히 전달.
+4. 반전/의외성: "사실 이것이 더 중요합니다" 식의 예상 밖 정보로 집중력 유지.
+5. 실천법: 오늘 당장 할 수 있는 구체적 행동 3가지.
+6. 마무리: 핵심 요약 + 따뜻한 응원 + 다음 영상 기대감 유도.
+
+[문체 원칙]
+- 전문 의료진이 직접 설명하는 신뢰감 있는 말투
+- 블로그의 구체적 수치·통계·사례를 그대로 활용
+- 구어체, 자연스러운 문장 (문어체·나열식 금지)
+- 각 챕터: 1분 30초~2분 (400~550자)
+- imageQuery: 챕터 내용에 맞는 영어 검색어 2-3개 (밝고 선명한 이미지)`,
       },
       {
         role: 'user',
-        content: `다음 블로그 글을 바탕으로 7~10분짜리 건강 영상 스크립트를 만들어주세요.
-블로그 본문의 구체적인 정보(수치, 증상, 방법)를 최대한 살려서 작성해주세요.
+        content: `다음 블로그 글로 시청자가 끝까지 보는 7~10분 건강 영상 스크립트를 만들어주세요.
 
 [제목]
 ${post.title}
@@ -74,46 +81,46 @@ ${post.excerpt}
 [본문 전체]
 ${fullContent}
 
-JSON 응답:
+JSON 응답 (반드시 아래 7챕터 구조 유지):
 {
-  "youtubeTitle": "유튜브 제목 (60자 이내, 클릭 유도)",
-  "description": "영상 설명 (300자, 핵심 내용 + 시청자가 얻을 것)",
+  "youtubeTitle": "유튜브 제목 (55자 이내. '이것만 알면', '지금 당장', '절대 모르는' 등 강한 어휘 활용)",
+  "description": "영상 설명 300자. 첫 줄: 시청자가 얻을 것. 둘째줄~: 핵심 내용 요약.",
   "tags": ["건강", "5060건강", "시니어건강", "건강정보", "관련태그"],
   "chapters": [
     {
-      "title": "시작하며",
-      "imageQuery": "senior health morning wellness",
-      "narration": "안녕하세요, 5060 건강주치의입니다. 오늘은 [주제]에 대해 알아볼게요. (200~220자. 오늘 다룰 내용 소개 + 왜 중요한지 + 시청자 공감)"
+      "title": "이것 모르면 큰일 납니다",
+      "imageQuery": "worried senior patient doctor consultation",
+      "narration": "안녕하세요, 5060 건강주치의입니다. [충격적인 통계나 반전 사실로 시작]. 혹시 여러분도 [공감 가는 상황]이신가요? 오늘 이 영상을 끝까지 보시면, [시청자가 얻을 명확한 혜택]을 알게 되실 겁니다. (200~230자. 반드시 충격적 훅으로 시작해 시청 이유 제시)"
     },
     {
-      "title": "[본문 기반 소제목2]",
-      "imageQuery": "relevant image search terms",
-      "narration": "(400~550자. 본문의 구체적 내용 반영. 쉬운 구어체.)"
+      "title": "왜 50·60대에 더 위험한가",
+      "imageQuery": "senior health risk medical chart",
+      "narration": "(430~550자. 본문의 통계·수치 활용. 50~60대에 특히 위험한 이유를 의학적으로 설명. '실제로 ~% 환자가', '연구에 따르면' 등 신뢰도 높은 표현 사용)"
     },
     {
-      "title": "[본문 기반 소제목3]",
-      "imageQuery": "relevant image search terms",
-      "narration": "(400~550자)"
+      "title": "정확한 증상과 자가진단법",
+      "imageQuery": "health symptom check body pain",
+      "narration": "(430~550자. 본문 증상 정보 활용. 시청자가 자신의 상태와 비교할 수 있게. '이런 증상이 있다면 주의하세요' 형식)"
     },
     {
-      "title": "[본문 기반 소제목4]",
-      "imageQuery": "relevant image search terms",
-      "narration": "(400~550자)"
+      "title": "전문의가 추천하는 해결법",
+      "imageQuery": "doctor recommendation healthy food treatment",
+      "narration": "(430~550자. 본문 실천법 활용. 번호 매겨 1, 2, 3으로 명확히. 각 방법에 구체적 수치·시간·양 포함)"
     },
     {
-      "title": "[본문 기반 소제목5]",
-      "imageQuery": "relevant image search terms",
-      "narration": "(400~550자)"
+      "title": "대부분이 모르는 함정",
+      "imageQuery": "common mistake health warning alert",
+      "narration": "(430~550자. 반전 정보. '사실 많은 분들이 잘못 알고 계신 것이 있습니다' 로 시작. 흔한 오해나 잘못된 상식 바로잡기. 집중력 재환기)"
     },
     {
-      "title": "[본문 기반 소제목6]",
-      "imageQuery": "relevant image search terms",
-      "narration": "(400~550자)"
+      "title": "오늘부터 바로 시작하세요",
+      "imageQuery": "healthy lifestyle action plan morning routine",
+      "narration": "(430~550자. 오늘 당장 실천 가능한 3가지 구체적 행동. '내일이 아니라 오늘부터'라는 긴박감. 각 행동에 '언제, 얼마나, 어떻게' 포함)"
     },
     {
-      "title": "마무리하며",
-      "imageQuery": "happy healthy senior couple",
-      "narration": "(200~230자. 핵심 3줄 요약 + 따뜻한 응원 + 구독 유도)"
+      "title": "핵심 정리",
+      "imageQuery": "happy healthy senior couple outdoor",
+      "narration": "(200~230자. '오늘 배운 것을 정리해드리겠습니다'로 시작. 핵심 3가지 요약. 따뜻한 응원. '다음 영상에서는 [관련 주제]에 대해 알려드릴게요' 예고)"
     }
   ]
 }`,
@@ -157,6 +164,8 @@ async function fetchPexelsPhoto(query, outPath) {
 // ─── 3. 챕터 오버레이 HTML (세로형 1080×1920) ────────────────────────────────
 function makeChapterOverlay(chapter, chapterIdx, totalChapters) {
   const progressPct = Math.round((chapterIdx / totalChapters) * 100);
+  // 내레이션 첫 문장 자막으로 표시 (40자 이내)
+  const subtitle = (chapter.narration || '').replace(/\n/g, ' ').slice(0, 45);
 
   return `<!DOCTYPE html>
 <html lang="ko">
@@ -170,58 +179,59 @@ html, body {
   font-family:${FONT};
 }
 
+/* 상단 브랜드 */
 .top-bar {
   position:absolute; top:0; left:0; right:0;
-  height:140px;
-  background:linear-gradient(to bottom, rgba(0,0,0,0.80), transparent);
-  display:flex; align-items:center; justify-content:center;
-  padding-top:30px;
+  height:130px;
+  background:linear-gradient(to bottom, rgba(0,0,0,0.70), transparent);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:30px 50px 0;
 }
 .channel-badge {
-  background:rgba(0,150,100,0.92);
-  border-radius:12px; padding:14px 36px;
-  font-size:36px; font-weight:800; color:#fff;
+  background:rgba(0,140,90,0.88);
+  border-radius:10px; padding:12px 30px;
+  font-size:34px; font-weight:800; color:#fff;
   letter-spacing:2px;
 }
-
 .chapter-num {
-  position:absolute; top:160px; left:0; right:0;
-  text-align:center;
   font-size:30px; font-weight:600;
-  color:rgba(100,220,160,0.9);
-  letter-spacing:2px;
+  color:rgba(100,220,160,0.95);
 }
 
+/* 하단 영역 - 투명도 낮춰서 이미지 보이게 */
 .bottom-area {
   position:absolute; bottom:0; left:0; right:0;
   background:linear-gradient(
     to top,
-    rgba(0,0,0,0.92) 0%,
-    rgba(0,0,0,0.80) 50%,
+    rgba(0,0,0,0.85) 0%,
+    rgba(0,0,0,0.65) 35%,
+    rgba(0,0,0,0.20) 70%,
     transparent 100%
   );
-  padding:60px 60px 100px;
-  min-height:420px;
-  display:flex; flex-direction:column; justify-content:flex-end; gap:20px;
+  padding:40px 55px 95px;
+  min-height:360px;
+  display:flex; flex-direction:column; justify-content:flex-end; gap:16px;
 }
 
 .chapter-title {
-  font-size:44px; font-weight:800;
-  color:rgba(100,220,160,1);
-  letter-spacing:1px; line-height:1.3;
+  font-size:46px; font-weight:900;
+  color:#64ffb4;
+  letter-spacing:0px; line-height:1.3;
   word-break:keep-all;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.9);
 }
 
-.chapter-desc {
-  font-size:36px; font-weight:600;
-  color:rgba(255,255,255,0.9); line-height:1.5;
+.subtitle {
+  font-size:34px; font-weight:600;
+  color:rgba(255,255,255,0.92); line-height:1.55;
   word-break:keep-all;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.95);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.95);
 }
 
+/* 진행 바 */
 .progress-wrap {
-  position:absolute; bottom:0; left:0; right:0; height:10px;
-  background:rgba(255,255,255,0.15);
+  position:absolute; bottom:0; left:0; right:0; height:8px;
+  background:rgba(255,255,255,0.12);
 }
 .progress-fill {
   height:100%; width:${progressPct}%;
@@ -229,8 +239,8 @@ html, body {
 }
 
 .blog-url {
-  position:absolute; bottom:18px; right:40px;
-  font-size:26px; color:rgba(255,255,255,0.45); font-weight:600;
+  position:absolute; bottom:14px; right:40px;
+  font-size:24px; color:rgba(255,255,255,0.40); font-weight:600;
 }
 </style>
 </head>
@@ -238,12 +248,12 @@ html, body {
 
 <div class="top-bar">
   <div class="channel-badge">🏥 5060 건강주치의</div>
+  <div class="chapter-num">${chapterIdx} / ${totalChapters}</div>
 </div>
-<div class="chapter-num">${chapterIdx} / ${totalChapters} 챕터</div>
 
 <div class="bottom-area">
   <div class="chapter-title">▶ ${chapter.title}</div>
-  <div class="chapter-desc">지금 시청 중</div>
+  <div class="subtitle">${subtitle}</div>
 </div>
 
 <div class="progress-wrap">
@@ -262,9 +272,9 @@ async function generateAudio(text, outPath) {
   if (text.length <= MAX) {
     const res = await openai.audio.speech.create({
       model: 'tts-1-hd',
-      voice: 'nova',
+      voice: 'onyx',   // 낮고 신뢰감 있는 전문가 목소리
       input: text,
-      speed: 0.88,
+      speed: 0.90,
     });
     const buf = Buffer.from(await res.arrayBuffer());
     fs.writeFileSync(outPath, buf);
@@ -484,10 +494,10 @@ async function main() {
     const timestamps = buildChapterTimestamps(script.chapters, durations);
     const fullDesc =
       `${script.description}\n\n` +
+      `📖 블로그 전문 보기: ${postUrl}\n\n` +
       `─────────────────────\n` +
       `⏱️ 챕터\n${timestamps}\n` +
       `─────────────────────\n\n` +
-      `📖 자세한 내용: ${postUrl}\n\n` +
       `${script.tags.map((t) => '#' + t.replace(/\s/g, '')).join(' ')} #5060건강 #건강정보 #시니어건강`;
 
     if (process.env.YOUTUBE_REFRESH_TOKEN) {

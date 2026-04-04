@@ -2,7 +2,7 @@ name: Auto Generate YouTube Longform
 
 on:
   workflow_run:
-    workflows: ["Auto Generate YouTube Shorts"]
+    workflows: ["Auto Publish Blog Post"]
     types: [completed]
   workflow_dispatch:
     inputs:
