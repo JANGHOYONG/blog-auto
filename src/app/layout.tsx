@@ -18,6 +18,7 @@ export const metadata: Metadata = {
   openGraph: { type: 'website', locale: 'ko_KR', url: SITE_URL, siteName: SITE_NAME },
   twitter: { card: 'summary_large_image' },
   verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION },
+  other: { 'naver-site-verification': 'dee771838eccbe0167e4dcc16ab4e9d84d88a9bb' },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
