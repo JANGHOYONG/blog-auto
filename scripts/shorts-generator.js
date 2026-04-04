@@ -354,8 +354,10 @@ function createSlideClip(videoPath, overlayPath, audioPath, duration, outPath) {
         // 스톡영상: 세로(1080x1920)로 스케일 + 크롭
         `[0:v]scale=${SLIDE_W}:${SLIDE_H}:force_original_aspect_ratio=increase,` +
         `crop=${SLIDE_W}:${SLIDE_H},setsar=1[bg]`,
-        // 오버레이 합성
-        `[bg][2:v]overlay=0:0[out]`,
+        // 오버레이 합성 + 페이드인/아웃 (complexFilter 안에서 처리)
+        `[bg][2:v]overlay=0:0,` +
+        `fade=t=in:st=0:d=0.25,` +
+        `fade=t=out:st=${(parseFloat(d)-0.35).toFixed(2)}:d=0.35[out]`,
       ])
       .outputOptions([
         '-map', '[out]',
@@ -365,8 +367,6 @@ function createSlideClip(videoPath, overlayPath, audioPath, duration, outPath) {
         '-pix_fmt', 'yuv420p',
         '-t', d,
         '-movflags', '+faststart',
-        // 페이드인/아웃
-        '-vf', `fade=t=in:st=0:d=0.25:color=black,fade=t=out:st=${(parseFloat(d)-0.35).toFixed(2)}:d=0.35:color=black`,
         '-af', `afade=t=in:st=0:d=0.2,afade=t=out:st=${(duration-0.25).toFixed(2)}:d=0.25`,
       ])
       .output(outPath)

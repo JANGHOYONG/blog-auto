@@ -329,7 +329,10 @@ function createChapterClip(videoPath, overlayPath, audioPath, duration, outPath)
         // 세로형 1080×1920 크롭 (가로 영상도 자동 처리)
         `[0:v]scale=${VW}:${VH}:force_original_aspect_ratio=increase,` +
         `crop=${VW}:${VH},setsar=1[bg]`,
-        `[bg][2:v]overlay=0:0[out]`,
+        // 오버레이 + 페이드인/아웃 (complexFilter 안에서 처리)
+        `[bg][2:v]overlay=0:0,` +
+        `fade=t=in:st=0:d=0.5,` +
+        `fade=t=out:st=${(parseFloat(d) - 0.6).toFixed(2)}:d=0.6[out]`,
       ])
       .outputOptions([
         '-map', '[out]',
@@ -339,8 +342,6 @@ function createChapterClip(videoPath, overlayPath, audioPath, duration, outPath)
         '-pix_fmt', 'yuv420p',
         '-t', d,
         '-movflags', '+faststart',
-        '-vf', `fade=t=in:st=0:d=0.5:color=black,` +
-               `fade=t=out:st=${(parseFloat(d) - 0.6).toFixed(2)}:d=0.6:color=black`,
         '-af', `afade=t=in:st=0:d=0.3,afade=t=out:st=${(duration - 0.4).toFixed(2)}:d=0.4`,
       ])
       .output(outPath)
