@@ -1,7 +1,8 @@
 /**
- * YouTube Shorts 자동 생성 스크립트 v4
- * 방식: Pexels 이미지 + 텍스트 오버레이 + TTS 내레이션
- * 목표: 50초 이내 (5슬라이드 × 약 9초)
+ * YouTube Shorts 자동 생성 스크립트 v5
+ * - 슬라이드당 narration만 사용, 그대로 자막으로 표시
+ * - 5슬라이드 × 10초 = 50초 이내
+ * - 한국어 TTS: nova 음성
  */
 
 require('dotenv').config();
@@ -23,91 +24,55 @@ const getArg = (name) => {
   return found ? found.split('=')[1] : null;
 };
 
-const SLIDE_W = 1080;
-const SLIDE_H = 1920;
+const W = 1080;
+const H = 1920;
 const FONT = `'Noto Sans CJK KR','Apple SD Gothic Neo','맑은 고딕','Malgun Gothic',sans-serif`;
 
 // ─── 1. GPT 스크립트 생성 ─────────────────────────────────────────────────────
 async function generateShortsScript(post) {
   const res = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
-    temperature: 0.75,
-    max_tokens: 1200,
+    temperature: 0.7,
+    max_tokens: 1000,
     response_format: { type: 'json_object' },
     messages: [
       {
         role: 'system',
-        content: `당신은 시청자 체류시간을 극대화하는 건강 유튜브 쇼츠 전문 PD입니다.
-5060 시니어가 손가락을 멈추고 끝까지 보게 만드는 50초 쇼츠를 설계합니다.
+        content: `당신은 유튜브 쇼츠 전문 작가입니다.
+5060 시니어가 끝까지 보는 건강 쇼츠를 만듭니다.
 
-[절대 규칙]
-- 슬라이드: 정확히 5개 (hook → 문제심화 → 핵심1 → 핵심2 → cta)
-- narration: 슬라이드당 한 문장, 반드시 25자 이상 38자 이하 (초과 절대 금지)
-- text: 핵심어만, 줄바꿈 포함 최대 18자
-- imageQuery: Pexels 사진 검색용 영어 단어 2-3개 (밝고 선명한 이미지)
-- 전문 의료진이 알려주는 신뢰감 있는 말투
-- hook은 반드시 충격적 사실이나 반전 질문으로 시작`,
+규칙:
+- slides: 정확히 5개
+- 각 narration: 실제로 읽을 한국어 문장, 60~75자 (한 문장 또는 두 문장)
+- imageQuery: Pexels에서 검색할 영어 단어 2~3개
+- 자연스러운 한국어 구어체, 전문 의사가 설명하는 말투
+- 첫 슬라이드는 반드시 충격적 사실이나 반전 질문으로 시작
+
+슬라이드 구조:
+1번: 훅 - 손가락 멈추게 하는 충격 사실
+2번: 심화 - 왜 시니어에게 더 위험한지
+3번: 해결법 1 - 가장 효과적인 방법
+4번: 해결법 2 또는 반전 정보
+5번: 마무리 - 핵심 요약 + 구독 유도`,
       },
       {
         role: 'user',
-        content: `다음 글을 50초 이내 쇼츠로 만들어주세요.
-
-제목: ${post.title}
+        content: `제목: ${post.title}
 요약: ${post.excerpt}
 
-[5슬라이드 구조 - 반드시 이 순서]
-1. hook: 충격적 사실이나 반전 질문으로 손가락을 멈추게
-2. 문제 심화: 50·60대에 왜 특히 위험한지
-3. 핵심 해결법 1
-4. 핵심 해결법 2 (의외성·반전 포함)
-5. cta: 행동 촉구
+위 건강 정보를 바탕으로 50초 쇼츠를 만들어주세요.
 
-JSON 응답:
+JSON:
 {
-  "youtubeTitle": "유튜브 제목 (38자 이내, 클릭 유도 강한 표현, #Shorts 포함)",
-  "description": "영상 설명 80자 이내",
-  "tags": ["건강", "5060건강", "시니어건강", "관련태그1", "관련태그2"],
+  "youtubeTitle": "유튜브 제목 (40자 이내, 클릭 유발, #Shorts 포함)",
+  "description": "설명 80자 이내",
+  "tags": ["건강", "5060건강", "시니어건강", "관련태그"],
   "slides": [
-    {
-      "type": "hook",
-      "emoji": "🚨",
-      "label": "지금 바로 확인",
-      "text": "충격적 사실\\n최대 16자",
-      "narration": "반전 질문이나 충격적 통계로 시작. 38자 이하.",
-      "imageQuery": "worried senior health concern"
-    },
-    {
-      "type": "point",
-      "emoji": "⚠️",
-      "label": "50·60대 주의",
-      "text": "왜 위험한가\\n최대 14자",
-      "narration": "50·60대에 특히 위험한 이유 한 문장. 38자 이하.",
-      "imageQuery": "senior health risk medical"
-    },
-    {
-      "type": "point",
-      "emoji": "✅",
-      "label": "해결법 1",
-      "text": "첫 번째 방법\\n최대 14자",
-      "narration": "구체적인 첫 번째 해결법. 38자 이하.",
-      "imageQuery": "healthy food doctor advice"
-    },
-    {
-      "type": "point",
-      "emoji": "💡",
-      "label": "의외의 비밀",
-      "text": "대부분 모르는\\n최대 14자",
-      "narration": "예상 밖의 두 번째 해결법이나 반전 정보. 38자 이하.",
-      "imageQuery": "health secret tip lifestyle"
-    },
-    {
-      "type": "cta",
-      "emoji": "👇",
-      "label": "더 알아보기",
-      "text": "구독하고\\n건강 지키세요",
-      "narration": "자세한 내용은 블로그에서 확인하세요. 구독 눌러주세요.",
-      "imageQuery": "happy healthy senior couple"
-    }
+    { "narration": "첫 슬라이드 실제 대사 (60~75자)", "imageQuery": "worried senior health" },
+    { "narration": "두 번째 슬라이드 대사 (60~75자)", "imageQuery": "elderly risk medical" },
+    { "narration": "세 번째 슬라이드 대사 (60~75자)", "imageQuery": "healthy food treatment" },
+    { "narration": "네 번째 슬라이드 대사 (60~75자)", "imageQuery": "health tip lifestyle" },
+    { "narration": "다섯 번째 슬라이드 대사 (55~65자, 마무리)", "imageQuery": "happy senior healthy" }
   ]
 }`,
       },
@@ -119,7 +84,7 @@ JSON 응답:
 // ─── 2. Pexels 이미지 다운로드 ────────────────────────────────────────────────
 async function fetchPexelsPhoto(query, outPath) {
   const key = process.env.PEXELS_API_KEY;
-  if (!key) throw new Error('PEXELS_API_KEY 환경변수가 없습니다.');
+  if (!key) throw new Error('PEXELS_API_KEY 없음');
 
   const searches = [
     `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&orientation=portrait&size=large&per_page=10`,
@@ -131,7 +96,6 @@ async function fetchPexelsPhoto(query, outPath) {
     const photos = res.data.photos || [];
     if (!photos.length) continue;
 
-    // 상위 5장 중 랜덤 선택 (매번 다른 이미지)
     const photo = photos[Math.floor(Math.random() * Math.min(5, photos.length))];
     const imageUrl = photo.src.large2x || photo.src.large || photo.src.original;
 
@@ -144,21 +108,12 @@ async function fetchPexelsPhoto(query, outPath) {
     });
     return;
   }
-
-  throw new Error(`Pexels 이미지 없음: "${query}"`);
+  throw new Error(`이미지 없음: "${query}"`);
 }
 
-// ─── 3. 텍스트 오버레이 PNG 생성 (투명 배경) ─────────────────────────────────
-function makeOverlayHtml(slide, idx, total) {
-  const progress = Math.round((idx / total) * 100);
-  const textHtml = slide.text.replace(/\n/g, '<br>');
-
-  const accentColors = {
-    hook:  '#4fc3f7',
-    point: '#69f0ae',
-    cta:   '#ffb74d',
-  };
-  const accent = accentColors[slide.type] || '#69f0ae';
+// ─── 3. 오버레이 HTML - narration을 그대로 자막으로 표시 ──────────────────────
+function makeOverlayHtml(narration, slideIdx, totalSlides) {
+  const progress = Math.round((slideIdx / totalSlides) * 100);
 
   return `<!DOCTYPE html>
 <html lang="ko">
@@ -167,135 +122,115 @@ function makeOverlayHtml(slide, idx, total) {
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 html, body {
-  width:${SLIDE_W}px; height:${SLIDE_H}px;
+  width:${W}px; height:${H}px;
   background:transparent; overflow:hidden;
   font-family:${FONT};
 }
 
+/* 상단 브랜드 배지 */
 .brand {
-  position:absolute; top:55px; left:45px;
-  background:rgba(0,0,0,0.72);
-  border-radius:50px;
-  padding:18px 36px;
-  display:flex; align-items:center; gap:12px;
+  position:absolute; top:50px; left:0; right:0;
+  display:flex; justify-content:center;
 }
-.brand-icon { font-size:40px; line-height:1; }
-.brand-text { font-size:38px; font-weight:700; color:#fff; letter-spacing:1px; }
+.brand-inner {
+  background:rgba(0,120,80,0.88);
+  border-radius:60px; padding:18px 48px;
+  display:flex; align-items:center; gap:16px;
+}
+.brand-icon { font-size:44px; line-height:1; }
+.brand-text { font-size:40px; font-weight:800; color:#fff; letter-spacing:2px; }
 
-.type-badge {
-  position:absolute; top:55px; right:45px;
-  background:${accent};
-  color:#000; font-size:34px; font-weight:900;
-  padding:16px 32px; border-radius:50px;
-  letter-spacing:2px;
+/* 슬라이드 번호 */
+.slide-num {
+  position:absolute; top:160px; right:50px;
+  background:rgba(0,0,0,0.50);
+  border-radius:40px; padding:10px 28px;
+  font-size:30px; font-weight:700;
+  color:rgba(255,255,255,0.85);
 }
 
-.bottom-area {
-  position:absolute;
-  bottom:0; left:0; right:0;
+/* 하단 자막 영역 */
+.subtitle-area {
+  position:absolute; bottom:0; left:0; right:0;
   background:linear-gradient(
     to top,
-    rgba(0,0,0,0.95) 0%,
-    rgba(0,0,0,0.88) 30%,
-    rgba(0,0,0,0.6) 60%,
+    rgba(0,0,0,0.90) 0%,
+    rgba(0,0,0,0.78) 40%,
+    rgba(0,0,0,0.30) 75%,
     transparent 100%
   );
-  padding:0 55px 110px;
-  min-height:700px;
-  display:flex; flex-direction:column;
-  justify-content:flex-end;
+  padding:50px 55px 115px;
+  min-height:380px;
+  display:flex; align-items:flex-end;
 }
 
-.slide-label {
-  font-size:40px; font-weight:700;
-  color:${accent}; letter-spacing:3px;
-  margin-bottom:18px;
-  display:flex; align-items:center; gap:14px;
-}
-.slide-label .emoji { font-size:46px; }
-
-.main-text {
-  font-size:${slide.type === 'hook' ? '96px' : '90px'};
-  font-weight:900; color:#fff;
-  line-height:1.35; word-break:keep-all;
-  text-shadow: 0 3px 20px rgba(0,0,0,0.9),
-               0 0 40px rgba(0,0,0,0.5);
-  letter-spacing:-1px;
+.subtitle-text {
+  font-size:52px;
+  font-weight:800;
+  color:#ffffff;
+  line-height:1.55;
+  word-break:keep-all;
+  text-shadow:
+    0 2px 4px rgba(0,0,0,1),
+    0 4px 16px rgba(0,0,0,0.9),
+    0 0 40px rgba(0,0,0,0.7);
+  letter-spacing:-0.5px;
 }
 
-.cta-buttons {
-  display:flex; flex-direction:column; gap:22px;
-  margin-top:35px;
-}
-.btn {
-  display:flex; align-items:center; justify-content:center; gap:18px;
-  padding:28px 40px; border-radius:20px;
-  font-size:52px; font-weight:900;
-}
-.btn-sub { background:${accent}; color:#000; }
-.btn-like { background:rgba(255,255,255,0.15);
-  color:#fff; border:3px solid rgba(255,255,255,0.4); }
-
+/* 진행 바 */
 .progress-track {
   position:absolute; bottom:0; left:0; right:0; height:10px;
   background:rgba(255,255,255,0.15);
 }
 .progress-fill {
   height:100%; width:${progress}%;
-  background:linear-gradient(90deg, ${accent}, #fff);
+  background:linear-gradient(90deg, #1abc9c, #4fc3f7);
   border-radius:0 5px 5px 0;
 }
 
-.blog-url {
-  position:absolute; bottom:22px; left:0; right:0;
-  text-align:center; font-size:36px;
-  color:rgba(255,255,255,0.55); font-weight:600;
+/* 채널 URL */
+.channel-url {
+  position:absolute; bottom:18px; left:0; right:0;
+  text-align:center;
+  font-size:30px; font-weight:600;
+  color:rgba(255,255,255,0.50);
 }
-.blog-url span { color:${accent}; }
 </style>
 </head>
 <body>
 
 <div class="brand">
-  <span class="brand-icon">🏥</span>
-  <span class="brand-text">시니어 건강백과</span>
+  <div class="brand-inner">
+    <span class="brand-icon">📚</span>
+    <span class="brand-text">시니어 건강백과</span>
+  </div>
 </div>
 
-${slide.type !== 'cta' ? `<div class="type-badge">${slide.label || ''}</div>` : ''}
+<div class="slide-num">${slideIdx} / ${totalSlides}</div>
 
-<div class="bottom-area">
-  <div class="slide-label">
-    <span class="emoji">${slide.emoji}</span>
-    <span>${slide.label || ''}</span>
-  </div>
-  <div class="main-text">${textHtml}</div>
-  ${slide.type === 'cta' ? `
-  <div class="cta-buttons">
-    <div class="btn btn-sub">🔔 구독하기</div>
-    <div class="btn btn-like">👍 좋아요 & 저장</div>
-  </div>` : ''}
+<div class="subtitle-area">
+  <div class="subtitle-text">${narration.replace(/\n/g, '<br>')}</div>
 </div>
 
 <div class="progress-track">
   <div class="progress-fill"></div>
 </div>
-<div class="blog-url">📖 <span>smartinfoblog.co.kr</span></div>
+<div class="channel-url">smartinfoblog.co.kr</div>
 
 </body>
 </html>`;
 }
 
-// ─── 4. 슬라이드별 TTS 생성 ──────────────────────────────────────────────────
-async function generateSlideAudio(narration, outPath) {
+// ─── 4. TTS 생성 ──────────────────────────────────────────────────────────────
+async function generateAudio(narration, outPath) {
   const res = await openai.audio.speech.create({
     model: 'tts-1-hd',
-    voice: 'onyx',   // 신뢰감 있는 전문가 남성 목소리
+    voice: 'nova',    // 한국어 친화적인 여성 음성
     input: narration,
-    speed: 0.93,
+    speed: 0.92,
   });
   const buf = Buffer.from(await res.arrayBuffer());
   fs.writeFileSync(outPath, buf);
-  return buf.length;
 }
 
 // ─── 5. 오디오 길이 측정 ─────────────────────────────────────────────────────
@@ -308,21 +243,20 @@ function getAudioDuration(audioPath) {
   });
 }
 
-// ─── 6. 슬라이드 클립 합성 (이미지 + 오버레이 + 오디오) ──────────────────────
+// ─── 6. 슬라이드 클립 합성 ────────────────────────────────────────────────────
 function createSlideClip(imagePath, overlayPath, audioPath, duration, outPath) {
   return new Promise((resolve, reject) => {
     const d = (duration + 0.3).toFixed(2);
     ffmpeg()
-      // 이미지를 루프해서 영상으로 (stream_loop 대신 -loop 1)
       .input(imagePath).inputOptions(['-loop', '1', '-framerate', '25'])
       .input(audioPath)
       .input(overlayPath)
       .complexFilter([
-        `[0:v]scale=${SLIDE_W}:${SLIDE_H}:force_original_aspect_ratio=increase,` +
-        `crop=${SLIDE_W}:${SLIDE_H},setsar=1[bg]`,
+        `[0:v]scale=${W}:${H}:force_original_aspect_ratio=increase,` +
+        `crop=${W}:${H},setsar=1[bg]`,
         `[bg][2:v]overlay=0:0:eof_action=repeat,` +
-        `fade=t=in:st=0:d=0.25,` +
-        `fade=t=out:st=${(parseFloat(d) - 0.35).toFixed(2)}:d=0.35[out]`,
+        `fade=t=in:st=0:d=0.2,` +
+        `fade=t=out:st=${(parseFloat(d) - 0.3).toFixed(2)}:d=0.3[out]`,
       ])
       .outputOptions([
         '-map', '[out]',
@@ -332,7 +266,7 @@ function createSlideClip(imagePath, overlayPath, audioPath, duration, outPath) {
         '-pix_fmt', 'yuv420p',
         '-t', d,
         '-movflags', '+faststart',
-        '-af', `afade=t=in:st=0:d=0.2,afade=t=out:st=${(duration - 0.25).toFixed(2)}:d=0.25`,
+        '-af', `afade=t=in:st=0:d=0.15,afade=t=out:st=${(duration - 0.2).toFixed(2)}:d=0.2`,
       ])
       .output(outPath)
       .on('end', resolve)
@@ -355,7 +289,7 @@ function concatClips(clipPaths, outPath) {
         '-movflags', '+faststart',
       ])
       .output(outPath)
-      .on('progress', (p) => process.stdout.write(`\r  최종 합성: ${Math.round(p.percent || 0)}%`))
+      .on('progress', (p) => process.stdout.write(`\r  합성 중: ${Math.round(p.percent || 0)}%`))
       .on('end', () => { console.log(''); fs.unlinkSync(listFile); resolve(); })
       .on('error', reject)
       .run();
@@ -364,16 +298,15 @@ function concatClips(clipPaths, outPath) {
 
 // ─── 메인 ─────────────────────────────────────────────────────────────────────
 async function main() {
-  console.log('=== 유튜브 쇼츠 자동 생성 v4 (이미지 + 오버레이, 50초 이내) ===\n');
+  console.log('=== 유튜브 쇼츠 v5 (narration 자막, 50초 이내) ===\n');
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shorts-'));
 
   const browser = await puppeteer.launch({
     headless: 'new',
-    args: ['--no-sandbox', '--disable-setuid-sandbox',
-           '--disable-dev-shm-usage', '--disable-gpu'],
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
   });
   const page = await browser.newPage();
-  await page.setViewport({ width: SLIDE_W, height: SLIDE_H, deviceScaleFactor: 1 });
+  await page.setViewport({ width: W, height: H, deviceScaleFactor: 1 });
 
   try {
     const postId = getArg('post-id');
@@ -388,94 +321,93 @@ async function main() {
     if (!post) { console.log('쇼츠를 만들 글이 없습니다.'); return; }
     console.log(`대상 글: "${post.title}"\n`);
 
-    // 1. 스크립트 생성
+    // 1. GPT 스크립트
     console.log('[1/3] 쇼츠 스크립트 생성...');
     const script = await generateShortsScript(post);
-    const slides = script.slides.slice(0, 5); // 최대 5개 보장
+    const slides = (script.slides || []).slice(0, 5);
     console.log(`  제목: ${script.youtubeTitle}`);
-    console.log(`  슬라이드: ${slides.length}개\n`);
+    console.log(`  슬라이드: ${slides.length}개`);
+    slides.forEach((s, i) => console.log(`    ${i + 1}. [${s.narration.length}자] ${s.narration.slice(0, 30)}...`));
+    console.log('');
 
     // 2. 슬라이드별 처리
-    console.log('[2/3] 슬라이드별 클립 생성...\n');
+    console.log('[2/3] 클립 생성...\n');
     const clipPaths = [];
     let totalDuration = 0;
 
     for (let i = 0; i < slides.length; i++) {
       const slide = slides[i];
-      console.log(`  ── 슬라이드 ${i + 1}/${slides.length} [${slide.type}] ──`);
+      console.log(`  ── 슬라이드 ${i + 1}/${slides.length} ──`);
 
-      // a) Pexels 이미지 다운로드
+      // a) 이미지
       const imagePath = path.join(tmpDir, `image_${i}.jpg`);
       try {
-        console.log(`     🖼️  이미지: "${slide.imageQuery || slide.videoQuery}"`);
-        await fetchPexelsPhoto(slide.imageQuery || slide.videoQuery || 'health wellness', imagePath);
-        console.log(`     ✅ 다운로드 완료`);
+        console.log(`     🖼️  "${slide.imageQuery}"`);
+        await fetchPexelsPhoto(slide.imageQuery, imagePath);
       } catch {
-        console.log(`     ⚠️ 재시도: "senior health lifestyle"`);
-        await fetchPexelsPhoto('senior health lifestyle', imagePath);
+        console.log(`     ⚠️ 재시도: "senior health"`);
+        await fetchPexelsPhoto('senior health', imagePath);
       }
 
-      // b) TTS 음성 생성
+      // b) TTS - narration 그대로 읽기
       const audioPath = path.join(tmpDir, `audio_${i}.mp3`);
-      const narration = slide.narration || slide.text.replace(/\n/g, ' ');
-      const audioSize = await generateSlideAudio(narration, audioPath);
+      await generateAudio(slide.narration, audioPath);
       const duration = await getAudioDuration(audioPath);
       totalDuration += duration + 0.3;
-      console.log(`     🔊 TTS: ${(audioSize / 1024).toFixed(0)}KB, ${duration.toFixed(1)}초`);
+      console.log(`     🔊 ${slide.narration.length}자 → ${duration.toFixed(1)}초`);
 
-      // c) 오버레이 PNG 생성
+      // c) 오버레이 - narration을 자막으로 표시
       const overlayPath = path.join(tmpDir, `overlay_${i}.png`);
-      const html = makeOverlayHtml(slide, i + 1, slides.length);
+      const html = makeOverlayHtml(slide.narration, i + 1, slides.length);
       await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 10000 });
       await new Promise((r) => setTimeout(r, 400));
       await page.screenshot({ path: overlayPath, omitBackground: true });
-      console.log(`     🖼️  오버레이 완료`);
 
       // d) 클립 합성
       const clipPath = path.join(tmpDir, `clip_${String(i).padStart(2, '0')}.mp4`);
       await createSlideClip(imagePath, overlayPath, audioPath, duration, clipPath);
       clipPaths.push(clipPath);
-      console.log(`     ✅ 완료 (${duration.toFixed(1)}초)\n`);
+      console.log(`     ✅ 완료\n`);
     }
 
     await browser.close();
-    console.log(`총 ${slides.length}개 클립 | 예상 길이: ${totalDuration.toFixed(0)}초\n`);
+    console.log(`총 ${slides.length}슬라이드 | 예상 길이: ${totalDuration.toFixed(0)}초\n`);
 
     // 3. 최종 합성
     console.log('[3/3] 최종 영상 합성...');
-    const finalVideoPath = path.join(tmpDir, 'shorts_final.mp4');
-    await concatClips(clipPaths, finalVideoPath);
-    const sizeMB = (fs.statSync(finalVideoPath).size / 1024 / 1024).toFixed(1);
+    const finalPath = path.join(tmpDir, 'shorts_final.mp4');
+    await concatClips(clipPaths, finalPath);
+    const sizeMB = (fs.statSync(finalPath).size / 1024 / 1024).toFixed(1);
     console.log(`  완성: ${sizeMB}MB\n`);
 
-    // 4. YouTube 업로드 or 로컬 저장
+    // 4. 업로드 또는 저장
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://smartinfoblog.co.kr';
     const postUrl = `${siteUrl}/${post.category.slug}/${post.slug}`;
     const fullDesc =
-      `${script.description}\n\n📖 자세한 내용: ${postUrl}\n\n` +
-      `${script.tags.map((t) => '#' + t.replace(/\s/g, '')).join(' ')} #Shorts #건강정보 #5060건강`;
+      `${script.description}\n\n📖 블로그 전문: ${postUrl}\n\n` +
+      `${(script.tags || []).map((t) => '#' + t.replace(/\s/g, '')).join(' ')} #Shorts #건강정보 #시니어건강`;
 
     if (process.env.YOUTUBE_REFRESH_TOKEN) {
       const { uploadToYouTube } = require('./youtube-uploader');
       const videoId = await uploadToYouTube({
-        videoPath: finalVideoPath,
+        videoPath: finalPath,
         title: script.youtubeTitle,
         description: fullDesc,
-        tags: [...script.tags, '건강', '5060', '시니어', '건강정보', 'Shorts'],
+        tags: [...(script.tags || []), '건강', '시니어', '건강정보', 'Shorts'],
         categoryId: '26',
       });
       await prisma.post.update({
         where: { id: post.id },
         data: { shortsGenerated: true, shortsVideoId: videoId },
       });
-      console.log(`✅ YouTube 업로드 완료! https://youtube.com/shorts/${videoId}`);
+      console.log(`✅ 업로드 완료! https://youtube.com/shorts/${videoId}`);
     } else {
       const outDir = path.join(process.cwd(), 'shorts-output');
       if (!fs.existsSync(outDir)) fs.mkdirSync(outDir);
-      const finalPath = path.join(outDir, `${post.slug}.mp4`);
-      fs.copyFileSync(finalVideoPath, finalPath);
+      const savePath = path.join(outDir, `${post.slug}.mp4`);
+      fs.copyFileSync(finalPath, savePath);
       await prisma.post.update({ where: { id: post.id }, data: { shortsGenerated: true } });
-      console.log(`✅ 저장 완료: ${finalPath}`);
+      console.log(`✅ 저장: ${savePath}`);
     }
 
   } catch (e) {
