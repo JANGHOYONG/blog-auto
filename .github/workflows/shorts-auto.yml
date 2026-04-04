@@ -13,7 +13,7 @@ on:
 jobs:
   generate-shorts:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     # 메인 워크플로우가 성공한 경우만 실행

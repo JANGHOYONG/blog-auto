@@ -33,7 +33,7 @@ async function generateShortsScript(post) {
   const res = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
     temperature: 0.75,
-    max_tokens: 1000,
+    max_tokens: 1500,
     response_format: { type: 'json_object' },
     messages: [
       {
@@ -43,10 +43,11 @@ async function generateShortsScript(post) {
 
 핵심 원칙:
 - 슬라이드 하나 = 딱 한 가지 정보 (짧고 강렬하게)
-- 첫 슬라이드에서 시청자의 "나 이거 꼭 알아야 해!" 반응 유도
+- 첫 슬라이드에서 "나 이거 꼭 알아야 해!" 반응 유도
 - 충격적 통계, 반전 정보, 공감 질문 활용
 - 50~60대 눈높이: 어려운 의학 용어 절대 금지, 일상 언어로
-- 각 포인트는 생활에서 바로 쓸 수 있는 실천 정보`,
+- 각 포인트는 생활에서 바로 쓸 수 있는 실천 정보
+- 각 슬라이드의 narration은 화면 텍스트를 자연스럽게 읽어주는 느낌 (5~8초 분량)`,
       },
       {
         role: 'user',
@@ -55,21 +56,63 @@ async function generateShortsScript(post) {
 제목: ${post.title}
 요약: ${post.excerpt}
 
+⚠️ 제목 작성 규칙:
+- 영상에서 실제로 다루는 내용만 제목에 포함하세요
+- "10가지" 처럼 숫자를 쓰려면 영상에서 그 숫자만큼 다뤄야 합니다
+- 실제 슬라이드가 5개 포인트라면 "5가지"라고 써야 합니다
+- 영상에서 다루지 않은 내용을 제목에 넣으면 신뢰도가 떨어집니다
+
+⚠️ 중요: 각 슬라이드마다 narration이 반드시 있어야 합니다. narration은 화면에 표시되는 text를 자연스럽게 읽어주는 내용으로 작성하세요.
+
 JSON으로 응답:
 {
   "youtubeTitle": "유튜브 영상 제목 (50자 이내, 클릭 유도, #Shorts 포함)",
   "description": "영상 설명 (150자 내외, 핵심 내용 요약)",
   "tags": ["건강", "5060건강", "시니어건강", "관련태그1", "관련태그2"],
   "slides": [
-    { "type": "hook",  "emoji": "적절한 이모지", "text": "50~60대 시청자가 멈추게 만드는 강한 훅\\n(충격 통계 or 반전 질문, 최대 15자×2줄)" },
-    { "type": "point", "emoji": "적절한 이모지", "text": "핵심 포인트 1\\n(바로 실천 가능, 최대 14자×2줄)" },
-    { "type": "point", "emoji": "적절한 이모지", "text": "핵심 포인트 2\\n(구체적 수치나 방법, 최대 14자×2줄)" },
-    { "type": "point", "emoji": "적절한 이모지", "text": "핵심 포인트 3\\n(최대 14자×2줄)" },
-    { "type": "point", "emoji": "적절한 이모지", "text": "핵심 포인트 4\\n(최대 14자×2줄)" },
-    { "type": "point", "emoji": "적절한 이모지", "text": "핵심 포인트 5\\n(최대 14자×2줄)" },
-    { "type": "cta",   "emoji": "👇", "text": "자세한 내용은\\n블로그에서 확인!" }
-  ],
-  "narration": "60초 내레이션. 친근하고 따뜻한 할머니 선생님 말투. 각 슬라이드 내용을 자연스럽게 연결. 어려운 용어 없이 쉽게."
+    {
+      "type": "hook",
+      "emoji": "적절한 이모지",
+      "text": "50~60대가 멈추게 만드는 강한 훅\\n(충격 통계 or 반전 질문, 최대 15자×2줄)",
+      "narration": "이 슬라이드에서 말할 내레이션. 5~7초 분량. 친근하고 따뜻한 말투."
+    },
+    {
+      "type": "point",
+      "emoji": "적절한 이모지",
+      "text": "핵심 포인트 1\\n(바로 실천 가능, 최대 14자×2줄)",
+      "narration": "포인트 1 설명. 5~7초 분량. 구체적이고 쉽게."
+    },
+    {
+      "type": "point",
+      "emoji": "적절한 이모지",
+      "text": "핵심 포인트 2\\n(구체적 수치나 방법, 최대 14자×2줄)",
+      "narration": "포인트 2 설명. 5~7초 분량."
+    },
+    {
+      "type": "point",
+      "emoji": "적절한 이모지",
+      "text": "핵심 포인트 3\\n(최대 14자×2줄)",
+      "narration": "포인트 3 설명. 5~7초 분량."
+    },
+    {
+      "type": "point",
+      "emoji": "적절한 이모지",
+      "text": "핵심 포인트 4\\n(최대 14자×2줄)",
+      "narration": "포인트 4 설명. 5~7초 분량."
+    },
+    {
+      "type": "point",
+      "emoji": "적절한 이모지",
+      "text": "핵심 포인트 5\\n(최대 14자×2줄)",
+      "narration": "포인트 5 설명. 5~7초 분량."
+    },
+    {
+      "type": "cta",
+      "emoji": "👇",
+      "text": "자세한 내용은\\n블로그에서 확인!",
+      "narration": "더 자세한 내용은 스마트인포블로그에서 확인하세요. 구독과 좋아요도 부탁드립니다!"
+    }
+  ]
 }`,
       },
     ],
@@ -248,47 +291,73 @@ async function captureSlides(slides, outDir) {
   return paths;
 }
 
-// ─── 4. OpenAI TTS 음성 생성 ─────────────────────────────────────────────────
-async function generateAudio(narration, outPath) {
+// ─── 4. 슬라이드별 개별 TTS 생성 ────────────────────────────────────────────
+async function generateSlideAudio(narration, outPath) {
   const res = await openai.audio.speech.create({
-    model: 'tts-1',
-    voice: 'nova',       // 자연스러운 여성 목소리 (한국어 지원)
+    model: 'tts-1-hd',          // HD 품질 (더 자연스러운 음성)
+    voice: 'nova',               // 따뜻한 여성 목소리
     input: narration,
-    speed: 0.93,         // 5060 세대를 위해 약간 느리게
+    speed: 0.90,                 // 5060 세대를 위해 천천히
   });
   const buf = Buffer.from(await res.arrayBuffer());
   fs.writeFileSync(outPath, buf);
-  console.log(`  음성 생성 완료 (${(buf.length / 1024).toFixed(0)}KB)`);
+  return buf.length;
 }
 
-// ─── 5. FFmpeg으로 영상 합성 ──────────────────────────────────────────────────
-function buildVideo(imgPaths, audioPath, outPath) {
+// ─── 5. 오디오 길이 측정 (ffprobe) ───────────────────────────────────────────
+function getAudioDuration(audioPath) {
   return new Promise((resolve, reject) => {
-    // ffmpeg concat 파일 생성
-    const concatFile = outPath.replace('.mp4', '_concat.txt');
-    const lines = imgPaths.map((p) => `file '${p}'\nduration ${SLIDE_DURATION}`).join('\n');
-    fs.writeFileSync(concatFile, lines + `\nfile '${imgPaths[imgPaths.length - 1]}'`);
+    ffmpeg.ffprobe(audioPath, (err, meta) => {
+      if (err) reject(err);
+      else resolve(parseFloat(meta.format.duration));
+    });
+  });
+}
+
+// ─── 6. 슬라이드 1장 + 오디오 → 클립 영상 생성 ───────────────────────────────
+function createSlideClip(imgPath, audioPath, outPath, duration) {
+  return new Promise((resolve, reject) => {
+    const padDuration = duration + 0.2; // 끝에 0.2초 여유
+    ffmpeg()
+      .input(imgPath).inputOptions(['-loop', '1', '-framerate', '30'])
+      .input(audioPath)
+      .outputOptions([
+        '-c:v libx264', '-preset fast', '-crf 22',
+        '-c:a aac', '-b:a 128k',
+        '-pix_fmt yuv420p',
+        '-t', `${padDuration}`,
+        '-movflags +faststart',
+        // 페이드인 0.3s / 페이드아웃 0.4s
+        '-vf', `scale=${SLIDE_W}:${SLIDE_H},` +
+               `fade=t=in:st=0:d=0.3:color=black,` +
+               `fade=t=out:st=${(padDuration - 0.4).toFixed(2)}:d=0.4:color=black`,
+        '-af', `afade=t=in:st=0:d=0.2,afade=t=out:st=${(duration - 0.3).toFixed(2)}:d=0.3`,
+      ])
+      .output(outPath)
+      .on('end', resolve)
+      .on('error', reject)
+      .run();
+  });
+}
+
+// ─── 7. 클립들 이어붙이기 ─────────────────────────────────────────────────────
+function concatClips(clipPaths, outPath) {
+  return new Promise((resolve, reject) => {
+    const concatFile = outPath.replace('.mp4', '_list.txt');
+    fs.writeFileSync(concatFile, clipPaths.map((p) => `file '${p}'`).join('\n'));
 
     ffmpeg()
       .input(concatFile).inputOptions(['-f', 'concat', '-safe', '0'])
-      .input(audioPath)
       .outputOptions([
-        '-c:v libx264', '-preset fast', '-crf 23',
+        '-c:v libx264', '-preset fast', '-crf 22',
         '-c:a aac', '-b:a 128k',
         '-pix_fmt yuv420p',
-        '-shortest',
         '-movflags +faststart',
-        '-vf', `scale=${SLIDE_W}:${SLIDE_H}:force_original_aspect_ratio=decrease,` +
-               `pad=${SLIDE_W}:${SLIDE_H}:(ow-iw)/2:(oh-ih)/2:black`,
       ])
       .output(outPath)
-      .on('progress', (p) => process.stdout.write(`\r  영상 합성: ${Math.round(p.percent || 0)}%`))
-      .on('end', () => {
-        console.log('');
-        fs.unlinkSync(concatFile);
-        resolve();
-      })
-      .on('error', (err) => reject(err))
+      .on('progress', (p) => process.stdout.write(`\r  최종 합성: ${Math.round(p.percent || 0)}%`))
+      .on('end', () => { console.log(''); fs.unlinkSync(concatFile); resolve(); })
+      .on('error', reject)
       .run();
   });
 }
@@ -318,22 +387,55 @@ async function main() {
     console.log(`  영상 제목: ${script.youtubeTitle}`);
     console.log(`  슬라이드: ${script.slides.length}개`);
 
-    // 2. 슬라이드 이미지 생성
-    console.log('\n[2/4] 슬라이드 이미지 생성...');
-    const imgPaths = await captureSlides(script.slides, tmpDir);
+    // 2~4. 슬라이드별 이미지 + TTS + 클립 동시 생성 (싱크 완벽 맞춤)
+    console.log('\n[2/4] 슬라이드별 이미지 & 음성 생성 (싱크 맞춤)...');
+    const browser = await (async () => {
+      const p = require('puppeteer');
+      return p.launch({ headless: 'new',
+        args: ['--no-sandbox', '--disable-setuid-sandbox',
+               '--disable-dev-shm-usage', '--disable-gpu'] });
+    })();
+    const page = await browser.newPage();
+    await page.setViewport({ width: SLIDE_W, height: SLIDE_H, deviceScaleFactor: 1 });
 
-    // 3. 음성(TTS) 생성
-    console.log('\n[3/4] TTS 음성 생성...');
-    const audioPath = path.join(tmpDir, 'narration.mp3');
-    await generateAudio(script.narration, audioPath);
+    const clipPaths = [];
+    let totalDuration = 0;
 
-    // 4. 영상 합성
-    console.log('\n[4/4] 영상 합성 (FFmpeg)...');
+    for (let i = 0; i < script.slides.length; i++) {
+      const slide = script.slides[i];
+      console.log(`  [${i + 1}/${script.slides.length}] ${slide.type} 슬라이드 처리 중...`);
+
+      // 이미지 생성
+      const html = makeSlideHtml(slide, i + 1, script.slides.length);
+      await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 10000 });
+      await new Promise((r) => setTimeout(r, 500));
+      const imgPath = path.join(tmpDir, `slide_${String(i).padStart(2, '0')}.png`);
+      await page.screenshot({ path: imgPath });
+
+      // 슬라이드별 TTS 생성
+      const narration = slide.narration || slide.text.replace(/\n/g, ' ');
+      const audioPath = path.join(tmpDir, `audio_${String(i).padStart(2, '0')}.mp3`);
+      const audioSize = await generateSlideAudio(narration, audioPath);
+      const duration = await getAudioDuration(audioPath);
+      totalDuration += duration;
+      console.log(`    이미지 ✅ | 음성 ${(audioSize/1024).toFixed(0)}KB | ${duration.toFixed(1)}초`);
+
+      // 슬라이드 클립 생성 (이미지 + 음성 = 완벽 싱크)
+      const clipPath = path.join(tmpDir, `clip_${String(i).padStart(2, '0')}.mp4`);
+      await createSlideClip(imgPath, audioPath, clipPath, duration);
+      clipPaths.push(clipPath);
+    }
+
+    await browser.close();
+    console.log(`\n  총 ${script.slides.length}개 클립 완료 | 예상 총 길이: ${totalDuration.toFixed(1)}초`);
+
+    // 5. 클립 이어붙이기
+    console.log('\n[4/4] 최종 영상 합성...');
     const videoPath = path.join(tmpDir, 'shorts.mp4');
-    await buildVideo(imgPaths, audioPath, videoPath);
+    await concatClips(clipPaths, videoPath);
 
     const sizeMB = (fs.statSync(videoPath).size / 1024 / 1024).toFixed(1);
-    console.log(`  영상 크기: ${sizeMB}MB`);
+    console.log(`  영상 크기: ${sizeMB}MB | 길이: ${totalDuration.toFixed(1)}초`);
 
     // 5. YouTube 업로드 또는 파일 저장
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://smartinfoblog.co.kr';
