@@ -1,0 +1,67 @@
+name: Auto Generate YouTube Shorts
+
+on:
+  workflow_run:
+    workflows: ["Auto Publish Blog Post"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      post_id:
+        description: '특정 글 ID (비워두면 최신 글)'
+        required: false
+
+jobs:
+  generate-shorts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    # 메인 워크플로우가 성공한 경우만 실행
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-noto-cjk fonts-noto-color-emoji
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Generate Shorts
+        run: |
+          if [ -n "${{ github.event.inputs.post_id }}" ]; then
+            node scripts/shorts-generator.js --post-id=${{ github.event.inputs.post_id }}
+          else
+            node scripts/shorts-generator.js
+          fi
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+
+      - name: Upload shorts video (artifact)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shorts-video
+          path: shorts-output/*.mp4
+          retention-days: 7
+          if-no-files-found: ignore

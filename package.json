@@ -18,7 +18,8 @@
     "scheduler:start": "node scripts/scheduler.js",
     "run:once": "node scripts/content-generator.js && node scripts/publisher.js",
     "add:post": "node scripts/add-post.js && node scripts/publisher.js --mode=immediate",
-    "process:queue": "node scripts/process-queue.js"
+    "process:queue": "node scripts/process-queue.js",
+    "generate:shorts": "node scripts/shorts-generator.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.55.0",
@@ -27,12 +28,15 @@
     "cheerio": "^1.0.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
+    "fluent-ffmpeg": "^2.1.3",
+    "googleapis": "^140.0.1",
     "gray-matter": "^4.0.3",
     "groq-sdk": "^0.9.0",
     "next": "^14.2.0",
     "next-themes": "^0.3.0",
     "node-cron": "^3.0.3",
     "openai": "^6.33.0",
+    "puppeteer": "^24.40.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "rss": "^1.2.2",
