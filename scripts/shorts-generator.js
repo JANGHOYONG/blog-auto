@@ -38,12 +38,15 @@ async function generateShortsScript(post) {
     messages: [
       {
         role: 'system',
-        content: `당신은 5060 시니어를 위한 건강 정보 유튜브 쇼츠 스크립트 전문가입니다.
-60초 분량의 쇼츠를 만듭니다.
-- 문장은 짧고 임팩트 있게 (슬라이드 하나 = 1~2문장)
-- 50~60대가 읽기 쉬운 쉬운 말
-- 첫 3초에 시청자를 붙잡는 강한 훅
-- 끝까지 보고 싶게 만드는 구성`,
+        content: `당신은 5060 시니어를 위한 건강 유튜브 쇼츠 전문 PD입니다.
+시청자가 끝까지 보게 만드는 60초 쇼츠를 설계합니다.
+
+핵심 원칙:
+- 슬라이드 하나 = 딱 한 가지 정보 (짧고 강렬하게)
+- 첫 슬라이드에서 시청자의 "나 이거 꼭 알아야 해!" 반응 유도
+- 충격적 통계, 반전 정보, 공감 질문 활용
+- 50~60대 눈높이: 어려운 의학 용어 절대 금지, 일상 언어로
+- 각 포인트는 생활에서 바로 쓸 수 있는 실천 정보`,
       },
       {
         role: 'user',
@@ -58,15 +61,15 @@ JSON으로 응답:
   "description": "영상 설명 (150자 내외, 핵심 내용 요약)",
   "tags": ["건강", "5060건강", "시니어건강", "관련태그1", "관련태그2"],
   "slides": [
-    { "type": "hook",  "emoji": "❓", "text": "충격적인 질문이나 사실\\n(2줄 이내, 강한 훅)" },
-    { "type": "point", "emoji": "✅", "text": "핵심 포인트 1\\n(짧고 임팩트 있게)" },
-    { "type": "point", "emoji": "💡", "text": "핵심 포인트 2" },
-    { "type": "point", "emoji": "🥗", "text": "핵심 포인트 3" },
-    { "type": "point", "emoji": "⚠️", "text": "핵심 포인트 4" },
-    { "type": "point", "emoji": "💊", "text": "핵심 포인트 5" },
-    { "type": "cta",   "emoji": "👇", "text": "더 자세한 정보는\\n블로그 링크 확인!" }
+    { "type": "hook",  "emoji": "적절한 이모지", "text": "50~60대 시청자가 멈추게 만드는 강한 훅\\n(충격 통계 or 반전 질문, 최대 15자×2줄)" },
+    { "type": "point", "emoji": "적절한 이모지", "text": "핵심 포인트 1\\n(바로 실천 가능, 최대 14자×2줄)" },
+    { "type": "point", "emoji": "적절한 이모지", "text": "핵심 포인트 2\\n(구체적 수치나 방법, 최대 14자×2줄)" },
+    { "type": "point", "emoji": "적절한 이모지", "text": "핵심 포인트 3\\n(최대 14자×2줄)" },
+    { "type": "point", "emoji": "적절한 이모지", "text": "핵심 포인트 4\\n(최대 14자×2줄)" },
+    { "type": "point", "emoji": "적절한 이모지", "text": "핵심 포인트 5\\n(최대 14자×2줄)" },
+    { "type": "cta",   "emoji": "👇", "text": "자세한 내용은\\n블로그에서 확인!" }
   ],
-  "narration": "60초 분량 내레이션 전체 텍스트. 자연스럽고 친근한 말투. 어려운 용어 없이."
+  "narration": "60초 내레이션. 친근하고 따뜻한 할머니 선생님 말투. 각 슬라이드 내용을 자연스럽게 연결. 어려운 용어 없이 쉽게."
 }`,
       },
     ],
@@ -77,54 +80,147 @@ JSON으로 응답:
 
 // ─── 2. 슬라이드 HTML 생성 ────────────────────────────────────────────────────
 function makeSlideHtml(slide, idx, total) {
-  const themes = {
-    hook:  { grad: 'linear-gradient(160deg,#0d2137 0%,#1a4f8c 100%)', accent: '#64b5f6', label: '오늘의 건강 정보' },
-    point: { grad: 'linear-gradient(160deg,#1b3a1f 0%,#2e7d32 100%)', accent: '#81c784', label: null },
-    cta:   { grad: 'linear-gradient(160deg,#4a148c 0%,#7b1fa2 100%)', accent: '#ce93d8', label: null },
-  };
-  const t = themes[slide.type] || themes.point;
   const progress = Math.round((idx / total) * 100);
   const textHtml = slide.text.replace(/\n/g, '<br>');
+  const pointNum = idx; // 포인트 번호
 
-  return `<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
+  const FONT = `'Noto Sans CJK KR','Apple SD Gothic Neo','맑은 고딕','Malgun Gothic',sans-serif`;
+
+  // ── HOOK 슬라이드 ──
+  if (slide.type === 'hook') {
+    return `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-html, body { width:${SLIDE_W}px; height:${SLIDE_H}px; overflow:hidden;
-  background:${t.grad};
-  font-family:'Noto Sans CJK KR','Noto Sans KR','Apple SD Gothic Neo','맑은 고딕','Malgun Gothic',sans-serif;
-  color:#fff; }
-.wrap { width:100%; height:100%; display:flex; flex-direction:column;
-  justify-content:center; align-items:center; padding:100px 70px; position:relative; }
-.brand { position:absolute; top:70px; left:0; right:0; text-align:center;
-  font-size:40px; font-weight:700; color:${t.accent}; letter-spacing:3px; }
-.label { font-size:42px; font-weight:700; color:${t.accent}; letter-spacing:5px;
-  margin-bottom:40px; }
-.emoji { font-size:180px; line-height:1; margin-bottom:60px; }
-.text { font-size:76px; font-weight:900; text-align:center; line-height:1.45;
-  word-break:keep-all; text-shadow:0 4px 24px rgba(0,0,0,0.4); }
-.sub { margin-top:50px; font-size:54px; font-weight:700;
-  color:${t.accent}; text-align:center; }
-.progress { position:absolute; bottom:0; left:0; height:14px;
-  width:${progress}%; background:${t.accent}; border-radius:0 7px 7px 0; }
-.counter { position:absolute; bottom:28px; right:55px;
-  font-size:38px; color:rgba(255,255,255,0.45); font-weight:700; }
-</style>
-</head>
-<body>
-<div class="wrap">
-  <div class="brand">🏥 스마트인포블로그</div>
-  ${t.label ? `<div class="label">${t.label}</div>` : ''}
+html,body { width:${SLIDE_W}px; height:${SLIDE_H}px; overflow:hidden;
+  background:#0a0a0a; font-family:${FONT}; color:#fff; }
+.bg { position:absolute; inset:0;
+  background: radial-gradient(ellipse at 50% 30%, #1a3a5c 0%, #0a0a0a 70%); }
+.top-bar { position:absolute; top:0; left:0; right:0; height:10px;
+  background:linear-gradient(90deg,#00c9ff,#92fe9d); }
+.brand { position:absolute; top:60px; left:0; right:0; text-align:center;
+  font-size:46px; font-weight:700; color:#00c9ff; letter-spacing:2px; }
+.badge { position:absolute; top:150px; left:0; right:0; text-align:center; }
+.badge span { background:#00c9ff; color:#000; font-size:40px; font-weight:900;
+  padding:10px 40px; border-radius:50px; letter-spacing:4px; }
+.center { position:absolute; inset:0; display:flex; flex-direction:column;
+  justify-content:center; align-items:center; padding:60px; }
+.emoji { font-size:260px; line-height:1; margin-bottom:50px; }
+.text { font-size:108px; font-weight:900; text-align:center; line-height:1.35;
+  word-break:keep-all; letter-spacing:-2px;
+  text-shadow: 0 0 40px rgba(0,201,255,0.4); }
+.text em { color:#92fe9d; font-style:normal; }
+.bottom { position:absolute; bottom:80px; left:0; right:0; text-align:center;
+  font-size:48px; color:rgba(255,255,255,0.5); }
+.progress { position:absolute; bottom:0; left:0; height:12px; width:${progress}%;
+  background:linear-gradient(90deg,#00c9ff,#92fe9d); }
+</style></head><body>
+<div class="bg"></div>
+<div class="top-bar"></div>
+<div class="brand">🏥 5060 건강주치의</div>
+<div class="badge"><span>오늘의 건강 정보</span></div>
+<div class="center">
   <div class="emoji">${slide.emoji}</div>
   <div class="text">${textHtml}</div>
-  ${slide.type === 'cta' ? '<div class="sub">구독 & 좋아요 👍</div>' : ''}
-  <div class="counter">${idx}/${total}</div>
-  <div class="progress"></div>
 </div>
-</body>
-</html>`;
+<div class="bottom">끝까지 보면 건강이 달라집니다 👇</div>
+<div class="progress"></div>
+</body></html>`;
+  }
+
+  // ── POINT 슬라이드 ──
+  if (slide.type === 'point') {
+    const colors = [
+      { bg: '#0d1b2a', accent: '#4fc3f7', num: '#4fc3f7' },
+      { bg: '#0d2018', accent: '#69f0ae', num: '#69f0ae' },
+      { bg: '#1a0d2e', accent: '#ea80fc', num: '#ea80fc' },
+      { bg: '#1a1a0d', accent: '#ffeb3b', num: '#ffeb3b' },
+      { bg: '#1a0d0d', accent: '#ff8a65', num: '#ff8a65' },
+    ];
+    const c = colors[(pointNum - 1) % colors.length];
+
+    return `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { width:${SLIDE_W}px; height:${SLIDE_H}px; overflow:hidden;
+  background:${c.bg}; font-family:${FONT}; color:#fff; }
+.side-line { position:absolute; left:0; top:0; bottom:0; width:16px;
+  background:${c.accent}; }
+.brand { position:absolute; top:65px; left:50px; right:50px;
+  font-size:44px; font-weight:700; color:${c.accent}; }
+.num-badge { position:absolute; top:55px; right:60px;
+  width:110px; height:110px; border-radius:50%;
+  background:${c.accent}; display:flex; align-items:center; justify-content:center; }
+.num-badge span { font-size:70px; font-weight:900; color:#000; line-height:1; }
+.divider { position:absolute; top:200px; left:50px; right:50px;
+  height:3px; background:rgba(255,255,255,0.1); }
+.center { position:absolute; inset:0; display:flex; flex-direction:column;
+  justify-content:center; align-items:center; padding:80px 70px; }
+.emoji { font-size:220px; line-height:1; margin-bottom:55px;
+  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.5)); }
+.text { font-size:100px; font-weight:900; text-align:center; line-height:1.4;
+  word-break:keep-all; letter-spacing:-2px; }
+.text em { color:${c.accent}; font-style:normal; background:rgba(255,255,255,0.08);
+  padding:0 8px; border-radius:8px; }
+.progress-wrap { position:absolute; bottom:0; left:0; right:0; height:16px;
+  background:rgba(255,255,255,0.08); }
+.progress { height:100%; width:${progress}%; background:${c.accent};
+  border-radius:0 8px 8px 0; }
+.counter { position:absolute; bottom:28px; right:55px;
+  font-size:40px; color:rgba(255,255,255,0.35); font-weight:700; }
+</style></head><body>
+<div class="side-line"></div>
+<div class="brand">🏥 5060 건강주치의</div>
+<div class="num-badge"><span>${pointNum}</span></div>
+<div class="divider"></div>
+<div class="center">
+  <div class="emoji">${slide.emoji}</div>
+  <div class="text">${textHtml}</div>
+</div>
+<div class="counter">${idx}/${total}</div>
+<div class="progress-wrap"><div class="progress"></div></div>
+</body></html>`;
+  }
+
+  // ── CTA 슬라이드 ──
+  return `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { width:${SLIDE_W}px; height:${SLIDE_H}px; overflow:hidden;
+  background:#003d2b; font-family:${FONT}; color:#fff; }
+.bg { position:absolute; inset:0;
+  background: radial-gradient(ellipse at 50% 50%, #00695c 0%, #003d2b 70%); }
+.top-bar { position:absolute; top:0; left:0; right:0; height:10px;
+  background:linear-gradient(90deg,#00c9ff,#92fe9d); }
+.brand { position:absolute; top:65px; left:0; right:0; text-align:center;
+  font-size:48px; font-weight:700; color:#92fe9d; letter-spacing:2px; }
+.center { position:absolute; inset:0; display:flex; flex-direction:column;
+  justify-content:center; align-items:center; padding:60px; gap:50px; }
+.emoji { font-size:220px; line-height:1; }
+.text { font-size:102px; font-weight:900; text-align:center; line-height:1.4;
+  word-break:keep-all; }
+.actions { display:flex; flex-direction:column; gap:30px; width:100%; }
+.btn { display:flex; align-items:center; justify-content:center; gap:24px;
+  padding:36px 50px; border-radius:28px; font-size:66px; font-weight:900; }
+.btn-sub { background:#92fe9d; color:#003d2b; }
+.btn-like { background:rgba(255,255,255,0.12); color:#fff;
+  border:4px solid rgba(255,255,255,0.3); }
+.url { position:absolute; bottom:70px; left:0; right:0; text-align:center;
+  font-size:44px; color:rgba(255,255,255,0.6); }
+.url span { color:#92fe9d; }
+</style></head><body>
+<div class="bg"></div>
+<div class="top-bar"></div>
+<div class="brand">🏥 5060 건강주치의</div>
+<div class="center">
+  <div class="emoji">${slide.emoji}</div>
+  <div class="text">${textHtml}</div>
+  <div class="actions">
+    <div class="btn btn-sub">🔔 구독하기</div>
+    <div class="btn btn-like">👍 좋아요 & 저장</div>
+  </div>
+</div>
+<div class="url">📖 <span>smartinfoblog.co.kr</span></div>
+</body></html>`;
 }
 
 // ─── 3. Puppeteer로 슬라이드 스크린샷 ────────────────────────────────────────
