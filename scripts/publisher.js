@@ -13,6 +13,37 @@ const { PrismaClient } = require('@prisma/client');
 const https = require('https');
 const http = require('http');
 
+// IndexNow: 네이버·빙에 새 URL 즉시 색인 요청
+async function pingIndexNow(urls) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://smartinfoblog.co.kr';
+  const key = '928bf1c4fe8f4ec2ae418e100cedd18e';
+  const body = JSON.stringify({
+    host: siteUrl.replace(/^https?:\/\//, ''),
+    key,
+    keyLocation: `${siteUrl}/${key}.txt`,
+    urlList: urls,
+  });
+
+  const endpoints = [
+    'api.indexnow.org',
+    'www.bing.com',
+    'searchadvisor.naver.com',
+  ];
+
+  for (const host of endpoints) {
+    await new Promise((resolve) => {
+      const req = https.request(
+        { host, path: '/indexnow', method: 'POST',
+          headers: { 'Content-Type': 'application/json; charset=utf-8', 'Content-Length': Buffer.byteLength(body) } },
+        (res) => { console.log(`  📡 IndexNow(${host}): ${res.statusCode}`); resolve(); }
+      );
+      req.on('error', () => resolve());
+      req.write(body);
+      req.end();
+    });
+  }
+}
+
 function callRevalidate() {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://smartinfoblog.co.kr';
   const secret = process.env.REVALIDATE_SECRET || 'blog-revalidate';
@@ -146,9 +177,11 @@ async function main() {
     console.log(`\n발행 대상: ${drafts.length}개\n`);
 
     let publishedCount = 0;
+    const publishedUrls = [];
 
     for (let i = 0; i < drafts.length; i++) {
       const draft = drafts[i];
+      const postUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://smartinfoblog.co.kr'}/${draft.category.slug}/${draft.slug}`;
 
       if (mode === 'immediate') {
         // 즉시 발행
@@ -160,6 +193,7 @@ async function main() {
           },
         });
         console.log(`[즉시] 발행: "${draft.title}"`);
+        publishedUrls.push(postUrl);
       } else {
         // 예약 발행 (랜덤 시간)
         const scheduledAt = getRandomPublishTime(i, drafts.length);
@@ -187,7 +221,13 @@ async function main() {
       },
     });
 
-    if (publishedCount > 0) await callRevalidate();
+    if (publishedCount > 0) {
+      await callRevalidate();
+      // 즉시 발행된 URL만 IndexNow 핑 전송
+      if (publishedUrls.length > 0) {
+        await pingIndexNow(publishedUrls);
+      }
+    }
     console.log(`\n✅ ${publishedCount}개 ${mode === 'immediate' ? '발행 완료' : '예약 완료'}`);
   } catch (error) {
     console.error('오류:', error);

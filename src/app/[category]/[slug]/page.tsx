@@ -28,6 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     category: post.category.slug,
     publishedAt: post.publishedAt ?? undefined,
     keywords: JSON.parse(post.keywords || '[]'),
+    thumbnail: post.thumbnail,
   });
 }
 
@@ -83,6 +84,23 @@ export default async function PostPage({ params }: Props) {
     keywords,
   });
 
+  // FAQ 섹션에서 FAQPage 스키마 추출
+  const faqMatches = [...post.content.matchAll(
+    /<p[^>]*class=["']faq-q["'][^>]*>Q\.\s*(.*?)<\/p>\s*<p>([\s\S]*?)<\/p>/g
+  )];
+  const faqJsonLd = faqMatches.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqMatches.map(([, q, a]) => ({
+      '@type': 'Question',
+      name: q.replace(/<[^>]*>/g, '').trim(),
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: a.replace(/<[^>]*>/g, '').trim(),
+      },
+    })),
+  } : null;
+
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -97,6 +115,9 @@ export default async function PostPage({ params }: Props) {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      {faqJsonLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      )}
 
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* 브레드크럼 */}

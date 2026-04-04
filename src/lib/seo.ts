@@ -10,6 +10,7 @@ export function generateMetadata({
   category,
   publishedAt,
   keywords,
+  thumbnail,
 }: {
   title: string;
   description: string;
@@ -17,12 +18,17 @@ export function generateMetadata({
   category?: string;
   publishedAt?: Date;
   keywords?: string[];
+  thumbnail?: string | null;
 }): Metadata {
   const url = slug
     ? category
       ? `${SITE_URL}/${category}/${slug}`
       : `${SITE_URL}/${slug}`
     : SITE_URL;
+
+  const ogImage = thumbnail
+    ? [{ url: thumbnail, width: 1200, height: 630, alt: title }]
+    : [{ url: `${SITE_URL}/og-default.png`, width: 1200, height: 630, alt: SITE_NAME }];
 
   return {
     title: `${title} | ${SITE_NAME}`,
@@ -35,6 +41,7 @@ export function generateMetadata({
       siteName: SITE_NAME,
       locale: 'ko_KR',
       type: publishedAt ? 'article' : 'website',
+      images: ogImage,
       ...(publishedAt && {
         publishedTime: publishedAt.toISOString(),
       }),
@@ -43,6 +50,7 @@ export function generateMetadata({
       card: 'summary_large_image',
       title,
       description,
+      images: ogImage.map((i) => i.url),
     },
     alternates: {
       canonical: url,
