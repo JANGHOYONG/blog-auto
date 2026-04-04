@@ -38,13 +38,14 @@ async function collectKeywords(categoryName, count) {
       },
       {
         role: 'user',
-        content: `"${categoryName}" 카테고리의 한국어 롱테일 키워드 ${count}개를 추천해주세요.
+        content: `"${categoryName}" 카테고리${categoryName.includes('건강') || categoryName.toLowerCase() === 'health' ? ' (주요 독자: 50~60대 중장년층)' : ''}의 한국어 롱테일 키워드 ${count}개를 추천해주세요.
 
 조건:
 - 월 검색량 1,000~50,000 수준 (경쟁 낮고 클릭 높은 것)
 - 정보성 검색 의도 (방법, 원인, 효능, 비교, 추천 등)
 - 실제 한국인이 네이버·구글에서 자주 검색하는 자연스러운 표현
-- 예시: "혈당 낮추는 음식 10가지", "무릎 통증 원인과 치료법"
+${categoryName.includes('건강') || categoryName.toLowerCase() === 'health' ? `- 5060 중장년 건강 주제 중심으로: 혈당·혈압·콜레스테롤·관절·수면·갱년기·치매예방·영양제·심혈관·소화·근감소·눈건강·구강건강·피부노화·면역력 등
+- 예시: "50대 혈압 낮추는 생활습관", "무릎 연골 재생에 좋은 음식", "갱년기 수면장애 해결법", "치매 예방에 좋은 음식 10가지"` : `- 예시: "혈당 낮추는 음식 10가지", "무릎 통증 원인과 치료법"`}
 
 JSON 형식:
 {
