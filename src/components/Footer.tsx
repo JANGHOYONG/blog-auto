@@ -19,7 +19,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div>
             <h3 className="font-bold text-lg mb-3 text-white flex items-center gap-2">
-              <span>🏥</span> 5060 건강주치의
+              <span>🏥</span> 시니어 건강백과
             </h3>
             <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.75)' }}>
               50·60대 중장년층을 위한<br />
@@ -68,7 +68,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="border-t pt-6 text-sm text-center" style={{ borderColor: 'rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.6)' }}>
-          <p>© {year} 5060 건강주치의. All rights reserved.</p>
+          <p>© {year} 시니어 건강백과. All rights reserved.</p>
           <p className="mt-1">본 사이트의 건강 정보는 참고용이며, 증상이 있을 경우 반드시 전문의와 상담하시기 바랍니다.</p>
           <p className="mt-2">
             <Link href="/privacy" className="hover:text-white transition-colors mx-2" style={{ color: 'rgba(255,255,255,0.6)' }}>개인정보처리방침</Link>

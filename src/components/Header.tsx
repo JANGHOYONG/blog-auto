@@ -37,7 +37,7 @@ export default function Header() {
           <Link href="/" className="shrink-0 flex items-center gap-2">
             <span className="text-xl">🏥</span>
             <span className="font-bold text-lg tracking-tight" style={{ color: 'var(--primary)' }}>
-              5060 건강주치의
+              시니어 건강백과
             </span>
           </Link>
 

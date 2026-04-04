@@ -258,7 +258,7 @@ html, body {
 
 <div class="brand">
   <span class="brand-icon">🏥</span>
-  <span class="brand-text">5060 건강주치의</span>
+  <span class="brand-text">시니어 건강백과</span>
 </div>
 
 ${slide.type !== 'cta' ? `<div class="type-badge">${slide.label || ''}</div>` : ''}

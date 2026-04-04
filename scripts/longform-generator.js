@@ -90,7 +90,7 @@ JSON 응답 (반드시 아래 7챕터 구조 유지):
     {
       "title": "이것 모르면 큰일 납니다",
       "imageQuery": "worried senior patient doctor consultation",
-      "narration": "안녕하세요, 5060 건강주치의입니다. [충격적인 통계나 반전 사실로 시작]. 혹시 여러분도 [공감 가는 상황]이신가요? 오늘 이 영상을 끝까지 보시면, [시청자가 얻을 명확한 혜택]을 알게 되실 겁니다. (200~230자. 반드시 충격적 훅으로 시작해 시청 이유 제시)"
+      "narration": "안녕하세요, 시니어 건강백과입니다. [충격적인 통계나 반전 사실로 시작]. 혹시 여러분도 [공감 가는 상황]이신가요? 오늘 이 영상을 끝까지 보시면, [시청자가 얻을 명확한 혜택]을 알게 되실 겁니다. (200~230자. 반드시 충격적 훅으로 시작해 시청 이유 제시)"
     },
     {
       "title": "왜 50·60대에 더 위험한가",
@@ -247,7 +247,7 @@ html, body {
 <body>
 
 <div class="top-bar">
-  <div class="channel-badge">🏥 5060 건강주치의</div>
+  <div class="channel-badge">🏥 시니어 건강백과</div>
   <div class="chapter-num">${chapterIdx} / ${totalChapters}</div>
 </div>
 

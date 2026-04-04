@@ -28,8 +28,8 @@ export default async function HomePage() {
 
   const jsonLd = generateJsonLd({
     type: 'WebSite',
-    title: '5060 건강주치의',
-    description: '50·60대를 위한 혈당·혈압·관절·수면·치매 예방 건강 정보',
+    title: '시니어 건강백과',
+    description: '시니어를 위한 혈당·혈압·관절·수면·치매 예방 건강 백과사전',
   });
 
   return (
@@ -45,8 +45,8 @@ export default async function HomePage() {
       <div style={{ background: 'linear-gradient(135deg, #177A5E 0%, #1E9E7A 50%, #4fc3a1 100%)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 text-center text-white">
           <p className="text-3xl mb-2">🏥</p>
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2 tracking-tight">5060 건강주치의</h1>
-          <p className="text-base opacity-85 mb-6">50·60대를 위한 정확하고 실천 가능한 건강 정보</p>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2 tracking-tight">시니어 건강백과</h1>
+          <p className="text-base opacity-85 mb-6">시니어를 위한 정확하고 실천 가능한 건강 백과사전</p>
           {/* 주제 빠른 탐색 */}
           <div className="flex flex-wrap justify-center gap-2">
             {TOPICS.map((t) => (
