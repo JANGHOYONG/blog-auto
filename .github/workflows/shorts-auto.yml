@@ -1,9 +1,8 @@
 name: Auto Generate YouTube Shorts
 
 on:
-  workflow_run:
-    workflows: ["Auto Publish Blog Post"]
-    types: [completed]
+  schedule:
+    - cron: '0 1 * * *'  # 오전 10시 KST (UTC 01:00) - 첫 블로그 발행 후
   workflow_dispatch:
     inputs:
       post_id:
@@ -16,8 +15,7 @@ jobs:
     timeout-minutes: 45
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-    # 메인 워크플로우가 성공한 경우만 실행
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
 
     steps:
       - name: Checkout

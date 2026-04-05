@@ -116,25 +116,33 @@ function injectBodyImages(content, images) {
   return content;
 }
 
-// ─── 건강 주제 분류 (순환 다양성 보장) ───────────────────────────────────────
+// ─── 건강 7대 주제 (네비게이션 순서 고정 로테이션) ──────────────────────────
+// 순서: 혈당·당뇨 → 혈압·심장 → 관절·근육 → 수면·피로 → 뇌건강·치매 → 갱년기 → 영양·식이
 const HEALTH_TOPICS = [
-  { id: 'blood_sugar', words: ['혈당', '당뇨', '인슐린', '혈糖'] },
-  { id: 'blood_pressure', words: ['혈압', '심장', '심혈관', '고혈압', '심근', '부정맥', '콜레스테롤'] },
-  { id: 'joint', words: ['관절', '무릎', '연골', '허리', '척추', '근육', '근감소', '골다공증'] },
-  { id: 'sleep', words: ['수면', '불면', '피로', '수면장애', '잠', '멜라토닌'] },
-  { id: 'brain', words: ['치매', '뇌', '기억력', '인지', '파킨슨', '뇌졸중'] },
-  { id: 'menopause', words: ['갱년기', '폐경', '호르몬', '안면홍조', '골밀도'] },
-  { id: 'nutrition', words: ['영양', '영양제', '비타민', '식이', '음식', '식단', '건강식'] },
-  { id: 'eye_skin', words: ['눈', '시력', '안구', '피부', '노화', '주름'] },
-  { id: 'digestion', words: ['소화', '장', '위', '대장', '변비', '장건강'] },
-  { id: 'immune', words: ['면역', '감기', '독감', '폐', '호흡'] },
+  { id: 'blood_sugar',    label: '혈당·당뇨',   words: ['혈당', '당뇨', '인슐린', '혈糖', '혈액당', '공복혈당'] },
+  { id: 'blood_pressure', label: '혈압·심장',   words: ['혈압', '심장', '심혈관', '고혈압', '심근', '부정맥', '콜레스테롤', '동맥경화', '심부전'] },
+  { id: 'joint',          label: '관절·근육',   words: ['관절', '무릎', '연골', '허리', '척추', '근육', '근감소', '골다공증', '어깨', '힘줄', '류마티스'] },
+  { id: 'sleep',          label: '수면·피로',   words: ['수면', '불면', '피로', '수면장애', '잠', '멜라토닌', '불면증', '만성피로', '졸음'] },
+  { id: 'brain',          label: '뇌건강·치매', words: ['치매', '뇌', '기억력', '인지', '파킨슨', '뇌졸중', '알츠하이머', '뇌건강', '인지저하'] },
+  { id: 'menopause',      label: '갱년기',      words: ['갱년기', '폐경', '호르몬', '안면홍조', '골밀도', '에스트로겐', '남성갱년기'] },
+  { id: 'nutrition',      label: '영양·식이',   words: ['영양', '영양제', '비타민', '식이', '음식', '식단', '건강식', '단백질', '오메가', '식품', '보충제'] },
 ];
+
+// 7개 주제 ID 순서 배열
+const TOPIC_ROTATION = HEALTH_TOPICS.map((t) => t.id);
 
 function getSubTopic(keyword) {
   for (const topic of HEALTH_TOPICS) {
     if (topic.words.some((w) => keyword.includes(w))) return topic.id;
   }
-  return 'other';
+  return null; // 분류 불가
+}
+
+// 다음 로테이션 주제 결정
+function getNextTopic(lastTopicId) {
+  if (!lastTopicId) return TOPIC_ROTATION[0];
+  const idx = TOPIC_ROTATION.indexOf(lastTopicId);
+  return TOPIC_ROTATION[(idx + 1) % TOPIC_ROTATION.length];
 }
 
 // ─── 슬러그 생성 ──────────────────────────────────────────────────────────────
@@ -412,50 +420,69 @@ async function main() {
       return;
     }
 
-    // 이미 발행된 글 키워드 목록 (중복 방지 + 주제 순환용)
+    // 최근 발행 글로 중복 방지 + 마지막 주제 파악
     const recentPublished = await prisma.post.findMany({
       where: { status: 'PUBLISHED' },
-      select: { keywords: true },
+      select: { title: true, keywords: true },
       orderBy: { publishedAt: 'desc' },
-      take: 30,
+      take: 50,
     });
     const usedKeywordSet = new Set(
       recentPublished.flatMap((p) => JSON.parse(p.keywords || '[]'))
     );
-    // 최근 10개 글의 주제 빈도 (많이 나온 주제는 우선순위 낮춤)
-    const recentTopics = recentPublished.slice(0, 10).flatMap((p) =>
-      JSON.parse(p.keywords || '[]').map(getSubTopic)
-    );
-    const topicCount = {};
-    for (const t of recentTopics) topicCount[t] = (topicCount[t] || 0) + 1;
 
-    // 키워드를 주제 다양성 점수로 정렬 (적게 나온 주제 우선)
-    const scoredKeywords = keywords.map((kw) => {
+    // 마지막 발행 글의 주제 파악 → 다음 주제 결정
+    let lastTopicId = null;
+    for (const p of recentPublished) {
+      const kws = JSON.parse(p.keywords || '[]');
+      const found = kws.map(getSubTopic).find((t) => t !== null);
+      if (found) { lastTopicId = found; break; }
+    }
+
+    // 이번 실행에서 순서대로 발행할 주제 목록 결정
+    const targetTopics = [];
+    let nextTopic = getNextTopic(lastTopicId);
+    for (let i = 0; i < generateCount; i++) {
+      targetTopics.push(nextTopic);
+      nextTopic = getNextTopic(nextTopic);
+    }
+    console.log(`\n마지막 발행 주제: ${lastTopicId || '없음'}`);
+    console.log(`이번 발행 순서: ${targetTopics.map((t) => HEALTH_TOPICS.find((h) => h.id === t)?.label).join(' → ')}\n`);
+
+    // 주제별로 키워드 미리 분류
+    const keywordsByTopic = {};
+    for (const kw of keywords) {
       const topic = getSubTopic(kw.keyword);
-      const topicFreq = topicCount[topic] || 0;
-      return { kw, topic, score: topicFreq };
-    });
-    scoredKeywords.sort((a, b) => a.score - b.score);
+      if (!topic) continue;
+      if (!keywordsByTopic[topic]) keywordsByTopic[topic] = [];
+      keywordsByTopic[topic].push(kw);
+    }
 
-    const usedTopicsThisRun = [];
-
-    for (const { kw, topic } of scoredKeywords) {
+    for (const targetTopic of targetTopics) {
       if (success >= generateCount) break;
 
-      // 이미 발행된 글과 키워드가 겹치면 건너뜀
-      if (usedKeywordSet.has(kw.keyword)) {
-        console.log(`  ⏭ 중복 키워드 건너뜀: "${kw.keyword}"`);
-        await prisma.keyword.update({ where: { id: kw.id }, data: { used: true } });
-        continue;
+      // 해당 주제 키워드 풀에서 미사용·중복 없는 것 선택
+      const pool = (keywordsByTopic[targetTopic] || [])
+        .filter((kw) => !usedKeywordSet.has(kw.keyword));
+
+      let kw;
+      if (pool.length > 0) {
+        kw = pool[0];
+      } else {
+        // 해당 주제 키워드가 없으면 미분류 키워드 중 아무거나
+        const fallback = keywords.find(
+          (k) => !usedKeywordSet.has(k.keyword) && !targetTopics.slice(0, success).includes(getSubTopic(k.keyword))
+        );
+        if (!fallback) {
+          console.log(`  ⚠️  [${HEALTH_TOPICS.find((h) => h.id === targetTopic)?.label}] 사용 가능한 키워드 없음. 건너뜀.`);
+          continue;
+        }
+        kw = fallback;
       }
 
-      // 이번 실행에서 같은 주제를 2회 이상 연속 선택 방지
-      if (usedTopicsThisRun.filter((t) => t === topic).length >= 1 && success < generateCount - 1) {
-        continue;
-      }
-      usedTopicsThisRun.push(topic);
-
-      console.log(`[${success + 1}/${generateCount}] "${kw.keyword}" (주제: ${topic}) 생성 중...`);
+      const topic = getSubTopic(kw.keyword) || targetTopic;
+      const topicLabel = HEALTH_TOPICS.find((h) => h.id === targetTopic)?.label || targetTopic;
+      console.log(`[${success + 1}/${generateCount}] [${topicLabel}] "${kw.keyword}" 생성 중...`);
 
       try {
         const gen = await generatePost(kw.keyword, kw.category.slug);
