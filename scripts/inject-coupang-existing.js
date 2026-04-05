@@ -86,31 +86,56 @@ function makeCoupangHtml(product, topicId) {
 </div>`;
 }
 
+// 삽입 위치 탐색 헬퍼 — 특정 위치 앞의 <section 찾기 (최소 위치 100 이상만 유효)
+function findValidSectionBefore(content, idx) {
+  let pos = content.lastIndexOf('<section', idx);
+  // 너무 앞(intro)이면 유효하지 않음
+  while (pos !== -1 && pos < 100) {
+    pos = content.lastIndexOf('<section', pos - 1);
+  }
+  return pos > 100 ? pos : -1;
+}
+
 function insertCoupangBox(content, product, topicId) {
   const box = makeCoupangHtml(product, topicId);
 
-  // 1순위: faq-item 이 있는 섹션 바로 앞
-  const faqSectionMatch = content.match(/(<section[^>]*>[\s\S]*?class="faq-item")/);
-  if (faqSectionMatch) {
-    const faqSectionStart = content.indexOf(faqSectionMatch[1]);
-    const sectionTagEnd = content.lastIndexOf('<section', faqSectionStart);
-    if (sectionTagEnd !== -1) {
-      return content.slice(0, sectionTagEnd) + box + '\n' + content.slice(sectionTagEnd);
-    }
+  // 1순위: faq-item 위치 직접 탐색 → 그 앞 section
+  const faqItemIdx = content.indexOf('class="faq-item"');
+  if (faqItemIdx !== -1) {
+    const pos = findValidSectionBefore(content, faqItemIdx);
+    if (pos !== -1) return content.slice(0, pos) + box + '\n' + content.slice(pos);
   }
 
-  // 2순위: 자주 묻는 질문 h2 앞 섹션
-  const faqH2 = content.indexOf('자주 묻는 질문');
-  if (faqH2 !== -1) {
-    const sectionBeforeFaq = content.lastIndexOf('<section', faqH2);
-    if (sectionBeforeFaq !== -1) {
-      return content.slice(0, sectionBeforeFaq) + box + '\n' + content.slice(sectionBeforeFaq);
+  // 2순위: 자주 묻는 질문 / FAQ 키워드 → 그 앞 section 또는 h2
+  for (const kw of ['자주 묻는 질문', '자주묻는질문']) {
+    const idx = content.indexOf(kw);
+    if (idx !== -1) {
+      const pos = findValidSectionBefore(content, idx);
+      if (pos !== -1) return content.slice(0, pos) + box + '\n' + content.slice(pos);
     }
   }
 
   // 3순위: conclusion 섹션 앞
   if (content.includes('<section class="conclusion">')) {
     return content.replace('<section class="conclusion">', box + '\n<section class="conclusion">');
+  }
+
+  // 4순위: 마무리 / 결론 h2 → 그 앞 section
+  for (const kw of ['마무리', '결론', '오늘부터 바로']) {
+    const idx = content.indexOf(kw);
+    if (idx !== -1) {
+      const pos = findValidSectionBefore(content, idx);
+      if (pos !== -1) return content.slice(0, pos) + box + '\n' + content.slice(pos);
+    }
+  }
+
+  // 5순위: 마지막 h2 앞에 직접 삽입 (h2가 3개 이상인 경우만)
+  const allH2s = [...content.matchAll(/<h2/g)];
+  if (allH2s.length >= 3) {
+    const lastH2 = allH2s[allH2s.length - 1];
+    if (lastH2.index > 200) {
+      return content.slice(0, lastH2.index) + box + '\n' + content.slice(lastH2.index);
+    }
   }
 
   // 최후: </article> 바로 앞
