@@ -19,6 +19,82 @@ const getArg = (name) => {
 const generateCount = parseInt(getArg('count') || process.env.DAILY_POST_LIMIT || '3');
 const targetCategory = getArg('category');
 
+// ─── 쿠팡파트너스 구글 시트 연동 ─────────────────────────────────────────────
+const COUPANG_SHEET_ID = '19oPpfTbJaeTn6YtHS7QTRv1Q1XiZuMSCfO7PRU4bL-I';
+
+// 7대 주제 → 구글 시트 탭 이름 매핑
+const TOPIC_TO_SHEET = {
+  blood_sugar:    '혈당당뇨',
+  blood_pressure: '혈압심장',
+  joint:          '관절근육',
+  sleep:          '수면피로',
+  brain:          '뇌건강',
+  menopause:      '갱년기',
+  nutrition:      '영양식이',
+};
+
+// 주제별 CTA 문구 (블로그에 표시되는 문구)
+const TOPIC_CTA_TEXT = {
+  blood_sugar:    '혈당 관리에 도움되는 추천 제품',
+  blood_pressure: '혈압·혈관 건강에 도움되는 추천 제품',
+  joint:          '관절·연골 건강에 도움되는 추천 제품',
+  sleep:          '수면의 질 개선에 도움되는 추천 제품',
+  brain:          '뇌 건강·기억력에 도움되는 추천 제품',
+  menopause:      '갱년기 건강에 도움되는 추천 제품',
+  nutrition:      '영양 보충에 도움되는 추천 제품',
+};
+
+// 구글 시트에서 해당 주제 상품 목록 읽기 (CSV 파싱)
+async function fetchCoupangProducts(topicId) {
+  const sheetName = TOPIC_TO_SHEET[topicId];
+  if (!sheetName) return [];
+  try {
+    const url = `https://docs.google.com/spreadsheets/d/${COUPANG_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const csv = await res.text();
+    const lines = csv.trim().split('\n').slice(1); // 헤더 제거
+    return lines
+      .map((line) => {
+        // CSV 파싱: "상품명","URL","메모"
+        const cols = line.match(/(".*?"|[^,]+)(?=\s*,|\s*$)/g) || [];
+        const name = (cols[0] || '').replace(/^"|"$/g, '').trim();
+        const url  = (cols[1] || '').replace(/^"|"$/g, '').trim();
+        return name && url ? { name, url } : null;
+      })
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+// 쿠팡 추천 박스 HTML 생성 (쿠팡 파트너스 활동 기준 준수)
+function makeCoupangHtml(product, topicId) {
+  const ctaText = TOPIC_CTA_TEXT[topicId] || '관련 추천 제품';
+  return `
+<div class="coupang-affiliate-box">
+  <p class="coupang-label">🛒 ${ctaText}</p>
+  <a href="${product.url}" target="_blank" rel="noopener sponsored" class="coupang-link">
+    ${product.name} 쿠팡에서 보기 →
+  </a>
+  <p class="coupang-disclosure">⚠️ 파트너스 활동 안내: 이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다. 추천 제품의 가격·재고는 쿠팡 사이트에서 확인하세요.</p>
+</div>`;
+
+// 본문 중간(FAQ 섹션 앞)에 쿠팡 박스 삽입
+function insertCoupangBox(content, product, topicId) {
+  if (!product) return content;
+  const box = makeCoupangHtml(product, topicId);
+  // FAQ 섹션 바로 앞에 삽입
+  if (content.includes('<section class="conclusion">')) {
+    return content.replace('<section class="conclusion">', box + '\n<section class="conclusion">');
+  }
+  // 없으면 </article> 바로 앞에
+  if (content.includes('</article>')) {
+    return content.replace('</article>', box + '\n</article>');
+  }
+  return content + box;
+}
+
 // ─── Pexels 이미지 ───────────────────────────────────────────────────────────
 async function fetchPexelsImage(query) {
   const key = process.env.PEXELS_API_KEY;
@@ -523,6 +599,21 @@ async function main() {
             : gen.keywords.slice(0, 2);
           const bodyImgs = await fetchBodyImages(bodyQueries, 2);
           if (bodyImgs.length) content = injectBodyImages(content, bodyImgs);
+        }
+
+        // 쿠팡파트너스 상품 삽입 (health 카테고리 + 주제 매칭 시)
+        if (kw.category.slug === 'health' && TOPIC_TO_SHEET[targetTopic]) {
+          try {
+            const coupangProducts = await fetchCoupangProducts(targetTopic);
+            if (coupangProducts.length) {
+              // 랜덤으로 상품 1개 선택
+              const product = coupangProducts[Math.floor(Math.random() * coupangProducts.length)];
+              content = insertCoupangBox(content, product, targetTopic);
+              console.log(`    쿠팡 상품: "${product.name}"`);
+            }
+          } catch (e) {
+            console.log(`    쿠팡 상품 로딩 실패 (건너뜀): ${e.message}`);
+          }
         }
 
         const slug = generateSlug(gen.selectedTitle);

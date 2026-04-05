@@ -253,6 +253,34 @@
     border-left: 3px solid var(--primary);
   }
 
+  /* 쿠팡파트너스 추천 박스 */
+  .prose-custom .coupang-affiliate-box {
+    @apply my-8 p-5 rounded-2xl;
+    background: linear-gradient(135deg, #FFF9F0 0%, #FFF3E0 100%);
+    border: 1.5px solid #FFB74D;
+  }
+  .prose-custom .coupang-affiliate-box .coupang-label {
+    @apply text-sm font-bold mb-3 m-0;
+    color: #E65100;
+  }
+  .prose-custom .coupang-affiliate-box .coupang-link {
+    @apply block w-full text-center py-3 px-5 rounded-xl font-medium text-sm no-underline mb-3 transition-all;
+    background: #FF6B35;
+    color: #ffffff !important;
+  }
+  .prose-custom .coupang-affiliate-box .coupang-link:hover {
+    background: #E55A28;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255,107,53,0.3);
+  }
+  .prose-custom .coupang-affiliate-box .coupang-disclosure {
+    @apply text-xs m-0 leading-relaxed;
+    color: #9E6B3A;
+    border-top: 1px dashed #FFD0A0;
+    padding-top: 0.5rem;
+    margin-top: 0.5rem !important;
+  }
+
   /* 스켈레톤 */
   .skeleton {
     @apply animate-pulse rounded-xl;
