@@ -154,6 +154,11 @@ export default async function PostPage({ params }: Props) {
               </div>
             </header>
 
+            {/* 본문 상단 광고 */}
+            <div className="mb-6">
+              <AdSense slot="top-banner" format="horizontal" />
+            </div>
+
             {/* 본문 */}
             <article
               className="prose-custom"
@@ -164,6 +169,11 @@ export default async function PostPage({ params }: Props) {
                   .replace(/<div class=["']ad-slot ad-bottom["']><\/div>/g, ''),
               }}
             />
+
+            {/* 본문 중간 광고 */}
+            <div className="my-8">
+              <AdSense slot="post-middle" format="rectangle" />
+            </div>
 
             {/* 키워드 태그 */}
             {keywords.length > 0 && (

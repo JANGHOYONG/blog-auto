@@ -15,11 +15,11 @@ export default function AdSense({ slot, format = 'auto', className = '', sticky 
 
   // 슬롯 ID 매핑 (환경변수로 관리)
   const slotIds: Record<string, string> = {
-    'top-banner':      process.env.NEXT_PUBLIC_ADSENSE_SLOT_TOP    || '',
-    'sidebar':         process.env.NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR || '',
+    'top-banner':      process.env.NEXT_PUBLIC_ADSENSE_SLOT_TOP     || '',
+    'post-middle':     process.env.NEXT_PUBLIC_ADSENSE_SLOT_MIDDLE  || '',
     'post-bottom':     process.env.NEXT_PUBLIC_ADSENSE_SLOT_BOTTOM  || '',
     'post-sidebar':    process.env.NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR || '',
-    'category-top':    process.env.NEXT_PUBLIC_ADSENSE_SLOT_TOP    || '',
+    'category-top':    process.env.NEXT_PUBLIC_ADSENSE_SLOT_TOP     || '',
     'category-bottom': process.env.NEXT_PUBLIC_ADSENSE_SLOT_BOTTOM  || '',
   };
 

@@ -45,9 +45,11 @@ async function fetchPexelsImage(query) {
   }
 }
 
-async function fetchBodyImages(keywords, count = 2) {
+async function fetchBodyImages(keywords, count = 3) {
   const results = [];
-  const queries = keywords.slice(0, count);
+  // 키워드가 부족하면 'senior health' 기본 쿼리로 채움
+  const queries = [...keywords.slice(0, count)];
+  while (queries.length < count) queries.push('senior health wellness');
   for (const q of queries) {
     const img = await fetchPexelsImage(q);
     if (img) results.push(img);
@@ -69,45 +71,52 @@ function makeImgHtml(img) {
 function injectBodyImages(content, images) {
   if (!images.length) return content;
 
-  // 1순위: </section> 기준 2번째, 4번째 뒤에 삽입
+  // 1순위: </section> 기준 2번째, 4번째, 6번째 뒤에 삽입 (3장)
   const sectionCount = (content.match(/<\/section>/g) || []).length;
   if (sectionCount >= 2) {
     let count = 0;
     let imgIdx = 0;
     return content.replace(/<\/section>/g, (match) => {
       count++;
-      if ((count === 2 || count === 4) && imgIdx < images.length) {
+      if ((count === 2 || count === 4 || count === 6) && imgIdx < images.length) {
         return match + makeImgHtml(images[imgIdx++]);
       }
       return match;
     });
   }
 
-  // 2순위: </section> 없으면 </h2> 기준 2번째, 4번째 뒤에 삽입
+  // 2순위: </section> 없으면 </h2> 기준 2번째, 4번째, 6번째 뒤에 삽입
   const h2Count = (content.match(/<\/h2>/g) || []).length;
   if (h2Count >= 2) {
     let count = 0;
     let imgIdx = 0;
     return content.replace(/<\/h2>/g, (match) => {
       count++;
-      if ((count === 2 || count === 4) && imgIdx < images.length) {
+      if ((count === 2 || count === 4 || count === 6) && imgIdx < images.length) {
         return match + makeImgHtml(images[imgIdx++]);
       }
       return match;
     });
   }
 
-  // 3순위: 글 중간과 끝에 강제 삽입
-  const half = Math.floor(content.length / 2);
-  const insertPos = content.indexOf('</p>', half);
+  // 3순위: 글 1/3, 2/3, 끝 부분에 강제 삽입
+  const third = Math.floor(content.length / 3);
+  const insertPos = content.indexOf('</p>', third);
   if (insertPos !== -1 && images.length >= 1) {
     const after = insertPos + 4;
     let result = content.slice(0, after) + makeImgHtml(images[0]) + content.slice(after);
     if (images.length >= 2) {
-      const threeQ = Math.floor(result.length * 0.75);
-      const insertPos2 = result.indexOf('</p>', threeQ);
+      const twoThird = Math.floor(result.length * 0.6);
+      const insertPos2 = result.indexOf('</p>', twoThird);
       if (insertPos2 !== -1) {
         result = result.slice(0, insertPos2 + 4) + makeImgHtml(images[1]) + result.slice(insertPos2 + 4);
+      }
+    }
+    if (images.length >= 3) {
+      const threeQ = Math.floor(result.length * 0.85);
+      const insertPos3 = result.indexOf('</p>', threeQ);
+      if (insertPos3 !== -1) {
+        result = result.slice(0, insertPos3 + 4) + makeImgHtml(images[2]) + result.slice(insertPos3 + 4);
       }
     }
     return result;

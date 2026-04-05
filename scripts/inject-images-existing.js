@@ -42,43 +42,50 @@ function makeImgHtml(img) {
 function injectBodyImages(content, images) {
   if (!images.length) return content;
 
-  // </section> 기준 2번째, 4번째 뒤에 삽입
+  // </section> 기준 2번째, 4번째, 6번째 뒤에 삽입 (3장)
   const sectionCount = (content.match(/<\/section>/g) || []).length;
   if (sectionCount >= 2) {
     let count = 0, imgIdx = 0;
     return content.replace(/<\/section>/g, (match) => {
       count++;
-      if ((count === 2 || count === 4) && imgIdx < images.length) {
+      if ((count === 2 || count === 4 || count === 6) && imgIdx < images.length) {
         return match + makeImgHtml(images[imgIdx++]);
       }
       return match;
     });
   }
 
-  // </h2> 기준
+  // </h2> 기준 2번째, 4번째, 6번째
   const h2Count = (content.match(/<\/h2>/g) || []).length;
   if (h2Count >= 2) {
     let count = 0, imgIdx = 0;
     return content.replace(/<\/h2>/g, (match) => {
       count++;
-      if ((count === 2 || count === 4) && imgIdx < images.length) {
+      if ((count === 2 || count === 4 || count === 6) && imgIdx < images.length) {
         return match + makeImgHtml(images[imgIdx++]);
       }
       return match;
     });
   }
 
-  // 글 중간/끝 강제 삽입
-  const half = Math.floor(content.length / 2);
-  const insertPos = content.indexOf('</p>', half);
+  // 글 1/3, 2/3, 끝 부분 강제 삽입
+  const third = Math.floor(content.length / 3);
+  const insertPos = content.indexOf('</p>', third);
   if (insertPos !== -1 && images.length >= 1) {
     const after = insertPos + 4;
     let result = content.slice(0, after) + makeImgHtml(images[0]) + content.slice(after);
     if (images.length >= 2) {
-      const threeQ = Math.floor(result.length * 0.75);
-      const insertPos2 = result.indexOf('</p>', threeQ);
+      const twoThird = Math.floor(result.length * 0.6);
+      const insertPos2 = result.indexOf('</p>', twoThird);
       if (insertPos2 !== -1) {
         result = result.slice(0, insertPos2 + 4) + makeImgHtml(images[1]) + result.slice(insertPos2 + 4);
+      }
+    }
+    if (images.length >= 3) {
+      const threeQ = Math.floor(result.length * 0.85);
+      const insertPos3 = result.indexOf('</p>', threeQ);
+      if (insertPos3 !== -1) {
+        result = result.slice(0, insertPos3 + 4) + makeImgHtml(images[2]) + result.slice(insertPos3 + 4);
       }
     }
     return result;
@@ -117,12 +124,9 @@ function titleToSearchQuery(title) {
 async function main() {
   console.log('=== 기존 글 이미지 주입 시작 ===\n');
 
-  // 썸네일 없는 발행 글 조회
+  // 발행된 글 전체 조회 (썸네일 유무 무관)
   const posts = await prisma.post.findMany({
-    where: {
-      status: 'PUBLISHED',
-      OR: [{ thumbnail: null }, { thumbnail: '' }],
-    },
+    where: { status: 'PUBLISHED' },
     orderBy: { publishedAt: 'desc' },
     take: 20,
   });
@@ -140,13 +144,15 @@ async function main() {
       const thumbnail = thumbImg ? thumbImg.url : null;
       console.log(`  썸네일: ${thumbnail ? '✅' : '❌'}`);
 
-      // 본문 이미지 2장 (다른 쿼리로)
+      // 본문 이미지 3장 (각기 다른 쿼리로)
       const bodyImg1 = await fetchPexelsImage(query + ' medical');
       await new Promise((r) => setTimeout(r, 300));
       const bodyImg2 = await fetchPexelsImage('healthy senior lifestyle');
       await new Promise((r) => setTimeout(r, 300));
+      const bodyImg3 = await fetchPexelsImage(query + ' food nutrition');
+      await new Promise((r) => setTimeout(r, 300));
 
-      const bodyImgs = [bodyImg1, bodyImg2].filter(Boolean);
+      const bodyImgs = [bodyImg1, bodyImg2, bodyImg3].filter(Boolean);
       let content = post.content;
       if (bodyImgs.length) {
         content = injectBodyImages(content, bodyImgs);
