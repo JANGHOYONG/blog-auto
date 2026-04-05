@@ -84,7 +84,7 @@ ${fullContent}
 JSON 응답 (반드시 아래 7챕터 구조 유지):
 {
   "youtubeTitle": "유튜브 제목 (55자 이내. '이것만 알면', '지금 당장', '절대 모르는' 등 강한 어휘 활용)",
-  "description": "영상 설명 300자. 첫 줄: 시청자가 얻을 것. 둘째줄~: 핵심 내용 요약.",
+  "description": "영상 설명 250~300자. 첫 줄: 시청자가 얻을 핵심 혜택 (클릭 유발). 둘째줄~: 이 영상에서 다루는 핵심 내용 3가지 요약. 마지막 줄: '자세한 내용과 실천 가이드는 블로그에서 확인하세요 👇'",
   "tags": ["건강", "5060건강", "시니어건강", "건강정보", "관련태그"],
   "chapters": [
     {
@@ -509,11 +509,14 @@ async function main() {
     const timestamps = buildChapterTimestamps(script.chapters, durations);
     const fullDesc =
       `${script.description}\n\n` +
-      `📖 블로그 전문 보기: ${postUrl}\n\n` +
+      `📖 블로그 전문 + 실천 가이드 보기 👉 ${postUrl}\n\n` +
+      `이 영상이 도움이 됐다면 구독 & 좋아요 꼭 눌러주세요! 💚\n` +
+      `매일 5060 건강 정보를 영상으로 전달해드립니다.\n\n` +
       `─────────────────────\n` +
       `⏱️ 챕터\n${timestamps}\n` +
       `─────────────────────\n\n` +
-      `${script.tags.map((t) => '#' + t.replace(/\s/g, '')).join(' ')} #5060건강 #건강정보 #시니어건강`;
+      `💬 궁금한 점은 댓글로 남겨주세요. 최대한 빠르게 답변드립니다!\n\n` +
+      `${script.tags.map((t) => '#' + t.replace(/\s/g, '')).join(' ')} #5060건강 #건강정보 #시니어건강 #건강채널`;
 
     if (process.env.YOUTUBE_REFRESH_TOKEN) {
       const { uploadToYouTube } = require('./youtube-uploader');

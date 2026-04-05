@@ -26,6 +26,51 @@ function parseJson(text) {
   return JSON.parse(match[1]);
 }
 
+// ─── 계절성 키워드 (현재 월 기준 자동 선택) ───────────────────────────────────
+const SEASONAL_KEYWORDS = {
+  spring: { // 3~5월
+    label: '봄',
+    keywords: [
+      '춘곤증 극복 방법', '봄나물 효능 TOP10', '봄 황사 폐 건강 지키기',
+      '봄철 환절기 면역력 높이는 법', '봄 알레르기 비염 대처법',
+      '봄에 먹으면 좋은 제철 음식', '봄 피로 회복 음식',
+      '꽃가루 알레르기 50대 대처법', '봄 나들이 시니어 건강 주의사항',
+    ],
+  },
+  summer: { // 6~8월
+    label: '여름',
+    keywords: [
+      '여름 열사병 예방법', '여름 냉방병 원인 증상', '무더위 고혈압 관리',
+      '여름 수분 보충 방법', '여름철 장염 예방', '시니어 여름 더위 대처법',
+      '여름 면역력 음식', '에어컨 관절통 해결법', '열대야 수면 방법',
+    ],
+  },
+  autumn: { // 9~11월
+    label: '가을',
+    keywords: [
+      '가을 환절기 감기 예방', '추석 음식 혈당 관리', '가을 우울증 극복법',
+      '가을 운동 시작하는 법', '늦가을 면역력 관리', '10월 건강검진 항목',
+      '가을 제철 음식 효능', '기온차 관절통 대처법', '가을 피부 건강 관리',
+    ],
+  },
+  winter: { // 12~2월
+    label: '겨울',
+    keywords: [
+      '겨울 뇌졸중 예방법', '한파 고혈압 위험', '겨울 관절 통증 원인',
+      '겨울철 실내 운동 방법', '연말 과음 간 건강 회복', '설날 음식 혈당 관리',
+      '겨울 비타민D 부족 증상', '한겨울 낙상 예방 시니어', '면역력 높이는 겨울 음식',
+    ],
+  },
+};
+
+function getCurrentSeason() {
+  const month = new Date().getMonth() + 1; // 1~12
+  if (month >= 3 && month <= 5) return 'spring';
+  if (month >= 6 && month <= 8) return 'summer';
+  if (month >= 9 && month <= 11) return 'autumn';
+  return 'winter';
+}
+
 // 건강 7대 주제 (네비게이션과 동일 순서)
 const HEALTH_SUBTOPICS = [
   { id: 'blood_sugar',    label: '혈당·당뇨',   guide: '혈당, 당뇨병, 인슐린 저항성, 공복혈당, 혈당 관리, 당뇨 식단, 혈당 낮추는 방법 등' },
@@ -111,6 +156,35 @@ JSON: { "keywords": [{ "keyword": "키워드", "priority": 1, "estimatedVolume":
   return { keywords: allKeywords };
 }
 
+// ─── 계절성 키워드 DB 저장 ──────────────────────────────────────────────────────
+async function saveSeasonalKeywords(healthCategoryId) {
+  const season = getCurrentSeason();
+  const seasonal = SEASONAL_KEYWORDS[season];
+  console.log(`\n🌸 계절성 키워드 주입 [${seasonal.label}] — ${seasonal.keywords.length}개`);
+
+  let saved = 0;
+  for (const keyword of seasonal.keywords) {
+    try {
+      await prisma.keyword.upsert({
+        where: { keyword },
+        update: { priority: 1 }, // 계절성은 최우선 순위
+        create: {
+          keyword,
+          categoryId: healthCategoryId,
+          priority: 1,
+          searchVolume: 5000,
+          competition: 0.2,
+          used: false,
+        },
+      });
+      saved++;
+    } catch (e) {
+      // 중복 등 무시
+    }
+  }
+  console.log(`  ✅ ${saved}개 저장 완료`);
+}
+
 async function main() {
   console.log('=== 키워드 수집 시작 (GPT-4o-mini) ===');
 
@@ -156,15 +230,21 @@ async function main() {
       await new Promise((r) => setTimeout(r, 1000));
     }
 
+    // 계절성 키워드 주입 (health 카테고리에만)
+    const healthCat = categories.find((c) => c.slug === 'health');
+    if (healthCat) {
+      await saveSeasonalKeywords(healthCat.id);
+    }
+
     await prisma.automationLog.create({
       data: {
         type: 'KEYWORD_COLLECT',
         status: 'SUCCESS',
-        message: `키워드 ${totalSaved}개 수집 완료 (GPT-4o-mini)`,
+        message: `키워드 ${totalSaved}개 수집 완료 (GPT-4o-mini, 계절성 포함)`,
       },
     });
 
-    console.log(`\n✅ 총 ${totalSaved}개 키워드 수집 완료`);
+    console.log(`\n✅ 총 ${totalSaved}개 키워드 수집 완료 (계절성 포함)`);
   } catch (e) {
     console.error('오류:', e.message);
   } finally {

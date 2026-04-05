@@ -65,7 +65,7 @@ async function generateShortsScript(post) {
 JSON:
 {
   "youtubeTitle": "유튜브 제목 (40자 이내, 클릭 유발, #Shorts 포함)",
-  "description": "설명 80자 이내",
+  "description": "시청자가 얻을 핵심 정보 1줄 (60~80자). 끝에 '전체 내용은 블로그에서 확인하세요 👇' 추가",
   "tags": ["건강", "5060건강", "시니어건강", "관련태그"],
   "slides": [
     { "narration": "첫 슬라이드 실제 대사 (60~75자)", "imageQuery": "worried senior health" },
@@ -389,8 +389,12 @@ async function main() {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://smartinfoblog.co.kr';
     const postUrl = `${siteUrl}/${post.category.slug}/${post.slug}`;
     const fullDesc =
-      `${script.description}\n\n📖 블로그 전문: ${postUrl}\n\n` +
-      `${(script.tags || []).map((t) => '#' + t.replace(/\s/g, '')).join(' ')} #Shorts #건강정보 #시니어건강`;
+      `${script.description}\n\n` +
+      `📖 전체 내용 + 실천 가이드 보기 👉 ${postUrl}\n\n` +
+      `이 영상이 도움이 됐다면 구독 & 좋아요 눌러주세요! 💚\n` +
+      `매일 새로운 5060 건강 정보를 쇼츠로 전해드립니다.\n\n` +
+      `─────────────────────\n` +
+      `${(script.tags || []).map((t) => '#' + t.replace(/\s/g, '')).join(' ')} #Shorts #건강정보 #시니어건강 #5060건강`;
 
     if (process.env.YOUTUBE_REFRESH_TOKEN) {
       const { uploadToYouTube } = require('./youtube-uploader');

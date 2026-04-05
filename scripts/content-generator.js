@@ -257,6 +257,10 @@ HTML 구조 (반드시 이 순서로, </article>로 반드시 닫을 것):
 <article>
 
 <section class="intro">
+  <div class="definition-box">
+    <h3>💡 ${keyword}란?</h3>
+    <p>[40~60자로 명확하게 정의. 구글 Featured Snippet에 최적화된 한 문장 정의]</p>
+  </div>
   <div class="summary-box">
     <ul>
       <li>핵심 내용 1</li>
@@ -358,6 +362,14 @@ HTML 구조 (반드시 이 순서로, </article>로 반드시 닫을 것):
   <p>핵심 내용 요약 (3~4문장)</p>
   <p>독자 격려 및 행동 촉구 (3~4문장)</p>
   <div class="info-box"><p>이 글에서 배운 내용을 한 줄로 정리하면: <strong>[핵심 한 줄 요약]</strong></p></div>
+  <div class="cta-box">
+    <p class="cta-title">📌 이 글이 도움이 되셨나요?</p>
+    <div class="cta-buttons">
+      <a href="/" class="cta-btn cta-btn-primary">더 많은 건강 정보 보기 →</a>
+      <button class="cta-btn cta-btn-share" onclick="navigator.share ? navigator.share({title: document.title, url: location.href}) : window.open('https://story.kakao.com/share?url=' + encodeURIComponent(location.href))">📤 카카오톡 공유</button>
+    </div>
+    <p class="cta-sub">가족·친구에게 공유하면 더 큰 도움이 됩니다 💚</p>
+  </div>
 </section>
 
 </article>`,

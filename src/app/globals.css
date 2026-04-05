@@ -194,6 +194,59 @@
     color: var(--primary-dark);
   }
 
+  /* Featured Snippet 정의형 박스 */
+  .prose-custom .definition-box {
+    @apply my-6 p-5 rounded-2xl;
+    background: linear-gradient(135deg, #E8F5EE 0%, #D1F0E3 100%);
+    border: 2px solid var(--primary);
+  }
+  .prose-custom .definition-box h3 {
+    @apply text-base font-bold mb-2;
+    color: var(--primary-dark);
+  }
+  .prose-custom .definition-box p {
+    @apply text-base leading-relaxed m-0;
+    color: var(--text);
+  }
+
+  /* 마무리 CTA 박스 */
+  .prose-custom .cta-box {
+    @apply my-10 p-6 rounded-2xl text-center;
+    background: linear-gradient(135deg, #1E9E7A 0%, #157a5e 100%);
+    box-shadow: 0 8px 32px rgba(30,158,122,0.25);
+  }
+  .prose-custom .cta-box .cta-title {
+    @apply text-lg font-bold mb-4;
+    color: #ffffff;
+  }
+  .prose-custom .cta-box .cta-buttons {
+    @apply flex flex-wrap gap-3 justify-center mb-3;
+  }
+  .prose-custom .cta-box .cta-btn {
+    @apply px-5 py-2.5 rounded-xl font-medium text-sm cursor-pointer border-0 transition-all;
+  }
+  .prose-custom .cta-box .cta-btn-primary {
+    background: #ffffff;
+    color: var(--primary-dark);
+  }
+  .prose-custom .cta-box .cta-btn-primary:hover {
+    background: #E8F5EE;
+    transform: translateY(-1px);
+  }
+  .prose-custom .cta-box .cta-btn-share {
+    background: rgba(255,255,255,0.15);
+    color: #ffffff;
+    border: 1px solid rgba(255,255,255,0.4) !important;
+  }
+  .prose-custom .cta-box .cta-btn-share:hover {
+    background: rgba(255,255,255,0.25);
+    transform: translateY(-1px);
+  }
+  .prose-custom .cta-box .cta-sub {
+    @apply text-sm m-0;
+    color: rgba(255,255,255,0.85);
+  }
+
   /* 스텝 번호 */
   .prose-custom .step-box {
     @apply my-6 pl-6 relative;
