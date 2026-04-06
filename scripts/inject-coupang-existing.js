@@ -71,12 +71,12 @@ async function fetchCoupangProducts(topicId) {
 function makeCoupangHtml(product, topicId) {
   const ctaText = TOPIC_CTA_TEXT[topicId] || '건강 추천 제품';
   return `
-<div class="coupang-affiliate-box">
-  <a href="${product.url}" target="_blank" rel="noopener sponsored" class="coupang-banner">
-    <span class="coupang-banner-text">🛒 ${ctaText}</span>
-    <span class="coupang-banner-btn">쿠팡에서 보기 →</span>
+<div style="margin:2rem 0;">
+  <a href="${product.url}" target="_blank" rel="noopener sponsored" style="display:flex;align-items:center;justify-content:space-between;text-decoration:none;padding:1rem 1.25rem;border-radius:16px;background:linear-gradient(90deg,#FF6B35 0%,#FF8A38 100%);box-shadow:0 3px 12px rgba(255,107,53,0.22);">
+    <span style="color:#ffffff;font-size:1.1875rem;font-weight:700;line-height:1.3;">🛒 ${ctaText}</span>
+    <span style="background:#ffffff;color:#FF6B35;padding:0.5rem 1rem;border-radius:12px;font-weight:700;font-size:0.875rem;white-space:nowrap;margin-left:0.75rem;flex-shrink:0;">쿠팡에서 보기 →</span>
   </a>
-  <p class="coupang-disclosure">이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
+  <p style="font-size:0.75rem;margin-top:0.5rem;margin-bottom:0;color:#AAAAAA;line-height:1.6;">이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
 </div>`;
 }
 
