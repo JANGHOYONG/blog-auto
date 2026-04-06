@@ -8,6 +8,7 @@ import RelatedPosts from '@/components/RelatedPosts';
 import TOC from '@/components/TOC';
 import ShareButtons from '@/components/ShareButtons';
 import ArticleCard from '@/components/ArticleCard';
+import CoupangDynamicBanner from '@/components/CoupangDynamicBanner';
 
 export const revalidate = 86400;
 
@@ -169,6 +170,11 @@ export default async function PostPage({ params }: Props) {
                   .replace(/<div class=["']ad-slot ad-bottom["']><\/div>/g, ''),
               }}
             />
+
+            {/* 쿠팡 다이나믹 배너 (비건강 카테고리 전용) */}
+            {post.category.slug !== 'health' && (
+              <CoupangDynamicBanner />
+            )}
 
             {/* 본문 중간 광고 */}
             <div className="my-8">
