@@ -50,7 +50,7 @@ export default function TOC({ headings }: Props) {
   return (
     <>
       {/* 데스크탑 사이드바 목차 */}
-      <nav className="card p-4 sticky top-20 text-sm hidden lg:block">
+      <nav className="card p-4 text-sm hidden lg:block">
         <p className="font-bold mb-3" style={{ color: 'var(--text)' }}>목차</p>
         <ol className="space-y-2">{linkList}</ol>
       </nav>

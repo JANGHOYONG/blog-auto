@@ -257,9 +257,9 @@ export default async function PostPage({ params }: Props) {
           </div>
 
           {/* 사이드바 */}
-          <aside className="space-y-5">
+          <aside className="space-y-5 lg:sticky lg:top-20 lg:self-start">
             <TOC headings={headings} />
-            <AdSense slot="post-sidebar" format="rectangle" sticky />
+            <AdSense slot="post-sidebar" format="rectangle" />
           </aside>
         </div>
 
