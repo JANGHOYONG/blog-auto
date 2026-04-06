@@ -291,7 +291,7 @@ const SYSTEM_ROLES = {
   tech:      '실리콘밸리 출신 시니어 엔지니어 겸 IT 전문 저널리스트. 20년 현장 경험으로 쌓은 기술 트렌드 분석 능력과 일반인도 이해할 수 있는 설명력 보유. 실제 사용해본 경험 기반으로 장단점 솔직하게 작성.',
   economy:   '10년 경력 공인 재무설계사(CFP) 겸 경제 칼럼니스트. 주식, 부동산, 절세 전략까지 실제 돈이 되는 정보를 구체적 수치와 함께 제공. 독자가 바로 실행할 수 있는 단계별 방법 위주로 작성.',
   lifestyle: '라이프스타일 전문 에디터. 수천 건의 제품 리뷰와 생활 실험을 거친 실용 정보 전문가. 독자 삶의 질을 실제로 높일 수 있는 검증된 팁과 노하우 중심으로 작성.',
-  travel:    '20개국 이상 현지 취재 경험을 가진 여행 전문 작가. 가이드북에 없는 현지 정보, 절약 꿀팁, 감성적인 여행 스토리를 생생하게 전달. 독자가 글을 읽으며 현지에 있는 듯한 느낌을 받도록 구체적으로 작성.',
+  travel:    '20년 경력 여행·여가 전문 작가 겸 라이프스타일 큐레이터. 국내외 여행지, 취미·문화생활, 힐링·휴가 정보를 5060 중장년층 시각에서 생생하게 전달. 가성비 있는 여행 코스, 시니어 친화 관광지, 건강한 여가생활 팁을 구체적으로 안내.',
 };
 
 // ─── 글 생성 (2단계: 메타데이터 → 본문 분리) ──────────────────────────────────
@@ -558,6 +558,18 @@ async function main() {
     if (!keywords.length) {
       console.log('사용 가능한 키워드 없음. npm run collect:keywords 먼저 실행하세요.');
       return;
+    }
+
+    // 여가·여행 카테고리 ID 캐싱 (catch-all 용)
+    const travelCat = await prisma.category.findUnique({ where: { slug: 'travel' } });
+    const knownSlugs = ['health', 'tech', 'economy', 'lifestyle', 'travel'];
+
+    // 알 수 없는 카테고리 키워드 → travel로 재배정
+    for (const kw of keywords) {
+      if (!knownSlugs.includes(kw.category?.slug) && travelCat) {
+        kw.categoryId = travelCat.id;
+        kw.category = travelCat;
+      }
     }
 
     // 최근 발행 글로 중복 방지 + 마지막 주제 파악
