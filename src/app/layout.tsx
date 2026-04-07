@@ -6,8 +6,8 @@ import ProgressBar from '@/components/ProgressBar';
 import ScrollToTop from '@/components/ScrollToTop';
 import './globals.css';
 
-const SITE_NAME  = process.env.NEXT_PUBLIC_SITE_NAME || 'Smart Info Blog';
-const SITE_DESC  = process.env.NEXT_PUBLIC_SITE_DESCRIPTION || '유용한 정보 블로그';
+const SITE_NAME  = process.env.NEXT_PUBLIC_SITE_NAME || '시니어 건강백과';
+const SITE_DESC  = process.env.NEXT_PUBLIC_SITE_DESCRIPTION || '50·60대 시니어를 위한 혈당·혈압·관절·수면·치매 예방 건강 정보 백과사전';
 const SITE_URL   = process.env.NEXT_PUBLIC_SITE_URL || 'https://smartinfoblog.co.kr';
 const GA_ID      = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 const ADSENSE    = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
@@ -29,6 +29,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko">
       <head>
+        {/* 모바일 Chrome·Safari 아이콘 명시 */}
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/icon" />
         {adsenseReady && (
           <Script
             async
