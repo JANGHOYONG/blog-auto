@@ -69,7 +69,11 @@ async function fetchCoupangProducts(topicId) {
         const name  = clean(cols[0]);
         const url   = clean(cols[1]);
         const image = clean(cols[2]); // 선택: 구글 시트 C열
-        const price = clean(cols[3]); // 선택: 구글 시트 D열 (예: "10,770원")
+        // 가격 정규화: ₩13,900 / 13900 / 13,900원 → "13,900원"
+        const rawPrice = clean(cols[3]);
+        const price = rawPrice
+          ? rawPrice.replace(/₩/g, '').replace(/원$/, '').trim().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '원'
+          : null;
         return name && url ? { name, url, image: image || null, price: price || null } : null;
       })
       .filter(Boolean);
