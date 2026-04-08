@@ -719,11 +719,11 @@ async function main() {
       }
 
       const topic = getSubTopic(kw.keyword) || targetTopic;
-      const topicLabel = HEALTH_TOPICS.find((h) => h.id === targetTopic)?.label || targetTopic;
+      const topicLabel = HEALTH_TOPICS.find((h) => h.id === topic)?.label || topic;
       console.log(`[${success + 1}/${generateCount}] [${topicLabel}] "${kw.keyword}" 생성 중...`);
 
       try {
-        const gen = await generatePost(kw.keyword, kw.category.slug, targetTopic);
+        const gen = await generatePost(kw.keyword, kw.category.slug, topic);
 
         // Pexels 썸네일 + 본문 이미지
         let thumbnail = null;
@@ -743,14 +743,14 @@ async function main() {
         }
 
         // 쿠팡파트너스 상품 삽입 (health 카테고리 + 주제 매칭 시)
-        if (kw.category.slug === 'health' && TOPIC_TO_SHEET[targetTopic]) {
+        if (kw.category.slug === 'health' && TOPIC_TO_SHEET[topic]) {
           try {
-            const coupangProducts = await fetchCoupangProducts(targetTopic);
+            const coupangProducts = await fetchCoupangProducts(topic);
             if (coupangProducts.length) {
               // 랜덤으로 상품 1개 선택
               const product = coupangProducts[Math.floor(Math.random() * coupangProducts.length)];
-              content = insertCoupangBox(content, product, targetTopic);
-              console.log(`    쿠팡 상품: "${product.name}"`);
+              content = insertCoupangBox(content, product, topic);
+              console.log(`    쿠팡 상품 [${topicLabel}]: "${product.name}"`);
             }
           } catch (e) {
             console.log(`    쿠팡 상품 로딩 실패 (건너뜀): ${e.message}`);

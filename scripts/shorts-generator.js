@@ -580,6 +580,18 @@ function concatClips(clipPaths, outPath) {
   });
 }
 
+// ─── 8. 첫 슬라이드 프레임 추출 (썸네일용) ────────────────────────────────────
+function extractFirstFrame(videoPath, outPath) {
+  return new Promise((resolve, reject) => {
+    ffmpeg(videoPath)
+      .outputOptions(['-vframes', '1', '-ss', '0.3'])
+      .output(outPath)
+      .on('end', resolve)
+      .on('error', reject)
+      .run();
+  });
+}
+
 // ─── 메인 ─────────────────────────────────────────────────────────────────────
 async function main() {
   console.log('=== 유튜브 쇼츠 v6 (6슬라이드, 60초 이내) ===\n');
@@ -678,7 +690,7 @@ async function main() {
       `${(script.tags || []).map((t) => '#' + t.replace(/\s/g, '')).join(' ')} #Shorts #건강정보 #시니어건강 #5060건강`;
 
     if (process.env.YOUTUBE_REFRESH_TOKEN) {
-      const { uploadToYouTube } = require('./youtube-uploader');
+      const { uploadToYouTube, uploadThumbnail } = require('./youtube-uploader');
       const videoId = await uploadToYouTube({
         videoPath: finalPath,
         title: script.youtubeTitle,
@@ -686,6 +698,18 @@ async function main() {
         tags: [...(script.tags || []), '건강', '시니어', '건강정보', 'Shorts'],
         categoryId: '26',
       });
+
+      // 첫 슬라이드 프레임을 썸네일로 설정
+      try {
+        const thumbPath = path.join(tmpDir, 'thumbnail.jpg');
+        console.log('  썸네일 추출 중...');
+        await extractFirstFrame(clipPaths[0], thumbPath);
+        await uploadThumbnail({ videoId, thumbnailPath: thumbPath });
+        console.log('  썸네일 업로드 완료 ✅');
+      } catch (thumbErr) {
+        console.log(`  썸네일 업로드 실패 (건너뜀): ${thumbErr.message}`);
+      }
+
       await prisma.post.update({
         where: { id: post.id },
         data: { shortsGenerated: true, shortsVideoId: videoId },
