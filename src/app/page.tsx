@@ -67,13 +67,13 @@ export default async function HomePage() {
           <h1 className="text-2xl sm:text-3xl font-bold mb-2 tracking-tight">시니어 건강백과</h1>
           <p className="text-base opacity-85 mb-6">시니어를 위한 정확하고 실천 가능한 건강 백과사전</p>
           {/* 주제 빠른 탐색 */}
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="flex flex-wrap justify-center gap-3">
             {TOPICS.map((t) => (
               <Link
-                key={t.query}
-                href={`/search?q=${encodeURIComponent(t.query)}`}
-                className="px-4 py-2 rounded-full text-sm font-medium transition-all hover:scale-105"
-                style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.35)' }}
+                key={t.name}
+                href={t.href ?? `/search?q=${encodeURIComponent(t.query ?? '')}`}
+                className="px-5 py-3 rounded-full text-sm font-medium transition-all active:scale-95"
+                style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.35)', minHeight: '44px', display: 'flex', alignItems: 'center' }}
               >
                 {t.icon} {t.name}
               </Link>

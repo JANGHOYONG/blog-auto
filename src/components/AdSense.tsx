@@ -43,32 +43,19 @@ export default function AdSense({ slot, format = 'auto', className = '', sticky 
     !adSlot.includes('XXXXXX');
 
   if (!isConfigured) {
-    return (
-      <div
-        className={`ad-slot ad-placeholder ${className}`}
-        style={{
-          background: '#f5f5f5',
-          border: '2px dashed #ddd',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: format === 'rectangle' ? '250px' : '90px',
-          borderRadius: '8px',
-        }}
-      >
-        <span className="text-gray-400 text-sm">광고 영역 ({slot})</span>
-      </div>
-    );
+    // 미설정 시 플레이스홀더 숨김 (빈 공간 방지)
+    return null;
   }
 
   return (
     <div
       className={`ad-slot ${sticky ? 'sticky top-20' : ''} ${className}`}
+      style={{ overflow: 'hidden', maxWidth: '100%' }}
     >
       <ins
         ref={adRef}
         className="adsbygoogle"
-        style={{ display: 'block' }}
+        style={{ display: 'block', maxWidth: '100%' }}
         data-ad-client={clientId}
         data-ad-slot={adSlot}
         data-ad-format={format}

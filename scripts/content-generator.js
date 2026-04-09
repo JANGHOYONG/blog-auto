@@ -515,7 +515,7 @@ ${angleInfo ? `콘텐츠 각도: ${angleInfo.angle}
   "metaDescription": "검색결과 설명 (140~155자, 키워드 + 궁금증 유발 + 클릭 유도)",
   "excerpt": "글 요약 (120~150자, 핵심 가치 전달)",
   "keywords": ["핵심키워드", "관련키워드2", "관련키워드3", "롱테일1", "롱테일2"],
-  "sections": ["섹션1 소제목", "섹션2 소제목", "섹션3 소제목", "섹션4 소제목", "섹션5 소제목", "섹션6 소제목"],
+  "sections": ["섹션1 소제목", "섹션2 소제목", "섹션3 소제목", "섹션4 소제목"],
   "unsplashQuery": "2-3 English words for Unsplash thumbnail photo search, specific to topic (e.g. 'healthy blood sugar food', 'youtube creator monetization', 'real estate investment')",
   "unsplashBodyQueries": ["English photo search term 1 related to topic", "English photo search term 2 related to topic"]
 }`,
@@ -529,7 +529,7 @@ ${angleInfo ? `콘텐츠 각도: ${angleInfo.angle}
   const contentRes = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
     temperature: 0.75,
-    max_tokens: 16000,
+    max_tokens: 5000,
     messages: [
       { role: 'system', content: `${systemPrompt}\nHTML 형식의 블로그 본문만 작성합니다. JSON 없이 HTML만 출력합니다.` },
       {
@@ -541,132 +541,83 @@ ${angleInfo ? `
 [이 글의 핵심 방향 — 반드시 지킬 것]
 각도: ${angleInfo.angle}
 금지 내용: ${angleInfo.forbidden}
-반드시 포함할 놀라운 정보:
+반드시 포함할 놀라운 정보 (2가지 이상):
   - ${angleInfo.focus[0]}
   - ${angleInfo.focus[1]}
   - ${angleInfo.focus[2]}
-  - ${angleInfo.focus[3]}
 ` : ''}
-위 구성으로 독자가 오래 머물고 즐겨찾기에 저장하고 싶은 완성도 높은 블로그 본문 HTML을 작성하세요.
+위 구성으로 핵심만 담은 간결하고 완성도 높은 블로그 본문 HTML을 작성하세요.
 
 [필수 조건]
-1. 순수 텍스트 기준 6,000자 이상 (HTML 태그 제외) — 반드시 완결된 글로 끝내야 합니다
-2. 각 섹션 최소 600~900자 이상의 내용
-3. 구체적 수치(연구 결과, 통계, %, 기간), 실사례 반드시 포함
-4. 문단은 3~4문장 단위로 나누어 읽기 편하게 구성
-5. 전문가만 아는 심화 정보, 독자가 공감할 경험담 포함
-6. ⚠️ 뻔한 상식(운동하세요, 균형 잡힌 식단, 금연 등)은 절대 쓰지 말 것 — 독자가 이미 다 아는 내용은 가치 없음
-7. 독자가 읽다가 "이건 정말 몰랐다!" "이거 가족한테 알려줘야겠다" 반응이 나와야 성공
+1. 순수 텍스트 기준 1,800~2,500자 (HTML 태그 제외) — 간결하고 핵심만 담아야 합니다
+2. 각 섹션 300~400자 내외 — 핵심 정보만 압축
+3. 구체적 수치(연구 결과, 통계, %) 1~2개씩 포함
+4. 문단은 2~3문장 단위로 짧고 명확하게
+5. ⚠️ 뻔한 상식(운동하세요, 균형 잡힌 식단, 금연 등)은 절대 쓰지 말 것
+6. 독자가 스크롤 없이 5분 안에 끝까지 읽을 수 있는 분량
+7. 각 섹션은 핵심 포인트 1~2개에 집중 — 여러 가지 나열 금지
 
 HTML 구조 (반드시 이 순서로, </article>로 반드시 닫을 것):
 <article>
 
 <section class="intro">
-  <div class="definition-box">
-    <h3>💡 ${keyword}란?</h3>
-    <p>[40~60자로 명확하게 정의. 구글 Featured Snippet에 최적화된 한 문장 정의]</p>
-  </div>
   <div class="summary-box">
     <ul>
-      <li>핵심 내용 1</li>
-      <li>핵심 내용 2</li>
-      <li>핵심 내용 3</li>
-      <li>독자가 얻어갈 실용적 혜택</li>
+      <li>핵심 포인트 1 (한 줄)</li>
+      <li>핵심 포인트 2 (한 줄)</li>
+      <li>핵심 포인트 3 (한 줄)</li>
     </ul>
   </div>
-  <p>서론 첫 문단 (독자 공감, 3~4문장)</p>
-  <p>서론 둘째 문단 (글 기대감 형성, 3문장)</p>
+  <p>서론 (독자 공감 + 글 방향, 2~3문장)</p>
 </section>
 
 <section>
-  <h2>${meta.sections[0] || '핵심 개념과 원인'}</h2>
-  <p>배경 설명 (4~5문장, 전문적 근거 포함)</p>
-  <p>핵심 메커니즘 (4~5문장, 수치/통계 포함)</p>
-  <p>실생활 연관성 (3~4문장)</p>
-  <div class="info-box"><p>이 섹션 핵심 요약 2~3줄</p></div>
+  <h2>${meta.sections[0] || '핵심 원인'}</h2>
+  <p>핵심 내용 (3문장, 수치/근거 포함)</p>
+  <div class="info-box"><p>핵심 요약 1줄</p></div>
 </section>
 
 <section>
-  <h2>${meta.sections[1] || '단계별 실천 가이드'}</h2>
-  <p>도입 설명 (3~4문장)</p>
-  <p>상세 방법 (4~5문장, 구체적 수치 포함)</p>
+  <h2>${meta.sections[1] || '당장 실천하는 방법'}</h2>
+  <p>핵심 방법 설명 (2~3문장)</p>
   <ol>
-    <li><strong>단계 1:</strong> 상세 설명 (2~3문장)</li>
-    <li><strong>단계 2:</strong> 상세 설명 (2~3문장)</li>
-    <li><strong>단계 3:</strong> 상세 설명 (2~3문장)</li>
-    <li><strong>단계 4:</strong> 상세 설명 (2~3문장)</li>
-    <li><strong>단계 5:</strong> 상세 설명 (2~3문장)</li>
+    <li><strong>방법 1:</strong> 구체적 설명 (1~2문장)</li>
+    <li><strong>방법 2:</strong> 구체적 설명 (1~2문장)</li>
+    <li><strong>방법 3:</strong> 구체적 설명 (1~2문장)</li>
   </ol>
-  <p>보충 설명 및 주의점 (3~4문장)</p>
 </section>
 
 <section>
-  <h2>${meta.sections[2] || '전문가가 밝히는 오해와 진실'}</h2>
-  <p>일반인이 잘못 알고 있는 상식 (4~5문장)</p>
-  <p>올바른 정보와 근거 (4~5문장, 연구/데이터 인용)</p>
-  <div class="expert-quote">
-    <p>전문가적 견해 또는 연구 인용 (3~4문장)</p>
-    <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.5rem">— 관련 기관 또는 연구 출처</p>
-  </div>
-  <p>실생활 적용 방법 (3~4문장)</p>
-</section>
-
-<section>
-  <h2>${meta.sections[3] || '상황별 맞춤 활용법'}</h2>
-  <p>상황 설정 (3~4문장)</p>
-  <p>상황 A 대처법 (3~4문장, 구체적)</p>
-  <p>상황 B 대처법 (3~4문장, 구체적)</p>
-  <div class="tip-box">
-    <p>바로 써먹을 수 있는 핵심 팁</p>
-    <ul>
-      <li>팁 1: 구체적 방법</li>
-      <li>팁 2: 구체적 방법</li>
-      <li>팁 3: 구체적 방법</li>
-    </ul>
-  </div>
-</section>
-
-<section>
-  <h2>${meta.sections[4] || '비교 분석과 선택 기준'}</h2>
-  <p>비교 필요성 (3~4문장)</p>
-  <table>
-    <thead><tr><th>구분</th><th>항목1</th><th>항목2</th><th>항목3</th></tr></thead>
-    <tbody>
-      <tr><td>특징</td><td>내용</td><td>내용</td><td>내용</td></tr>
-      <tr><td>장점</td><td>내용</td><td>내용</td><td>내용</td></tr>
-      <tr><td>단점</td><td>내용</td><td>내용</td><td>내용</td></tr>
-      <tr><td>추천 대상</td><td>내용</td><td>내용</td><td>내용</td></tr>
-    </tbody>
-  </table>
-  <p>표 결론 및 선택 가이드 (3~4문장)</p>
-</section>
-
-<section>
-  <h2>${meta.sections[5] || '주의사항과 흔한 실수'}</h2>
-  <p>흔히 저지르는 실수 (4~5문장)</p>
+  <h2>${meta.sections[2] || '많이 하는 실수'}</h2>
+  <p>흔한 오해 설명 (2~3문장, 반전 정보 포함)</p>
   <div class="warning-box">
     <ul>
-      <li>절대 하면 안 되는 것 1 — 이유 포함</li>
-      <li>절대 하면 안 되는 것 2 — 이유 포함</li>
-      <li>절대 하면 안 되는 것 3 — 이유 포함</li>
+      <li>주의사항 1 — 이유 한 줄</li>
+      <li>주의사항 2 — 이유 한 줄</li>
     </ul>
   </div>
-  <p>올바른 대안 제시 (3~4문장)</p>
 </section>
 
 <section>
-  <h2>자주 묻는 질문 (FAQ)</h2>
-  <div class="faq-item"><p class="faq-q">Q. 자주 묻는 질문 1?</p><p>A. 구체적 답변 (3~4문장)</p></div>
-  <div class="faq-item"><p class="faq-q">Q. 자주 묻는 질문 2?</p><p>A. 구체적 답변 (3~4문장)</p></div>
-  <div class="faq-item"><p class="faq-q">Q. 자주 묻는 질문 3?</p><p>A. 구체적 답변 (3~4문장)</p></div>
-  <div class="faq-item"><p class="faq-q">Q. 자주 묻는 질문 4?</p><p>A. 구체적 답변 (3~4문장)</p></div>
+  <h2>${meta.sections[3] || '병원 가야 할 신호'}</h2>
+  <p>위험 신호 설명 (2~3문장)</p>
+  <div class="tip-box">
+    <ul>
+      <li>즉시 병원 가야 할 증상 1</li>
+      <li>즉시 병원 가야 할 증상 2</li>
+      <li>즉시 병원 가야 할 증상 3</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>자주 묻는 질문</h2>
+  <div class="faq-item"><p class="faq-q">Q. 자주 묻는 질문 1?</p><p>A. 간결한 답변 (2문장)</p></div>
+  <div class="faq-item"><p class="faq-q">Q. 자주 묻는 질문 2?</p><p>A. 간결한 답변 (2문장)</p></div>
 </section>
 
 <section class="conclusion">
-  <h2>마무리: 오늘부터 바로 실천하세요</h2>
-  <p>핵심 내용 요약 (3~4문장)</p>
-  <p>독자 격려 및 행동 촉구 (3~4문장)</p>
-  <div class="info-box"><p>이 글에서 배운 내용을 한 줄로 정리하면: <strong>[핵심 한 줄 요약]</strong></p></div>
+  <div class="info-box"><p>핵심 한 줄 요약: <strong>[오늘 당장 실천할 것]</strong></p></div>
   <div class="cta-box">
     <p class="cta-title">📌 이 글이 도움이 되셨나요?</p>
     <div class="cta-buttons">

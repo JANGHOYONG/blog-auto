@@ -49,10 +49,13 @@ export default function ArticleCard({ post, size = 'default' }: Props) {
           <img
             src={thumbnail}
             alt={post.title}
-            className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+            className="w-full h-36 sm:h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+            width={600}
+            height={400}
           />
         ) : (
-          <div className={`h-48 bg-gradient-to-br ${gradient} flex items-center justify-center transition-transform duration-300 group-hover:scale-105`}>
+          <div className={`h-36 sm:h-48 bg-gradient-to-br ${gradient} flex items-center justify-center transition-transform duration-300 group-hover:scale-105`}>
             <span className="text-5xl opacity-60">{emoji}</span>
           </div>
         )}
@@ -70,7 +73,7 @@ export default function ArticleCard({ post, size = 'default' }: Props) {
         </div>
 
         {/* 제목 */}
-        <h2 className="font-bold mb-2 line-clamp-2 leading-snug text-base flex-1 group-hover:opacity-75 transition-opacity" style={{ color: 'var(--text)' }}>
+        <h2 className="font-bold mb-2 line-clamp-3 leading-snug text-base flex-1 group-hover:opacity-75 transition-opacity" style={{ color: 'var(--text)' }}>
           <Link href={href}>{post.title}</Link>
         </h2>
 
@@ -85,7 +88,7 @@ export default function ArticleCard({ post, size = 'default' }: Props) {
             {post.readTime && <span>⏱ {post.readTime}분</span>}
             <span>👁 {post.viewCount.toLocaleString()}</span>
           </div>
-          <Link href={href} className="font-medium text-xs transition-opacity hover:opacity-70" style={{ color: 'var(--primary)' }}>
+          <Link href={href} className="font-semibold text-xs transition-opacity hover:opacity-70 py-1 px-2" style={{ color: 'var(--primary)', minHeight: '32px', display: 'flex', alignItems: 'center' }}>
             읽기 →
           </Link>
         </div>

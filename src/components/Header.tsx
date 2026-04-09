@@ -67,7 +67,7 @@ export default function Header() {
           </nav>
 
           {/* 우측: 검색 */}
-          <div className="flex items-center gap-1 ml-auto">
+          <div className="flex items-center gap-2 ml-auto">
             {searchOpen ? (
               <form onSubmit={handleSearch} className="flex items-center gap-1">
                 <input
@@ -115,8 +115,8 @@ export default function Header() {
           <div className="md:hidden py-3 border-t" style={{ borderColor: 'var(--border)' }}>
             <Link
               href="/health"
-              className="block px-2 py-2.5 text-sm font-semibold rounded-lg"
-              style={{ color: 'var(--primary)' }}
+              className="block px-3 py-3.5 text-base font-semibold rounded-lg"
+              style={{ color: 'var(--primary)', minHeight: '44px', display: 'flex', alignItems: 'center' }}
               onClick={() => setMenuOpen(false)}
             >
               📋 전체 글
@@ -125,14 +125,14 @@ export default function Header() {
               <Link
                 key={t.name}
                 href={t.href ?? `/search?q=${encodeURIComponent(t.query ?? '')}`}
-                className="block px-2 py-2.5 text-sm font-medium rounded-lg"
-                style={{ color: 'var(--text)' }}
+                className="block px-3 py-3.5 text-base font-medium rounded-lg"
+                style={{ color: 'var(--text)', minHeight: '44px', display: 'flex', alignItems: 'center' }}
                 onClick={() => setMenuOpen(false)}
               >
                 {t.name}
               </Link>
             ))}
-            <Link href="/about" className="block px-2 py-2.5 text-sm" style={{ color: 'var(--text-muted)' }} onClick={() => setMenuOpen(false)}>
+            <Link href="/about" className="block px-3 py-3.5 text-base" style={{ color: 'var(--text-muted)', minHeight: '44px', display: 'flex', alignItems: 'center' }} onClick={() => setMenuOpen(false)}>
               소개
             </Link>
           </div>
