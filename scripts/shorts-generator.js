@@ -707,17 +707,18 @@ async function main() {
     // 4. 업로드 또는 저장
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://smartinfoblog.co.kr';
     const postUrl = `${siteUrl}/${post.category.slug}/${post.slug}`;
+    // 블로그 링크를 첫 줄에 배치 — 설명란을 펼치면 바로 클릭 가능
     const fullDesc =
-      `${script.description}\n\n` +
-      `📖 블로그에서 전체 내용 확인하기 👇\n` +
+      `📖 전체 내용 블로그에서 보기 👇\n` +
       `${postUrl}\n\n` +
+      `${script.description}\n\n` +
       `이 영상이 도움이 됐다면 구독 & 좋아요 눌러주세요! 💚\n` +
       `매일 새로운 5060 건강 정보를 쇼츠로 전해드립니다.\n\n` +
       `─────────────────────\n` +
       `${(script.tags || []).map((t) => '#' + t.replace(/\s/g, '')).join(' ')} #Shorts #건강정보 #시니어건강 #5060건강`;
 
     if (process.env.YOUTUBE_REFRESH_TOKEN) {
-      const { uploadToYouTube, uploadThumbnail } = require('./youtube-uploader');
+      const { uploadToYouTube, uploadThumbnail, postComment } = require('./youtube-uploader');
       const videoId = await uploadToYouTube({
         videoPath: finalPath,
         title: script.youtubeTitle,
@@ -735,6 +736,18 @@ async function main() {
         console.log('  썸네일 업로드 완료 ✅');
       } catch (thumbErr) {
         console.log(`  썸네일 업로드 실패 (건너뜀): ${thumbErr.message}`);
+      }
+
+      // 댓글로 블로그 링크 게시 — 채널 규모 무관하게 항상 클릭 가능
+      try {
+        await postComment({
+          videoId,
+          text: `📖 영상에서 다 못 담은 내용, 블로그에서 확인하세요 👇\n${postUrl}`,
+        });
+        console.log('  블로그 링크 댓글 게시 완료 ✅');
+      } catch (commentErr) {
+        // 댓글 스코프(youtube.force-ssl) 없으면 조용히 건너뜀
+        console.log(`  댓글 게시 건너뜀: ${commentErr.message}`);
       }
 
       await prisma.post.update({

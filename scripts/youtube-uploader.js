@@ -65,4 +65,27 @@ async function uploadThumbnail({ videoId, thumbnailPath }) {
   });
 }
 
-module.exports = { uploadToYouTube, uploadThumbnail };
+/**
+ * 영상 업로드 직후 댓글로 블로그 링크 게시
+ * - 댓글은 채널 규모 무관하게 항상 클릭 가능한 링크로 표시됨
+ * - 필요 스코프: https://www.googleapis.com/auth/youtube.force-ssl
+ */
+async function postComment({ videoId, text }) {
+  oauth2Client.setCredentials({ refresh_token: process.env.YOUTUBE_REFRESH_TOKEN });
+  const youtube = google.youtube({ version: 'v3', auth: oauth2Client });
+
+  const res = await youtube.commentThreads.insert({
+    part: ['snippet'],
+    requestBody: {
+      snippet: {
+        videoId,
+        topLevelComment: {
+          snippet: { textOriginal: text },
+        },
+      },
+    },
+  });
+  return res.data.id;
+}
+
+module.exports = { uploadToYouTube, uploadThumbnail, postComment };
