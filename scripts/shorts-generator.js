@@ -28,77 +28,77 @@ const W = 1080;
 const H = 1920;
 const FONT = `'Noto Sans CJK KR','Apple SD Gothic Neo','맑은 고딕','Malgun Gothic',sans-serif`;
 
-// ─── 주제별 훅 공식 (쇼츠 특화) ──────────────────────────────────────────────
+// ─── 주제별 훅 공식 (쇼츠 특화 — 긍정·정보 전달형) ────────────────────────────
 const TOPIC_HOOK_FORMULAS = {
   blood_sugar: {
-    formula: '반전형',
+    formula: '정보공유형',
     hookPatterns: [
-      '"건강에 좋다"고 먹던 그 음식, 혈당 폭등시키고 있었습니다',
-      '공복혈당 정상인데 당뇨라고요? 병원도 모르는 진짜 위험 신호',
-      '혈당 낮추는 약보다 효과 있다는 이것, 알고 계세요?',
+      '혈당 걱정된다면, 이 식품부터 알아두세요',
+      '혈당을 자연스럽게 낮춰주는 음식이 있어요',
+      '당뇨 예방에 진짜 도움 되는 습관, 알려드릴게요',
     ],
-    titleFormulas: ['혈당 올리는 의외의 식품', '당뇨 전단계 숨겨진 신호', '혈당 잡는 반전 방법'],
-    imageQueries: ['blood sugar food surprising', 'diabetes warning sign', 'glucose health test'],
+    titleFormulas: ['혈당 낮추는 의외의 식품', '혈당 관리에 좋은 생활 습관', '당뇨 예방에 효과적인 방법'],
+    imageQueries: ['Korean woman healthy food blood sugar', 'senior woman eating vegetables', 'healthy Korean food glucose'],
   },
   blood_pressure: {
-    formula: '경고형',
+    formula: '정보공유형',
     hookPatterns: [
-      '혈압약과 함께 먹으면 위험한 것들, 지금 드시고 있지 않나요?',
-      '아침 혈압이 높은 이유, 뇌졸중과 직접 연결됩니다',
-      '혈압 재는 방법 잘못되면 수치가 20 달라집니다. 지금 확인하세요',
+      '혈압 관리, 이것만 알아도 달라져요',
+      '고혈압에 좋은 식품, 제대로 알고 드세요',
+      '혈압을 자연스럽게 낮추는 방법이 있어요',
     ],
-    titleFormulas: ['혈압약과 절대 같이 먹으면 안 되는 것', '아침 고혈압의 충격적 진실', '혈압 오해와 진실'],
-    imageQueries: ['blood pressure danger warning', 'hypertension morning risk', 'blood pressure monitor wrong'],
+    titleFormulas: ['혈압에 좋은 식품 TOP3', '혈압 낮추는 생활 습관', '고혈압 관리 핵심 포인트'],
+    imageQueries: ['Korean woman healthy heart food', 'senior woman blood pressure healthy', 'healthy lifestyle hypertension'],
   },
   joint: {
-    formula: '반전형',
+    formula: '정보공유형',
     hookPatterns: [
-      '무릎에 좋다고 걷기 운동? 오히려 연골 망가지는 경우 있습니다',
-      '콜라겐 영양제 드시고 계신가요? 최신 연구 결과가 충격적입니다',
-      '무릎 통증, 진짜 원인이 무릎이 아닐 수 있습니다',
+      '무릎 건강, 이 영양소가 핵심이에요',
+      '관절에 좋은 운동, 제대로 알고 하세요',
+      '연골 지키는 방법, 의외로 간단해요',
     ],
-    titleFormulas: ['걷기가 무릎 망친다?', '콜라겐 영양제의 불편한 진실', '무릎 통증 진짜 원인'],
-    imageQueries: ['knee pain wrong exercise', 'joint collagen supplement false', 'knee pain hip cause'],
+    titleFormulas: ['무릎 건강에 좋은 영양소', '관절 튼튼하게 만드는 방법', '연골 지키는 핵심 습관'],
+    imageQueries: ['Korean woman senior stretching exercise', 'Asian woman knee health care', 'senior woman healthy walking'],
   },
   sleep: {
-    formula: '증상체크형',
+    formula: '정보공유형',
     hookPatterns: [
-      '자다가 이 증상 있으면 치매 위험 3배입니다. 지금 체크해보세요',
-      '수면제가 치매를 앞당긴다는 연구 결과가 나왔습니다',
-      '몇 시에 일어나느냐가 심장마비 위험을 결정한다고요?',
+      '숙면이 건강에 이렇게 중요한 줄 몰랐어요',
+      '잠 잘 자는 방법, 생각보다 간단해요',
+      '수면 질 높이는 습관, 알려드릴게요',
     ],
-    titleFormulas: ['수면 중 치매 경고 신호', '수면제의 충격적 부작용', '기상 시간과 심장마비'],
-    imageQueries: ['sleep apnea brain danger', 'sleeping pill dementia risk', 'wake up time heart health'],
+    titleFormulas: ['숙면에 좋은 저녁 습관', '수면 질 높이는 방법', '잘 자면 이렇게 달라져요'],
+    imageQueries: ['Korean woman sleeping well healthy', 'senior woman good sleep routine', 'Asian woman relaxing bedtime'],
   },
   brain: {
-    formula: '의사가 안 알려주는형',
+    formula: '정보공유형',
     hookPatterns: [
-      '치매는 10년 전부터 시작됩니다. 지금 이 증상, 노화가 아닙니다',
-      '매일 드시는 약이 뇌를 망가뜨리고 있을 수 있습니다',
-      '이 닦기와 치매가 연결된다고요? 전문의들도 놀란 연구입니다',
+      '뇌 건강 지키는 습관, 지금부터 시작하세요',
+      '기억력 좋아지는 방법이 있어요',
+      '치매 예방에 도움 되는 생활 습관이에요',
     ],
-    titleFormulas: ['치매 10년 전 신호', '뇌 망치는 의외의 약', '구강 건강과 치매의 연결고리'],
-    imageQueries: ['dementia early warning sign', 'medication brain damage side effect', 'oral health brain connection'],
+    titleFormulas: ['뇌 건강에 좋은 식품', '기억력 높이는 생활 습관', '치매 예방하는 핵심 방법'],
+    imageQueries: ['Korean woman brain health food', 'senior woman memory healthy lifestyle', 'Asian woman cognitive health'],
   },
   menopause: {
-    formula: '숫자/반전형',
+    formula: '정보공유형',
     hookPatterns: [
-      '갱년기 여성 10명 중 7명이 안면홍조 원인을 잘못 알고 있습니다',
-      '호르몬 치료가 암을 유발한다? 최신 연구가 완전히 뒤집었습니다',
-      '60대 남성 2명 중 1명이 갱년기를 겪지만 모르고 있습니다',
+      '갱년기 증상, 이렇게 하면 훨씬 편해져요',
+      '갱년기에 좋은 식품, 알고 드세요',
+      '호르몬 균형 잡는 방법, 알려드릴게요',
     ],
-    titleFormulas: ['안면홍조 진짜 원인', '호르몬 치료 오해와 진실', '남성 갱년기 몰랐던 사실'],
-    imageQueries: ['menopause hot flash truth', 'hormone therapy safe research', 'male menopause senior'],
+    titleFormulas: ['갱년기 증상 완화하는 방법', '갱년기에 좋은 식품', '호르몬 균형 잡는 습관'],
+    imageQueries: ['Korean woman menopause healthy lifestyle', 'senior woman hormone health food', 'Asian woman midlife wellness'],
   },
   nutrition: {
-    formula: '금지/경고형',
+    formula: '정보공유형',
     hookPatterns: [
-      '함께 먹으면 독이 되는 영양제 조합, 지금 드시고 있을 수 있습니다',
-      '건강기능식품이 처방약 효과를 완전히 없앤다고요? 실제 사례입니다',
-      '비타민D 많이 먹으면 좋다고요? 독성 축적되면 이렇게 됩니다',
+      '올바른 영양제 복용법, 이것만 기억하세요',
+      '시니어에게 꼭 필요한 영양소가 있어요',
+      '영양제 효과 제대로 보는 방법이에요',
     ],
-    titleFormulas: ['같이 먹으면 독이 되는 영양제', '건강기능식품의 위험한 함정', '비타민 과다복용 부작용'],
-    imageQueries: ['supplement combination dangerous', 'health supplement drug interaction', 'vitamin overdose toxicity'],
+    titleFormulas: ['시니어에게 꼭 필요한 영양소', '영양제 제대로 먹는 방법', '건강기능식품 효과적으로 먹기'],
+    imageQueries: ['Korean woman taking vitamins healthy', 'senior woman nutrition supplement', 'Asian woman healthy eating habits'],
   },
 };
 
@@ -128,7 +128,7 @@ async function generateShortsScript(post) {
 
   const hookExamples = hookInfo
     ? hookInfo.hookPatterns.map((p) => `"${p}"`).join('\n- ')
-    : '"이거 매일 하면 몸 망가집니다"\n- "대부분 이거 잘못 알고 있음"';
+    : '"이거 알면 건강이 달라져요"\n- "이렇게 하면 훨씬 좋아집니다"';
 
   const imageHint = hookInfo ? hookInfo.imageQueries[0] : 'senior health warning';
   const hookTitleExamples = hookInfo
@@ -148,21 +148,25 @@ async function generateShortsScript(post) {
 
 핵심 원칙:
 ① 제목에서 약속한 정보를 영상 안에서 반드시 전달할 것
-   - 제목이 "혈당 올리는 의외의 식품"이면 → 어떤 식품인지, 왜 나쁜지 영상에서 설명
    - "블로그에서 확인하세요"로만 끝내는 것은 절대 금지 ❌
-② 슬라이드당 2~3문장, 전체 9~10문장
-   - 문장은 \\n으로 구분
-   - 각 문장은 15~25자 (짧고 명확하게)
-③ 끊어 말하기 스타일 유지 (완벽한 문장 금지)
-④ 블로그 내용의 구체적 정보(식품명·성분·수치·메커니즘) 반드시 포함
-⑤ 이미지 규칙: "Korean woman" 또는 "Asian woman"으로 시작
+② 긍정적·도움이 되는 어투로 작성할 것 ✅
+   - "이게 좋아요", "이렇게 하면 도움돼요", "알아두면 유익해요" 스타일
+   - "위험합니다", "망가집니다", "폭등합니다" 등 공포·부정 표현 금지 ❌
+③ 정확한 건강 정보만 사용 — 과장·극단적 주장 금지
+   - 귀리처럼 실제로 건강에 좋은 식품을 나쁘다고 하는 오류 절대 금지 ❌
+   - 블로그 요약 내용에 근거한 사실만 전달
+④ 슬라이드당 2~3문장, 전체 9~10문장
+   - 문장은 \\n으로 구분, 각 문장 15~25자
+⑤ 끊어 말하기 스타일 (완벽한 문장보다 자연스러운 구어체)
+⑥ 블로그 내용의 구체적 정보(식품명·성분·수치·효능) 반드시 포함
+⑦ 이미지 규칙: "Korean woman" 또는 "Asian woman"으로 시작
 
 슬라이드 5개 구조:
-[1번 HOOK  2문장] 강한 첫 마디 + 왜 봐야 하는지
-[2번 BODY-A 2문장] 구체적 식품/정보 + 이유 (이름 명시)
-[3번 BODY-B 2문장] 왜 나쁜지 메커니즘 or 수치·데이터
-[4번 BODY-C 2~3문장] 추가 충격 정보 or 올바른 대안
-[5번 ENDING 2문장] 핵심 요약 한 줄 + 블로그는 선택적으로만`,
+[1번 HOOK  2문장] 관심을 끄는 질문 or 유익한 예고 ("~알고 계세요?" / "~에 좋은 게 있어요")
+[2번 BODY-A 2문장] 구체적 식품/방법 소개 + 왜 좋은지 이유
+[3번 BODY-B 2문장] 효능의 메커니즘 or 수치·연구 데이터
+[4번 BODY-C 2~3문장] 실천 방법 or 올바른 섭취법·주의사항
+[5번 ENDING 2문장] 핵심 요약 + 자연스러운 마무리`,
       },
       {
         role: 'user',
@@ -174,8 +178,11 @@ async function generateShortsScript(post) {
 
 제목 참고 예시: ${hookTitleExamples}
 
-⚠️ 중요: 블로그 요약 내용을 바탕으로 구체적인 정보(식품명, 성분, 수치, 이유)를
-영상 본문(BODY-A~C)에서 직접 전달하세요. 시청자가 영상만 봐도 핵심을 알 수 있어야 합니다.
+⚠️ 중요 규칙:
+1. 블로그 요약에 근거한 정확한 정보만 사용 (임의로 식품명·수치를 만들어내지 말 것)
+2. 긍정적·도움이 되는 어투 유지 ("~에 좋아요", "~하면 도움돼요")
+3. 공포·부정 표현 사용 금지 ("위험", "망가짐", "폭등" 등)
+4. 시청자가 영상만 봐도 핵심 정보를 얻을 수 있어야 함
 
 JSON 형식:
 {
