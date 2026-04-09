@@ -73,29 +73,35 @@ export default async function DailyHealthTip() {
   const dayIdx = getDayOfYear() % DAILY_TIPS.length;
   const tip = DAILY_TIPS[dayIdx];
 
-  // 관련 주제에서 가장 조회수 높은 글 1개 가져오기
-  const featured = await prisma.post.findFirst({
-    where: {
-      status: 'PUBLISHED',
-      OR: [
-        { title: { contains: tip.query } },
-        { excerpt: { contains: tip.query } },
-        { keywords: { contains: tip.query } },
-      ],
-    },
-    include: { category: true },
-    orderBy: { viewCount: 'desc' },
-  });
+  // DB 쿼리 — 실패해도 tip만 보여주는 fallback 처리
+  let post: { title: string; slug: string; thumbnail: string | null; category: { slug: string; name: string } } | null = null;
+  try {
+    // 관련 주제에서 가장 조회수 높은 글 1개
+    const featured = await prisma.post.findFirst({
+      where: {
+        status: 'PUBLISHED',
+        OR: [
+          { title: { contains: tip.query } },
+          { excerpt: { contains: tip.query } },
+          { keywords: { contains: tip.query } },
+        ],
+      },
+      select: { title: true, slug: true, thumbnail: true, category: { select: { slug: true, name: true } } },
+      orderBy: { viewCount: 'desc' },
+    });
 
-  // 관련 글이 없으면 최신 글 1개
-  const post = featured ?? await prisma.post.findFirst({
-    where: { status: 'PUBLISHED' },
-    include: { category: true },
-    orderBy: { publishedAt: 'desc' },
-  });
+    // 관련 글 없으면 최신 글 1개
+    post = featured ?? await prisma.post.findFirst({
+      where: { status: 'PUBLISHED' },
+      select: { title: true, slug: true, thumbnail: true, category: { select: { slug: true, name: true } } },
+      orderBy: { publishedAt: 'desc' },
+    });
+  } catch {
+    // DB 접근 실패 시 tip 텍스트만 표시
+  }
 
   const postHref = post ? `/${post.category.slug}/${post.slug}` : '/health';
-  const thumbnail = post ? (post as any).thumbnail as string | null : null;
+  const thumbnail = post?.thumbnail ?? null;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
