@@ -55,12 +55,28 @@ export default function CoupangProductCard({ product }: Props) {
           padding: '10px 14px',
           display: 'flex',
           alignItems: 'center',
-          gap: '6px',
+          justifyContent: 'space-between',
         }}
       >
-        <span style={{ fontSize: '14px' }}>🛒</span>
-        <span style={{ color: '#fff', fontSize: '12px', fontWeight: 700, letterSpacing: '0.3px' }}>
-          {ctaText || '추천 건강 제품'}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ fontSize: '14px' }}>🛒</span>
+          <span style={{ color: '#fff', fontSize: '12px', fontWeight: 700, letterSpacing: '0.3px' }}>
+            {ctaText || '추천 건강 제품'}
+          </span>
+        </div>
+        <span
+          style={{
+            background: '#FF6B35',
+            color: '#fff',
+            fontSize: '10px',
+            fontWeight: 800,
+            padding: '2px 7px',
+            borderRadius: '20px',
+            letterSpacing: '0.3px',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          🔥 오늘의 특가
         </span>
       </div>
 
