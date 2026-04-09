@@ -76,11 +76,12 @@ export default async function PostPage({ params }: Props) {
   const cleanContent = processedContent
     .replace(/<div class=["']ad-slot ad-top["']><\/div>/g, '')
     .replace(/<div class=["']ad-slot ad-middle["']><\/div>/g, '')
-    .replace(/<div class=["']ad-slot ad-bottom["']><\/div>/g, '');
+    .replace(/<div class=["']ad-slot ad-bottom["']><\/div>/g, '')
+    // 구버전 인라인 쿠팡 오렌지 배너 제거 (coupangProduct DB 필드로 대체됨)
+    .replace(/<div style="margin:2rem 0;">\s*<a[^>]*rel="noopener sponsored"[^>]*>[\s\S]*?<\/a>\s*<p[^>]*>이 포스팅은 쿠팡 파트너스[\s\S]*?<\/p>\s*<\/div>/g, '');
+
+  // 항상 본문을 중간 분할 — 상품카드(모바일) or 다이나믹배너를 중간에 삽입
   const [contentFirst, contentSecond] = (() => {
-    // 사이드바 상품 카드가 없으면 본문 중간에 다이나믹 배너 삽입 (health·knowledge 모두 적용)
-    const needsSplit = !coupangProduct;
-    if (!needsSplit) return [cleanContent, ''] as [string, string];
     const matches = [...cleanContent.matchAll(/<\/section>/g)];
     if (matches.length < 3) return [cleanContent, ''] as [string, string];
     const midIdx = Math.floor(matches.length / 2);
@@ -187,30 +188,31 @@ export default async function PostPage({ params }: Props) {
               </div>
             </header>
 
-            {/* 모바일 전용 쿠팡 상품 카드 (사이드바가 아래로 밀리는 모바일 대응) */}
-            {coupangProduct && (
-              <div className="mb-6 block lg:hidden">
-                <CoupangProductCard product={coupangProduct} />
-              </div>
-            )}
-
             {/* 본문 상단 광고 */}
             <div className="mb-6">
               <AdSense slot="top-banner" format="horizontal" />
             </div>
 
-            {/* 본문 */}
+            {/* 본문 전반부 */}
             <article
               className="prose-custom"
               dangerouslySetInnerHTML={{ __html: contentFirst }}
             />
 
-            {/* 쿠팡 다이나믹 배너: 사이드바 상품 카드 없을 때 표시 (knowledge 포함) */}
-            {!coupangProduct && <CoupangDynamicBanner />}
+            {/* ── 본문 중간 쿠팡 영역 ────────────────────────────────────────
+                 · 상품카드 있음: 모바일=상품카드 / 데스크톱=숨김(사이드바에 있음)
+                 · 상품카드 없음: 모바일+데스크톱 모두 다이나믹 배너           */}
+            {coupangProduct ? (
+              <div className="my-6 block lg:hidden">
+                <CoupangProductCard product={coupangProduct} />
+              </div>
+            ) : (
+              <CoupangDynamicBanner />
+            )}
 
             {/* 본문 후반부 */}
             {contentSecond && (
-              <div
+              <article
                 className="prose-custom"
                 dangerouslySetInnerHTML={{ __html: contentSecond }}
               />
