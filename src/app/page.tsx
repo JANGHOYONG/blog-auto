@@ -26,12 +26,15 @@ export const metadata: Metadata = {
 };
 
 const TOPICS = [
-  { name: '혈당·당뇨', query: '혈당', icon: '🩸' },
-  { name: '혈압·심장', query: '혈압', icon: '❤️' },
-  { name: '관절·근육', query: '관절', icon: '🦴' },
-  { name: '수면·피로', query: '수면', icon: '😴' },
-  { name: '뇌건강·치매', query: '치매', icon: '🧠' },
-  { name: '갱년기', query: '갱년기', icon: '🌸' },
+  { name: '혈당·당뇨',   query: '혈당',   icon: '🩸' },
+  { name: '혈압·심장',   query: '혈압',   icon: '❤️' },
+  { name: '관절·근육',   query: '관절',   icon: '🦴' },
+  { name: '수면·피로',   query: '수면',   icon: '😴' },
+  { name: '뇌건강·치매', query: '치매',   icon: '🧠' },
+  { name: '갱년기',      query: '갱년기', icon: '🌸' },
+  { name: '영양·식이',   query: '영양',   icon: '💊' },
+  { name: '건강지식',    href: '/knowledge',            icon: '📚' },
+  { name: '여행·여가',   href: '/travel',               icon: '✈️' },
 ];
 
 export default async function HomePage() {
