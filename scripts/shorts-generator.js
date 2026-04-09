@@ -121,7 +121,7 @@ function detectTopicFromPost(post) {
   return null;
 }
 
-// ─── 1. GPT 스크립트 생성 (바이럴 v3 — 실제 정보 전달 + 슬라이드당 2~3문장) ──
+// ─── 1. GPT 스크립트 생성 (바이럴 v4 — 5슬라이드×3문장=15문장, ~50초) ─────────
 async function generateShortsScript(post) {
   const topicId = detectTopicFromPost(post);
   const hookInfo = topicId ? TOPIC_HOOK_FORMULAS[topicId] : null;
@@ -155,18 +155,19 @@ async function generateShortsScript(post) {
 ③ 정확한 건강 정보만 사용 — 과장·극단적 주장 금지
    - 귀리처럼 실제로 건강에 좋은 식품을 나쁘다고 하는 오류 절대 금지 ❌
    - 블로그 요약 내용에 근거한 사실만 전달
-④ 슬라이드당 2~3문장, 전체 9~10문장
-   - 문장은 \\n으로 구분, 각 문장 15~25자
+④ 슬라이드당 정확히 3문장, 전체 15문장 (목표 영상 길이 50초 내외)
+   - 문장은 \\n으로 구분, 각 문장 18~28자
+   - 슬라이드마다 새로운 정보 추가 — 같은 내용 반복 금지
 ⑤ 끊어 말하기 스타일 (완벽한 문장보다 자연스러운 구어체)
 ⑥ 블로그 내용의 구체적 정보(식품명·성분·수치·효능) 반드시 포함
 ⑦ 이미지 규칙: "Korean woman" 또는 "Asian woman"으로 시작
 
-슬라이드 5개 구조:
-[1번 HOOK  2문장] 관심을 끄는 질문 or 유익한 예고 ("~알고 계세요?" / "~에 좋은 게 있어요")
-[2번 BODY-A 2문장] 구체적 식품/방법 소개 + 왜 좋은지 이유
-[3번 BODY-B 2문장] 효능의 메커니즘 or 수치·연구 데이터
-[4번 BODY-C 2~3문장] 실천 방법 or 올바른 섭취법·주의사항
-[5번 ENDING 2문장] 핵심 요약 + 자연스러운 마무리`,
+슬라이드 5개 구조 (각 3문장, 총 15문장, ~50초):
+[1번 HOOK  3문장] 관심 끄는 질문 + 왜 봐야 하는지 + 핵심 예고
+[2번 BODY-A 3문장] 구체적 식품/방법 소개 + 이유 + 보충 설명
+[3번 BODY-B 3문장] 효능 메커니즘 + 수치/연구 데이터 + 심화 설명
+[4번 BODY-C 3문장] 올바른 섭취법/실천법 + 주의사항 + 구체적 팁
+[5번 ENDING 3문장] 핵심 요약 + 오늘 바로 실천할 한 가지 + 따뜻한 마무리`,
       },
       {
         role: 'user',
@@ -193,31 +194,31 @@ JSON 형식:
   "slides": [
     {
       "type": "hook",
-      "narration": "훅 문장 1 (15~25자)\\n훅 문장 2 (15~25자)",
+      "narration": "훅 문장 1 (18~28자)\\n훅 문장 2 (18~28자)\\n훅 문장 3 (18~28자)",
       "keyword": "핵심 강조 단어 1~3개",
       "imageQuery": "Korean woman senior portrait ${imageHint}"
     },
     {
       "type": "body",
-      "narration": "구체적 식품/정보명 포함 문장 1\\n이유 설명 문장 2",
+      "narration": "식품/방법 소개 문장 1\\n이유 설명 문장 2\\n보충 설명 문장 3",
       "keyword": "핵심 단어",
       "imageQuery": "Korean woman 주제관련 영어단어"
     },
     {
       "type": "body",
-      "narration": "메커니즘/수치 포함 문장 1\\n충격적 사실 문장 2",
+      "narration": "메커니즘 설명 문장 1\\n수치/연구 데이터 문장 2\\n심화 설명 문장 3",
       "keyword": "핵심 단어",
       "imageQuery": "Korean woman 주제관련 영어단어"
     },
     {
       "type": "body",
-      "narration": "추가 정보 문장 1\\n대안/해결책 문장 2\\n(선택) 보완 문장 3",
+      "narration": "섭취법/실천법 문장 1\\n주의사항 문장 2\\n구체적 팁 문장 3",
       "keyword": "핵심 단어",
       "imageQuery": "Asian woman senior 주제관련 영어단어"
     },
     {
       "type": "ending",
-      "narration": "핵심 요약 문장 1 (식품명/결론 포함)\\n자연스러운 마무리 문장 2",
+      "narration": "핵심 요약 문장 1\\n오늘 바로 실천할 것 문장 2\\n따뜻한 마무리 문장 3",
       "keyword": "핵심 단어",
       "imageQuery": "Korean woman senior healthy smile"
     }
@@ -261,144 +262,19 @@ async function fetchPexelsPhoto(query, outPath) {
 
 // ─── 3. 오버레이 HTML - 바이럴 v2: 키워드 강조 + 썸네일 특화 ─────────────────
 function makeOverlayHtml(narration, slideIdx, totalSlides, keyword = '', type = 'body') {
+  // 레이아웃 (1080×1920):
+  //  ① 상단 흰색 바  : y=0    ~ y=190   (브랜드)
+  //  ② 이미지 창     : y=190  ~ y=1080  (투명 — 배경 이미지 표시)
+  //  ③ 하단 자막 바  : y=1080 ~ y=1680  (흰색 — 텍스트)
+  //  ④ 하단 여백     : y=1680 ~ y=1920  (YouTube UI 겹침 방지)
+
   const progress = Math.round((slideIdx / totalSlides) * 100);
-  const isThumbnail = type === 'hook';
+  const isHook   = type === 'hook';
+  const kwColor  = type === 'ending' ? '#7EFFC5' : '#FFD700';
+  const progressColor = isHook
+    ? 'linear-gradient(90deg, #FF6B35, #FFD700)'
+    : 'linear-gradient(90deg, #1E9E7A, #4fc3f7)';
 
-  // 썸네일 슬라이드(1번) — 강렬한 훅 디자인
-  if (isThumbnail) {
-    return `<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<style>
-* { margin:0; padding:0; box-sizing:border-box; }
-html, body {
-  width:${W}px; height:${H}px;
-  background:transparent; overflow:hidden;
-  font-family:${FONT};
-}
-
-/* 상단 브랜드 배지 */
-.brand {
-  position:absolute; top:50px; left:0; right:0;
-  display:flex; justify-content:center;
-}
-.brand-inner {
-  background:rgba(0,100,70,0.95);
-  border-radius:60px; padding:18px 52px;
-  display:flex; align-items:center; gap:16px;
-  box-shadow:0 4px 24px rgba(0,0,0,0.45);
-  border:3px solid rgba(255,255,255,0.2);
-}
-.brand-icon { font-size:44px; line-height:1; }
-.brand-text { font-size:40px; font-weight:800; color:#fff; letter-spacing:2px; }
-
-/* 중앙 강조 훅 박스 (썸네일 핵심) */
-.hook-area {
-  position:absolute;
-  top:48%; left:50%;
-  transform:translate(-50%, -50%);
-  width:960px;
-  text-align:center;
-}
-.hook-badge {
-  display:inline-block;
-  background:linear-gradient(135deg, #FF3B30, #FF6B35);
-  color:#fff;
-  font-size:38px; font-weight:900;
-  padding:16px 48px; border-radius:60px;
-  margin-bottom:32px;
-  box-shadow:0 6px 24px rgba(255,59,48,0.60);
-  letter-spacing:1px;
-}
-/* keyword — 빨강+노랑 강조 텍스트 (썸네일 메인) */
-.hook-keyword {
-  font-size:96px;
-  font-weight:900;
-  color:#FFD700;
-  line-height:1.20;
-  word-break:keep-all;
-  text-shadow:
-    0 4px 10px rgba(0,0,0,1),
-    0 8px 40px rgba(0,0,0,0.95),
-    -3px 0 0 rgba(200,0,0,0.7),
-     3px 0 0 rgba(200,0,0,0.7);
-  letter-spacing:-2px;
-  margin-bottom:16px;
-}
-.hook-main {
-  font-size:58px;
-  font-weight:800;
-  color:#ffffff;
-  line-height:1.35;
-  word-break:keep-all;
-  text-shadow:
-    0 3px 8px rgba(0,0,0,1),
-    0 6px 30px rgba(0,0,0,0.95);
-  letter-spacing:-1px;
-}
-
-/* 하단 흰색 자막 바 — 60대 고가독성 */
-.caption-bar {
-  position:absolute; bottom:14px; left:0; right:0;
-  background:rgba(255,255,255,0.97);
-  border-top:5px solid rgba(30,158,122,0.35);
-  padding:36px 52px 38px;
-  min-height:200px;
-  display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-  gap:12px;
-}
-.caption-text {
-  font-size:56px; font-weight:900; color:#111111;
-  line-height:1.55; word-break:keep-all;
-  text-align:center; letter-spacing:-0.5px;
-}
-.caption-url {
-  font-size:26px; font-weight:600;
-  color:#1E9E7A; letter-spacing:0.5px;
-}
-
-/* 진행 바 */
-.progress-track {
-  position:absolute; bottom:0; left:0; right:0; height:14px;
-  background:rgba(0,0,0,0.08);
-}
-.progress-fill {
-  height:100%; width:${progress}%;
-  background:linear-gradient(90deg, #FF6B35, #FFD700);
-  border-radius:0 7px 7px 0;
-}
-</style>
-</head>
-<body>
-
-<div class="brand">
-  <div class="brand-inner">
-    <span class="brand-icon">🏥</span>
-    <span class="brand-text">시니어 건강백과</span>
-  </div>
-</div>
-
-<div class="hook-area">
-  <div class="hook-badge">⚠️ 지금 바로 확인하세요</div>
-  ${keyword ? `<div class="hook-keyword">${keyword}</div>` : ''}
-</div>
-
-<div class="caption-bar">
-  <div class="caption-text">${narration.replace(/\n/g, '<br>')}</div>
-  <div class="caption-url">smartinfoblog.co.kr</div>
-</div>
-
-<div class="progress-track">
-  <div class="progress-fill"></div>
-</div>
-
-</body>
-</html>`;
-  }
-
-  // 일반 슬라이드 (2~6번)
   return `<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -411,54 +287,60 @@ html, body {
   font-family:${FONT};
 }
 
-/* 상단 브랜드 배지 */
-.brand {
-  position:absolute; top:50px; left:0; right:0;
-  display:flex; justify-content:center;
+/* ① 상단 흰색 바 (y=0~190) */
+.top-bar {
+  position:absolute;
+  top:0; left:0; right:0; height:190px;
+  background:#ffffff;
+  border-bottom:4px solid rgba(30,158,122,0.25);
+  display:flex; align-items:center; justify-content:center;
 }
 .brand-inner {
-  background:rgba(0,100,70,0.92);
-  border-radius:60px; padding:16px 44px;
-  display:flex; align-items:center; gap:14px;
+  display:flex; align-items:center; gap:16px;
+}
+.brand-icon { font-size:48px; line-height:1; }
+.brand-text  { font-size:46px; font-weight:900; color:#1E9E7A; letter-spacing:1px; }
+
+/* ② 이미지 창 위 — 훅 배지 (hook 슬라이드) */
+.hook-badge {
+  position:absolute;
+  top:220px; left:50%; transform:translateX(-50%);
+  background:linear-gradient(135deg, #1E9E7A, #177A5E);
+  color:#fff; white-space:nowrap;
+  font-size:36px; font-weight:800;
+  padding:14px 52px; border-radius:60px;
   box-shadow:0 4px 20px rgba(0,0,0,0.35);
 }
-.brand-icon { font-size:38px; line-height:1; }
-.brand-text { font-size:36px; font-weight:800; color:#fff; letter-spacing:2px; }
 
-/* 중앙 키워드 강조 영역 */
+/* ② 이미지 창 위 — 키워드 강조 (이미지 중앙) */
 .keyword-area {
   position:absolute;
-  top:44%; left:50%;
-  transform:translate(-50%, -50%);
-  width:960px;
-  text-align:center;
+  top:490px; left:50%;
+  transform:translateX(-50%);
+  width:980px; text-align:center;
 }
 .keyword-text {
-  font-size:88px;
-  font-weight:900;
-  color:#FFD700;
-  line-height:1.25;
-  word-break:keep-all;
-  text-shadow:
-    0 4px 12px rgba(0,0,0,1),
-    0 8px 40px rgba(0,0,0,0.95),
-    0 0 80px rgba(0,0,0,0.8);
+  font-size:92px; font-weight:900;
+  color:${kwColor};
+  line-height:1.20; word-break:keep-all;
+  text-shadow:0 4px 12px rgba(0,0,0,0.95), 0 8px 40px rgba(0,0,0,0.85);
   letter-spacing:-2px;
 }
-.keyword-text.ending {
-  color:#7EFFC5;
+.keyword-text.hook-kw {
+  font-size:100px;
+  text-shadow:0 4px 10px rgba(0,0,0,1),
+    -3px 0 0 rgba(200,0,0,0.55), 3px 0 0 rgba(200,0,0,0.55);
 }
 
-/* 하단 흰색 자막 바 — 60대 고가독성 */
+/* ③ 하단 흰색 자막 바 (y=1080~1680) — 60대 고가독성 */
 .caption-bar {
-  position:absolute; bottom:12px; left:0; right:0;
-  background:rgba(255,255,255,0.97);
-  border-top:5px solid rgba(30,158,122,0.35);
-  padding:36px 52px 38px;
-  min-height:200px;
+  position:absolute;
+  top:1080px; left:0; right:0; height:600px;
+  background:#ffffff;
+  border-top:5px solid rgba(30,158,122,0.4);
   display:flex; flex-direction:column;
   align-items:center; justify-content:center;
-  gap:12px;
+  padding:32px 56px; gap:18px;
 }
 .caption-text {
   font-size:56px; font-weight:900; color:#111111;
@@ -466,41 +348,43 @@ html, body {
   text-align:center; letter-spacing:-0.5px;
 }
 .caption-url {
-  font-size:26px; font-weight:600;
-  color:#1E9E7A; letter-spacing:0.5px;
+  font-size:28px; font-weight:700; color:#1E9E7A;
 }
 
-/* 진행 바 */
+/* ④ 진행 바 (y=1700) — YouTube UI 여백 안 */
 .progress-track {
-  position:absolute; bottom:0; left:0; right:0; height:12px;
+  position:absolute;
+  top:1700px; left:0; right:0; height:14px;
   background:rgba(0,0,0,0.08);
 }
 .progress-fill {
   height:100%; width:${progress}%;
-  background:linear-gradient(90deg, #1E9E7A, #4fc3f7);
-  border-radius:0 6px 6px 0;
+  background:${progressColor};
+  border-radius:0 7px 7px 0;
 }
 </style>
 </head>
 <body>
 
-<div class="brand">
+<!-- ① 상단 흰색 바 -->
+<div class="top-bar">
   <div class="brand-inner">
     <span class="brand-icon">🏥</span>
     <span class="brand-text">시니어 건강백과</span>
   </div>
 </div>
 
-${keyword ? `
-<div class="keyword-area">
-  <div class="keyword-text${type === 'ending' ? ' ending' : ''}">${keyword}</div>
-</div>` : ''}
+<!-- ② 이미지 창 위 요소 -->
+${isHook ? '<div class="hook-badge">✅ 지금 바로 알아보세요</div>' : ''}
+${keyword ? `<div class="keyword-area"><div class="keyword-text${isHook ? ' hook-kw' : ''}">${keyword}</div></div>` : ''}
 
+<!-- ③ 하단 흰색 자막 바 -->
 <div class="caption-bar">
   <div class="caption-text">${narration.replace(/\n/g, '<br>')}</div>
   <div class="caption-url">smartinfoblog.co.kr</div>
 </div>
 
+<!-- ④ 진행 바 -->
 <div class="progress-track">
   <div class="progress-fill"></div>
 </div>
