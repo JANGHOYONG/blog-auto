@@ -154,6 +154,11 @@ async function generateShortsScript(post) {
 - 뻔한 조언 금지 ❌ (운동하세요, 식단 관리 등)
 - 반전·충격·공감 ✅
 
+이미지 규칙 (imageQuery):
+- 반드시 "Korean woman" 또는 "Asian woman"으로 시작
+- 한국/아시아 여성이 나오는 이미지 우선
+- 예: "Korean woman senior health", "Asian woman elderly smile"
+
 대본 스타일 예시:
 ❌ 나쁜 예: "이 음식은 건강에 매우 좋습니다."
 ⭕ 좋은 예: "이거요\\n생각보다 진짜 중요합니다"
@@ -187,31 +192,31 @@ async function generateShortsScript(post) {
       "type": "hook",
       "narration": "끊어쓰기\\n포함된 훅 나레이션 (25~35자)",
       "keyword": "화면에 크게 표시할 핵심 단어 1~3개",
-      "imageQuery": "portrait senior face ${imageHint}"
+      "imageQuery": "Korean woman senior portrait ${imageHint}"
     },
     {
       "type": "body",
       "narration": "끊어쓰기\\n포함된 BODY-A (30~45자)",
       "keyword": "화면 강조 단어",
-      "imageQuery": "영어 검색어 2~3단어"
+      "imageQuery": "Korean woman 주제관련 영어단어"
     },
     {
       "type": "body",
       "narration": "끊어쓰기\\n포함된 BODY-B (30~45자)",
       "keyword": "화면 강조 단어",
-      "imageQuery": "영어 검색어 2~3단어"
+      "imageQuery": "Korean woman 주제관련 영어단어"
     },
     {
       "type": "body",
       "narration": "끊어쓰기\\n포함된 BODY-C (30~45자)",
       "keyword": "화면 강조 단어",
-      "imageQuery": "영어 검색어 2~3단어"
+      "imageQuery": "Asian woman senior 주제관련 영어단어"
     },
     {
       "type": "ending",
       "narration": "궁금증 남기는 마무리\\n블로그에서 확인하세요 (35~50자)",
       "keyword": "화면 강조 단어",
-      "imageQuery": "happy senior healthy smile"
+      "imageQuery": "Korean woman senior healthy smile"
     }
   ]
 }`,
@@ -664,8 +669,8 @@ async function main() {
         console.log(`     🖼️  "${slide.imageQuery}"`);
         await fetchPexelsPhoto(slide.imageQuery, imagePath);
       } catch {
-        console.log(`     ⚠️ 재시도: "senior health"`);
-        await fetchPexelsPhoto('senior health', imagePath);
+        console.log(`     ⚠️ 재시도: "Korean woman senior health"`);
+        await fetchPexelsPhoto('Korean woman senior health', imagePath);
       }
 
       // b) TTS - narration 그대로 읽기
