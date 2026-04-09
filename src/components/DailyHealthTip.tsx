@@ -192,8 +192,8 @@ export default async function DailyHealthTip() {
                   background: 'var(--bg)',
                 }}
               >
-                {/* 썸네일 */}
-                {thumbnail ? (
+                {/* 썸네일 — 이미지 있을 때만 표시 */}
+                {thumbnail && (
                   <img
                     src={thumbnail}
                     alt={post.title}
@@ -205,20 +205,6 @@ export default async function DailyHealthTip() {
                     }}
                     loading="lazy"
                   />
-                ) : (
-                  <div
-                    style={{
-                      width: '100%',
-                      height: '140px',
-                      background: 'linear-gradient(135deg, #E3F4ED, #C5E8DA)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '40px',
-                    }}
-                  >
-                    {tip.emoji}
-                  </div>
                 )}
 
                 {/* 글 정보 */}
