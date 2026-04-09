@@ -121,106 +121,98 @@ function detectTopicFromPost(post) {
   return null;
 }
 
-// ─── 1. GPT 스크립트 생성 ─────────────────────────────────────────────────────
+// ─── 1. GPT 스크립트 생성 (바이럴 v2 — HOOK/BODY×3/ENDING) ──────────────────
 async function generateShortsScript(post) {
   const topicId = detectTopicFromPost(post);
   const hookInfo = topicId ? TOPIC_HOOK_FORMULAS[topicId] : null;
 
-  const hookGuidance = hookInfo ? `
-[이 쇼츠의 콘텐츠 공식: ${hookInfo.formula}]
-첫 슬라이드 훅 보기 예시 (반드시 이런 톤으로):
-- ${hookInfo.hookPatterns[0]}
-- ${hookInfo.hookPatterns[1]}
-- ${hookInfo.hookPatterns[2]}
+  const hookExamples = hookInfo
+    ? hookInfo.hookPatterns.map((p) => `"${p}"`).join('\n- ')
+    : '"이거 매일 하면 몸 망가집니다"\n- "대부분 이거 잘못 알고 있음"';
 
-핵심 전략: 시청자가 "이건 몰랐다!" "이거 진짜야?" 반응이 나와야 합니다.
-뻔한 조언(운동하세요, 식단 관리 등)은 절대 쓰지 마세요. 반전과 충격 정보 중심으로.
-이미지 검색어 힌트: ${hookInfo.imageQueries.join(', ')}
-` : '';
-
+  const imageHint = hookInfo ? hookInfo.imageQueries[0] : 'senior health warning';
   const hookTitleExamples = hookInfo
     ? hookInfo.titleFormulas.map((t) => `"${t}"`).join(', ')
     : '"3가지 신호", "몰랐던 진실", "전문의 경고"';
 
   const res = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
-    temperature: 0.75,
-    max_tokens: 1400,
+    temperature: 0.85,
+    max_tokens: 1200,
     response_format: { type: 'json_object' },
     messages: [
       {
         role: 'system',
-        content: `당신은 유튜브 쇼츠 전문 작가입니다.
+        content: `당신은 유튜브 쇼츠 바이럴 전문 작가입니다.
 5060 시니어가 끝까지 보는 건강 쇼츠를 만듭니다.
-${hookGuidance}
-⚠️ 핵심 원칙: 1번 슬라이드(썸네일)만 강렬하게, 2~6번은 차분한 정보 전달 톤
+목표: AI 티 없이 '사람이 만든 것처럼' 보이게 만들기.
 
-슬라이드별 톤 규칙 — 반드시 준수:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[1번 슬라이드] 훅·썸네일
-  - 톤: 충격·반전형. 시청자가 멈추게 만드는 강렬한 첫 마디
-  - 패턴: "10명 중 7명이 모르는 ○○의 진실" / "○○이 오히려 ○○를 망칩니다" 등
-  - 목적: 클릭률 결정 → 반드시 호기심·긴장감 유발
+핵심 원칙:
+- 완벽한 문장 금지 ❌
+- 끊어 말하기 ✅ (narration 내 \\n으로 끊기)
+- 짧고 강하게 ✅
+- 뻔한 조언 금지 ❌ (운동하세요, 식단 관리 등)
+- 반전·충격·공감 ✅
 
-[2번 슬라이드] 배경 설명
-  - 톤: 차분한 설명체. "실제로 어떤 원리인지 알아볼게요"
-  - 내용: 왜 이런 일이 생기는지 메커니즘·원인 설명 (수치 포함)
-  - ❌ 자극적 단어 금지 ("충격", "위험", "경고" 등)
+대본 스타일 예시:
+❌ 나쁜 예: "이 음식은 건강에 매우 좋습니다."
+⭕ 좋은 예: "이거요\\n생각보다 진짜 중요합니다"
+⭕ 좋은 예: "대부분 모릅니다\\n이게 진짜 원인이에요"
 
-[3번 슬라이드] 핵심 정보 1
-  - 톤: 전문의 설명체. "연구에 따르면..." "실제로는..."
-  - 내용: 가장 중요한 사실·데이터 한 가지
-  - 짧고 명확하게, 숫자나 구체적 사례 포함
-
-[4번 슬라이드] 핵심 정보 2
-  - 톤: 친근한 조언체. "많은 분들이 이 부분을 놓치세요"
-  - 내용: 잘못 알려진 상식 or 실천할 때 주의점
-  - 부드럽고 신뢰감 있는 말투
-
-[5번 슬라이드] 실천 방법
-  - 톤: 따뜻한 코치체. "오늘부터 이렇게 해보세요"
-  - 내용: 당장 실천 가능한 구체적 행동 1가지
-  - 쉽고 간단하게, 독자가 할 수 있다는 자신감 주기
-
-[6번 슬라이드] 마무리
-  - 톤: 따뜻하고 격려하는 마무리
-  - 내용: 핵심 한 줄 요약 + 자연스러운 구독 유도
-  - "더 자세한 내용은 블로그에서 확인하세요"
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-공통 규칙:
-- slides: 정확히 6개
-- 각 narration: 실제로 읽을 한국어 문장, 60~75자
-- imageQuery: Pexels 검색할 영어 단어 2~3개
-- 뻔한 조언(운동하세요, 식단 관리 등)은 모든 슬라이드에서 금지
-
-영상 제목 규칙:
-- 클릭 유발 단어: "몰랐던", "의외의", "진짜 원인", "전문의가 밝힌"
-- 숫자 포함 (예: "10명 중 7명", "3가지")
-- 예시 참고: ${hookTitleExamples}
-- 반드시 #Shorts 포함, 40자 이내`,
+슬라이드 5개 구조 (총 25~35초):
+[1번 HOOK  0~3초 ] 스크롤 멈추게 만드는 한 마디. 무조건 짧고 강하게.
+[2번 BODY-A 4~8초 ] 핵심 정보 1개. 끊어서 말하기.
+[3번 BODY-B 9~13초] 핵심 정보 2개 or 반전. 끊어서 말하기.
+[4번 BODY-C 14~18초] 핵심 정보 3개 or 충격 데이터. 끊어서 말하기.
+[5번 ENDING 19~25초] 애매하게 끝내서 궁금증 남기기 + 블로그 유도.`,
       },
       {
         role: 'user',
         content: `제목: ${post.title}
 요약: ${post.excerpt}
 
-위 건강 정보를 바탕으로 쇼츠 스크립트를 만들어주세요.
-1번만 강렬한 훅, 2~6번은 차분한 정보 전달 톤으로 작성하세요.
+훅 참고 예시 (이런 톤으로):
+- ${hookExamples}
 
-JSON:
+제목 참고 예시: ${hookTitleExamples}
+
+아래 JSON 형식으로 작성하세요:
 {
-  "youtubeTitle": "유튜브 제목 (40자 이내, 호기심 유발+숫자 포함, #Shorts 포함)",
-  "hookText": "첫 슬라이드 강조 배너 문구 (15~20자, 짧고 강렬하게 — 예: '10명 중 7명 몰라요', '이게 진짜 원인입니다', '지금 바로 확인하세요')",
-  "description": "시청자가 얻을 핵심 정보 1줄 (60~80자). 끝에 '전체 내용은 블로그에서 확인하세요 👇' 추가",
+  "youtubeTitle": "유튜브 제목 (40자 이내, 숫자/반전 포함, #Shorts 포함)",
+  "hookText": "썸네일 강조 문구 (10~15자, 예: '지금 바로 확인', '이게 진짜 원인')",
+  "description": "영상 설명 1줄 (60~80자) + '전체 내용은 블로그에서 확인하세요 👇'",
   "tags": ["건강", "5060건강", "시니어건강", "관련태그"],
   "slides": [
-    { "narration": "1번(훅): 강렬한 반전·충격 한 마디로 시청 유도 (60~75자)", "imageQuery": "${hookInfo ? hookInfo.imageQueries[0] : 'senior health warning sign'}" },
-    { "narration": "2번(배경설명): 차분하게 원인·메커니즘 설명, 수치 포함 (60~75자)", "imageQuery": "${hookInfo ? hookInfo.imageQueries[1] : 'senior health explanation calm'}" },
-    { "narration": "3번(핵심정보1): 전문의 설명체로 중요한 사실 한 가지 (60~75자)", "imageQuery": "doctor explaining health fact" },
-    { "narration": "4번(핵심정보2): 친근한 조언체로 놓치기 쉬운 포인트 (60~75자)", "imageQuery": "senior health daily tip" },
-    { "narration": "5번(실천법): '오늘부터 이렇게 해보세요' 톤으로 구체적 행동 (60~75자)", "imageQuery": "senior healthy lifestyle action" },
-    { "narration": "6번(마무리): 따뜻한 한 줄 요약 + 자연스러운 구독 유도 (50~65자)", "imageQuery": "happy senior healthy smile" }
+    {
+      "type": "hook",
+      "narration": "끊어쓰기\\n포함된 훅 나레이션 (25~35자)",
+      "keyword": "화면에 크게 표시할 핵심 단어 1~3개",
+      "imageQuery": "portrait senior face ${imageHint}"
+    },
+    {
+      "type": "body",
+      "narration": "끊어쓰기\\n포함된 BODY-A (30~45자)",
+      "keyword": "화면 강조 단어",
+      "imageQuery": "영어 검색어 2~3단어"
+    },
+    {
+      "type": "body",
+      "narration": "끊어쓰기\\n포함된 BODY-B (30~45자)",
+      "keyword": "화면 강조 단어",
+      "imageQuery": "영어 검색어 2~3단어"
+    },
+    {
+      "type": "body",
+      "narration": "끊어쓰기\\n포함된 BODY-C (30~45자)",
+      "keyword": "화면 강조 단어",
+      "imageQuery": "영어 검색어 2~3단어"
+    },
+    {
+      "type": "ending",
+      "narration": "궁금증 남기는 마무리\\n블로그에서 확인하세요 (35~50자)",
+      "keyword": "화면 강조 단어",
+      "imageQuery": "happy senior healthy smile"
+    }
   ]
 }`,
       },
@@ -259,10 +251,10 @@ async function fetchPexelsPhoto(query, outPath) {
   throw new Error(`이미지 없음: "${query}"`);
 }
 
-// ─── 3. 오버레이 HTML - 슬라이드 1은 썸네일 특화 디자인 ─────────────────────
-function makeOverlayHtml(narration, slideIdx, totalSlides, hookText = '') {
+// ─── 3. 오버레이 HTML - 바이럴 v2: 키워드 강조 + 썸네일 특화 ─────────────────
+function makeOverlayHtml(narration, slideIdx, totalSlides, keyword = '', type = 'body') {
   const progress = Math.round((slideIdx / totalSlides) * 100);
-  const isThumbnail = slideIdx === 1;
+  const isThumbnail = type === 'hook';
 
   // 썸네일 슬라이드(1번) — 강렬한 훅 디자인
   if (isThumbnail) {
@@ -296,7 +288,7 @@ html, body {
 /* 중앙 강조 훅 박스 (썸네일 핵심) */
 .hook-area {
   position:absolute;
-  top:50%; left:50%;
+  top:48%; left:50%;
   transform:translate(-50%, -50%);
   width:960px;
   text-align:center;
@@ -307,30 +299,35 @@ html, body {
   color:#fff;
   font-size:38px; font-weight:900;
   padding:16px 48px; border-radius:60px;
-  margin-bottom:30px;
-  box-shadow:0 6px 24px rgba(255,59,48,0.55);
+  margin-bottom:32px;
+  box-shadow:0 6px 24px rgba(255,59,48,0.60);
   letter-spacing:1px;
 }
-.hook-main {
-  font-size:72px;
+/* keyword — 빨강+노랑 강조 텍스트 (썸네일 메인) */
+.hook-keyword {
+  font-size:96px;
   font-weight:900;
+  color:#FFD700;
+  line-height:1.20;
+  word-break:keep-all;
+  text-shadow:
+    0 4px 10px rgba(0,0,0,1),
+    0 8px 40px rgba(0,0,0,0.95),
+    -3px 0 0 rgba(200,0,0,0.7),
+     3px 0 0 rgba(200,0,0,0.7);
+  letter-spacing:-2px;
+  margin-bottom:16px;
+}
+.hook-main {
+  font-size:58px;
+  font-weight:800;
   color:#ffffff;
-  line-height:1.30;
+  line-height:1.35;
   word-break:keep-all;
   text-shadow:
     0 3px 8px rgba(0,0,0,1),
-    0 6px 30px rgba(0,0,0,0.95),
-    0 0 80px rgba(0,0,0,0.9);
+    0 6px 30px rgba(0,0,0,0.95);
   letter-spacing:-1px;
-}
-.hook-sub {
-  margin-top:24px;
-  font-size:46px;
-  font-weight:700;
-  color:rgba(255,230,100,1);
-  line-height:1.40;
-  word-break:keep-all;
-  text-shadow:0 2px 10px rgba(0,0,0,0.9), 0 4px 20px rgba(0,0,0,0.8);
 }
 
 /* 하단 자막 영역 */
@@ -384,7 +381,8 @@ html, body {
 
 <div class="hook-area">
   <div class="hook-badge">⚠️ 지금 바로 확인하세요</div>
-  ${hookText ? `<div class="hook-main">${hookText}</div>` : ''}
+  ${keyword ? `<div class="hook-keyword">${keyword}</div>` : ''}
+  <div class="hook-main">${narration.replace(/\n/g, '<br>')}</div>
 </div>
 
 <div class="subtitle-area">
@@ -427,33 +425,48 @@ html, body {
 .brand-icon { font-size:38px; line-height:1; }
 .brand-text { font-size:36px; font-weight:800; color:#fff; letter-spacing:2px; }
 
-/* 슬라이드 번호 */
-.slide-num {
-  position:absolute; top:155px; right:50px;
-  background:rgba(0,0,0,0.60);
-  border-radius:40px; padding:10px 28px;
-  font-size:30px; font-weight:700;
-  color:rgba(255,255,255,0.90);
+/* 중앙 키워드 강조 영역 */
+.keyword-area {
+  position:absolute;
+  top:44%; left:50%;
+  transform:translate(-50%, -50%);
+  width:960px;
+  text-align:center;
+}
+.keyword-text {
+  font-size:88px;
+  font-weight:900;
+  color:#FFD700;
+  line-height:1.25;
+  word-break:keep-all;
+  text-shadow:
+    0 4px 12px rgba(0,0,0,1),
+    0 8px 40px rgba(0,0,0,0.95),
+    0 0 80px rgba(0,0,0,0.8);
+  letter-spacing:-2px;
+}
+.keyword-text.ending {
+  color:#7EFFC5;
 }
 
-/* 하단 자막 영역 */
+/* 하단 나레이션 영역 */
 .subtitle-area {
   position:absolute; bottom:0; left:0; right:0;
   background:linear-gradient(
     to top,
     rgba(0,0,0,0.96) 0%,
-    rgba(0,0,0,0.88) 40%,
-    rgba(0,0,0,0.40) 75%,
+    rgba(0,0,0,0.88) 45%,
+    rgba(0,0,0,0.40) 78%,
     transparent 100%
   );
-  padding:60px 55px 230px;
-  min-height:460px;
+  padding:50px 55px 220px;
+  min-height:440px;
   display:flex; align-items:flex-end;
 }
 .subtitle-text {
-  font-size:58px; font-weight:800; color:#ffffff;
-  line-height:1.50; word-break:keep-all;
-  text-shadow:0 2px 6px rgba(0,0,0,1), 0 4px 20px rgba(0,0,0,0.95), 0 0 50px rgba(0,0,0,0.8);
+  font-size:50px; font-weight:700; color:#ffffff;
+  line-height:1.55; word-break:keep-all;
+  text-shadow:0 2px 6px rgba(0,0,0,1), 0 4px 20px rgba(0,0,0,0.95);
   letter-spacing:-0.5px;
 }
 
@@ -485,7 +498,10 @@ html, body {
   </div>
 </div>
 
-<div class="slide-num">${slideIdx} / ${totalSlides}</div>
+${keyword ? `
+<div class="keyword-area">
+  <div class="keyword-text${type === 'ending' ? ' ending' : ''}">${keyword}</div>
+</div>` : ''}
 
 <div class="subtitle-area">
   <div class="subtitle-text">${narration.replace(/\n/g, '<br>')}</div>
@@ -505,12 +521,19 @@ async function generateAudio(narration, outPath) {
   const apiKey = process.env.GOOGLE_TTS_API_KEY;
   if (!apiKey) throw new Error('GOOGLE_TTS_API_KEY 환경변수가 없습니다.');
 
+  // \n → ", " 변환: TTS가 끊어 읽도록 자연스러운 쉼 삽입
+  const ttsText = narration.replace(/\n/g, ', ');
+
   const res = await axios.post(
     `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`,
     {
-      input: { text: narration },
+      input: { text: ttsText },
       voice: { languageCode: 'ko-KR', name: 'ko-KR-Standard-C' },
-      audioConfig: { audioEncoding: 'MP3', speakingRate: 0.90 },
+      audioConfig: {
+        audioEncoding: 'MP3',
+        speakingRate: 1.10,   // 0.90 → 1.10: 자연스럽게 빠른 속도
+        pitch: -2.0,          // 약간 낮은 피치: 또박또박 느낌 감소
+      },
     }
   );
   const buf = Buffer.from(res.data.audioContent, 'base64');
@@ -594,7 +617,7 @@ function extractFirstFrame(videoPath, outPath) {
 
 // ─── 메인 ─────────────────────────────────────────────────────────────────────
 async function main() {
-  console.log('=== 유튜브 쇼츠 v6 (6슬라이드, 60초 이내) ===\n');
+  console.log('=== 유튜브 쇼츠 v7 (바이럴 5슬라이드, 25~35초) ===\n');
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shorts-'));
 
   const browser = await puppeteer.launch({
@@ -620,10 +643,10 @@ async function main() {
     // 1. GPT 스크립트
     console.log('[1/3] 쇼츠 스크립트 생성...');
     const script = await generateShortsScript(post);
-    const slides = (script.slides || []).slice(0, 6);
+    const slides = (script.slides || []).slice(0, 5);
     console.log(`  제목: ${script.youtubeTitle}`);
     console.log(`  슬라이드: ${slides.length}개`);
-    slides.forEach((s, i) => console.log(`    ${i + 1}. [${s.narration.length}자] ${s.narration.slice(0, 30)}...`));
+    slides.forEach((s, i) => console.log(`    ${i + 1}. [${s.type}] 키워드:"${s.keyword}" | ${s.narration.replace(/\n/g, ' / ').slice(0, 30)}...`));
     console.log('');
 
     // 2. 슬라이드별 처리
@@ -652,10 +675,9 @@ async function main() {
       totalDuration += duration + 0.3;
       console.log(`     🔊 ${slide.narration.length}자 → ${duration.toFixed(1)}초`);
 
-      // c) 오버레이 - narration을 자막으로 표시 (슬라이드 1은 훅 배너 포함)
+      // c) 오버레이 - 키워드 강조 + 나레이션 분리 표시
       const overlayPath = path.join(tmpDir, `overlay_${i}.png`);
-      const hookText = i === 0 ? (script.hookText || '') : '';
-      const html = makeOverlayHtml(slide.narration, i + 1, slides.length, hookText);
+      const html = makeOverlayHtml(slide.narration, i + 1, slides.length, slide.keyword || '', slide.type || 'body');
       await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 10000 });
       await new Promise((r) => setTimeout(r, 400));
       await page.screenshot({ path: overlayPath, omitBackground: true });
