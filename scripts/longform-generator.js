@@ -410,7 +410,7 @@ html, body {
 async function generateThumbnail(page, thumbnailText, thumbnailSub, bgImagePath, outPath) {
   await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 1 });
   const html = makeThumbnailHtml(thumbnailText, thumbnailSub, bgImagePath);
-  await page.setContent(html, { waitUntil: 'networkidle0', timeout: 15000 });
+  await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await new Promise((r) => setTimeout(r, 600));
   await page.screenshot({ path: outPath, type: 'png' });
   // 원래 뷰포트 복원
