@@ -33,15 +33,8 @@ function AppDownloadHeaderBtn() {
       prompt.prompt();
       await prompt.userChoice;
       setPrompt(null);
-    } else if (navigator.share) {
-      // iOS Safari 등: Web Share API → 공유시트 바로 오픈
-      try {
-        await navigator.share({ url: window.location.href });
-      } catch (_) {
-        // 사용자가 취소한 경우 무시
-      }
     } else {
-      // fallback: 안내 시트
+      // iOS 및 기타: 안내 팝업
       setShowSheet(true);
     }
   };
@@ -80,39 +73,67 @@ function AppDownloadHeaderBtn() {
           <div
             style={{
               position: 'fixed',
-              bottom: isIOS ? '80px' : '24px',
-              left: '50%', transform: 'translateX(-50%)',
-              width: 'calc(100% - 32px)', maxWidth: '400px',
+              top: '50%', left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: 'calc(100% - 48px)', maxWidth: '360px',
               zIndex: 9999,
               background: '#ffffff',
               borderRadius: '20px',
-              padding: '24px',
+              padding: '28px 24px',
               boxShadow: '0 8px 48px rgba(0,0,0,0.28)',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '18px' }}>
-              <div style={{ width: '52px', height: '52px', borderRadius: '12px', flexShrink: 0, background: 'linear-gradient(135deg,#177A5E,#1E9E7A)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🏥</div>
+            {/* 헤더 */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', flexShrink: 0, background: 'linear-gradient(135deg,#177A5E,#1E9E7A)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px' }}>🏥</div>
               <div>
-                <p style={{ fontSize: '16px', fontWeight: 800, color: '#1B3A32', marginBottom: '3px' }}>시니어 건강백과</p>
-                <p style={{ fontSize: '13px', color: '#2E5A4D' }}>홈 화면에 추가하면 앱처럼 바로 열려요</p>
+                <p style={{ fontSize: '15px', fontWeight: 800, color: '#1B3A32' }}>홈 화면에 추가하기</p>
+                <p style={{ fontSize: '12px', color: '#2E5A4D', marginTop: '2px' }}>앱처럼 바로 실행할 수 있어요</p>
               </div>
             </div>
-            <div style={{ background: '#F2FAF7', borderRadius: '12px', padding: '16px', marginBottom: '14px', border: '1.5px solid #C5E8DA' }}>
-              <p style={{ fontSize: '14px', fontWeight: 700, color: '#1B3A32', marginBottom: '10px' }}>📌 홈 화면에 추가하는 방법</p>
-              <p style={{ fontSize: '14px', color: '#1B3A32', lineHeight: 1.9 }}>
-                1. 아래 <strong>닫기</strong> 버튼을 눌러 이 안내를 닫아요<br />
-                2. 하단 브라우저 <strong>공유 버튼 (⬆)</strong> 탭<br />
-                3. <strong>"홈 화면에 추가"</strong> 선택<br />
-                4. <strong>"추가"</strong> 버튼 탭
-              </p>
+
+            {/* 단계 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
+              {/* Step 1 */}
+              <div style={{ background: '#F2FAF7', borderRadius: '12px', padding: '14px 16px', border: '1.5px solid #C5E8DA' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg,#177A5E,#1E9E7A)', color: '#fff', fontSize: '13px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>1</div>
+                  <p style={{ fontSize: '13px', color: '#1B3A32', fontWeight: 600 }}>Safari를 열고 아래 링크를 복사해주세요</p>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <p style={{ flex: 1, fontSize: '12px', color: '#555', background: '#fff', borderRadius: '8px', padding: '7px 10px', border: '1px solid #C5E8DA', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    smartinfoblog.co.kr
+                  </p>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText('https://smartinfoblog.co.kr').then(() => {
+                        alert('링크가 복사되었습니다!');
+                      });
+                    }}
+                    style={{ flexShrink: 0, padding: '7px 12px', background: 'linear-gradient(90deg,#177A5E,#1E9E7A)', color: '#fff', borderRadius: '8px', border: 'none', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    링크 복사
+                  </button>
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#F2FAF7', borderRadius: '12px', padding: '14px 16px', border: '1.5px solid #C5E8DA' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg,#177A5E,#1E9E7A)', color: '#fff', fontSize: '13px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>2</div>
+                <p style={{ fontSize: '13px', color: '#1B3A32', fontWeight: 600 }}>하단 <strong>⋯ 버튼</strong> → <strong>공유</strong> 버튼을 눌러주세요</p>
+              </div>
+
+              {/* Step 3 */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#F2FAF7', borderRadius: '12px', padding: '14px 16px', border: '1.5px solid #C5E8DA' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg,#177A5E,#1E9E7A)', color: '#fff', fontSize: '13px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>3</div>
+                <p style={{ fontSize: '13px', color: '#1B3A32', fontWeight: 600 }}><strong>"홈 화면에 추가"</strong> 버튼을 눌러주세요</p>
+              </div>
             </div>
-            <button onClick={() => setShowSheet(false)} style={{ width: '100%', padding: '13px', background: 'linear-gradient(90deg,#177A5E,#1E9E7A)', color: '#fff', borderRadius: '12px', border: 'none', fontSize: '14px', fontWeight: 700, cursor: 'pointer' }}>
-              닫고 공유 버튼 (⬆) 탭하기
+
+            <button onClick={() => setShowSheet(false)} style={{ width: '100%', padding: '14px', background: 'linear-gradient(90deg,#177A5E,#1E9E7A)', color: '#fff', borderRadius: '12px', border: 'none', fontSize: '15px', fontWeight: 700, cursor: 'pointer' }}>
+              확인
             </button>
           </div>
-          {isIOS && (
-            <div style={{ position: 'fixed', bottom: '12px', left: '50%', transform: 'translateX(-50%)', zIndex: 10000, fontSize: '36px', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))', animation: 'pwa-bounce 1.2s infinite' }}>⬆️</div>
-          )}
         </>
       )}
       <style>{`@keyframes pwa-bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(-10px)} }`}</style>
