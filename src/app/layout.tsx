@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProgressBar from '@/components/ProgressBar';
 import ScrollToTop from '@/components/ScrollToTop';
+import AddToHomeScreen from '@/components/AddToHomeScreen';
 import './globals.css';
 
 const SITE_NAME  = process.env.NEXT_PUBLIC_SITE_NAME || '시니어 건강백과';
@@ -74,6 +75,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main className="flex-1">{children}</main>
         <Footer />
         <ScrollToTop />
+        <AddToHomeScreen />
+
+        {/* Service Worker 등록 (PWA 설치 프롬프트 활성화) */}
+        <Script id="sw-register" strategy="afterInteractive">{`
+          if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+              navigator.serviceWorker.register('/sw.js').catch(() => {});
+            });
+          }
+        `}</Script>
       </body>
     </html>
   );
