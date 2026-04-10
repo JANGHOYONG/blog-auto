@@ -1,8 +1,114 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+
+/** 모바일 헤더 전용 앱 다운로드 버튼 */
+function AppDownloadHeaderBtn() {
+  const [show, setShow]           = useState(false);
+  const [showSheet, setShowSheet] = useState(false);
+  const [isIOS, setIsIOS]         = useState(false);
+  const [prompt, setPrompt]       = useState<any>(null);
+
+  useEffect(() => {
+    if (window.matchMedia('(display-mode: standalone)').matches) return;
+    if ((window.navigator as any).standalone === true) return;
+
+    const ua   = navigator.userAgent;
+    const ios    = /iphone|ipad|ipod/i.test(ua);
+    const safari = /safari/i.test(ua) && !/chrome|crios|fxios/i.test(ua);
+    if (ios && safari) setIsIOS(true);
+
+    setShow(true);
+
+    const handler = (e: Event) => { e.preventDefault(); setPrompt(e); };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleClick = async () => {
+    if (prompt) {
+      prompt.prompt();
+      await prompt.userChoice;
+      setPrompt(null);
+    } else {
+      setShowSheet(true);
+    }
+  };
+
+  if (!show) return null;
+
+  return (
+    <>
+      {/* 모바일에서만 표시 */}
+      <button
+        onClick={handleClick}
+        className="md:hidden"
+        style={{
+          padding: '5px 10px',
+          background: 'linear-gradient(90deg, #177A5E, #1E9E7A)',
+          color: '#fff',
+          borderRadius: '8px',
+          border: 'none',
+          fontSize: '11px',
+          fontWeight: 700,
+          cursor: 'pointer',
+          whiteSpace: 'nowrap',
+          boxShadow: '0 1px 4px rgba(23,122,94,0.3)',
+          flexShrink: 0,
+        }}
+      >
+        📲 앱 다운로드
+      </button>
+
+      {showSheet && (
+        <>
+          <div
+            onClick={() => setShowSheet(false)}
+            style={{ position: 'fixed', inset: 0, zIndex: 9998, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(3px)' }}
+          />
+          <div
+            style={{
+              position: 'fixed',
+              bottom: isIOS ? '80px' : '24px',
+              left: '50%', transform: 'translateX(-50%)',
+              width: 'calc(100% - 32px)', maxWidth: '400px',
+              zIndex: 9999,
+              background: '#ffffff',
+              borderRadius: '20px',
+              padding: '24px',
+              boxShadow: '0 8px 48px rgba(0,0,0,0.28)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '18px' }}>
+              <div style={{ width: '52px', height: '52px', borderRadius: '12px', flexShrink: 0, background: 'linear-gradient(135deg,#177A5E,#1E9E7A)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🏥</div>
+              <div>
+                <p style={{ fontSize: '16px', fontWeight: 800, color: '#1B3A32', marginBottom: '3px' }}>시니어 건강백과</p>
+                <p style={{ fontSize: '13px', color: '#2E5A4D' }}>홈 화면에 추가하면 앱처럼 바로 열려요</p>
+              </div>
+            </div>
+            <div style={{ background: '#F2FAF7', borderRadius: '12px', padding: '16px', marginBottom: '14px', border: '1.5px solid #C5E8DA' }}>
+              <p style={{ fontSize: '14px', fontWeight: 700, color: '#1B3A32', marginBottom: '10px' }}>📌 홈 화면에 추가하는 방법</p>
+              <p style={{ fontSize: '14px', color: '#1B3A32', lineHeight: 1.9 }}>
+                1. 하단 <strong>공유 버튼 (⬆)</strong> 탭<br />
+                2. <strong>"홈 화면에 추가"</strong> 선택<br />
+                3. <strong>"추가"</strong> 버튼 탭
+              </p>
+            </div>
+            <button onClick={() => setShowSheet(false)} style={{ width: '100%', padding: '13px', background: 'transparent', color: '#2E5A4D', borderRadius: '12px', border: '1.5px solid #C5E8DA', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
+              닫기
+            </button>
+          </div>
+          {isIOS && (
+            <div style={{ position: 'fixed', bottom: '12px', left: '50%', transform: 'translateX(-50%)', zIndex: 10000, fontSize: '36px', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))', animation: 'pwa-bounce 1.2s infinite' }}>⬇️</div>
+          )}
+        </>
+      )}
+      <style>{`@keyframes pwa-bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(-10px)} }`}</style>
+    </>
+  );
+}
 
 const TOPICS = [
   { name: '혈당·당뇨', query: '혈당' },
@@ -65,6 +171,9 @@ export default function Header() {
               </Link>
             ))}
           </nav>
+
+          {/* 모바일 앱 다운로드 버튼 */}
+          <AppDownloadHeaderBtn />
 
           {/* 우측: 검색 */}
           <div className="flex items-center gap-2 ml-auto">

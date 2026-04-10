@@ -49,17 +49,16 @@ export default function AppDownloadBanner() {
 
   return (
     <>
-      {/* 가로형 배너 */}
-      <div
-        style={{
-          background: 'linear-gradient(90deg, #177A5E 0%, #1E9E7A 100%)',
-          padding: '14px 20px',
-        }}
-      >
+      {/* 박스형 배너 */}
+      <div style={{ padding: '0 16px 16px' }}>
         <div
           style={{
             maxWidth: '1280px',
             margin: '0 auto',
+            background: 'linear-gradient(90deg, #177A5E 0%, #1E9E7A 100%)',
+            borderRadius: '16px',
+            padding: '16px 20px',
+            boxShadow: '0 4px 16px rgba(23,122,94,0.25)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
