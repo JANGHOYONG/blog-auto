@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import AddToHomeScreen from './AddToHomeScreen';
 
 const TOPICS = [
   { name: '혈당·당뇨', query: '혈당' },
@@ -64,6 +65,9 @@ export default function Footer() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <AddToHomeScreen />
+              </li>
             </ul>
           </div>
         </div>

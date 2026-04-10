@@ -1,86 +1,109 @@
 'use client';
 
 /**
- * 앱 다운로드 버튼 (PWA 설치)
- * - 자동 팝업 없음 — 사용자가 직접 클릭할 때만 동작
- * - Android Chrome: beforeinstallprompt → 네이티브 설치 다이얼로그
- * - iOS Safari: 공유 → 홈 화면에 추가 안내 시트
+ * 앱 다운로드 가로형 배너
+ * - DailyHealthTip 아래, 최신 건강 정보 위에 위치
+ * - 클릭 시: Android → 네이티브 설치, iOS → 안내 시트
  */
 
 import { useEffect, useState } from 'react';
 
-export default function AddToHomeScreen() {
-  const [isIOS, setIsIOS]             = useState(false);
-  const [showSheet, setShowSheet]     = useState(false);
-  const [deferredPrompt, setDeferred] = useState<any>(null);
-  const [ready, setReady]             = useState(false);
+export default function AppDownloadBanner() {
+  const [isIOS, setIsIOS]         = useState(false);
+  const [showSheet, setShowSheet] = useState(false);
+  const [prompt, setPrompt]       = useState<any>(null);
+  const [mounted, setMounted]     = useState(false);
 
   useEffect(() => {
-    // 이미 PWA 모드면 버튼 숨김
+    setMounted(true);
+
+    // 이미 PWA 설치된 경우 숨김
     if (window.matchMedia('(display-mode: standalone)').matches) return;
     if ((window.navigator as any).standalone === true) return;
 
     const ua = navigator.userAgent;
     const ios    = /iphone|ipad|ipod/i.test(ua);
     const safari = /safari/i.test(ua) && !/chrome|crios|fxios/i.test(ua);
+    if (ios && safari) setIsIOS(true);
 
-    if (ios && safari) {
-      setIsIOS(true);
-      setReady(true);
-    } else {
-      const handler = (e: Event) => {
-        e.preventDefault();
-        setDeferred(e);
-        setReady(true);
-      };
-      window.addEventListener('beforeinstallprompt', handler);
-      // Android이지만 beforeinstallprompt가 없어도 iOS 안내 버튼 표시
-      const timer = setTimeout(() => setReady(true), 3000);
-      return () => {
-        window.removeEventListener('beforeinstallprompt', handler);
-        clearTimeout(timer);
-      };
-    }
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
   const handleClick = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
-      setDeferred(null);
-      setReady(false);
+    if (prompt) {
+      prompt.prompt();
+      await prompt.userChoice;
+      setPrompt(null);
     } else {
-      // iOS 또는 beforeinstallprompt 없는 경우 → 안내 시트 표시
       setShowSheet(true);
     }
   };
 
-  if (!ready) return null;
+  // SSR에서는 렌더링하지 않음 (hydration mismatch 방지)
+  if (!mounted) return null;
 
   return (
     <>
-      {/* 앱 다운로드 버튼 — 푸터에서 렌더링 위치는 Footer가 결정 */}
-      <button
-        onClick={handleClick}
+      {/* 가로형 배너 */}
+      <div
         style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '6px',
-          padding: '0',
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          color: 'rgba(255,255,255,0.92)',
-          fontSize: '14px',
+          background: 'linear-gradient(90deg, #177A5E 0%, #1E9E7A 100%)',
+          padding: '14px 20px',
         }}
       >
-        📲 앱 다운로드
-      </button>
+        <div
+          style={{
+            maxWidth: '1280px',
+            margin: '0 auto',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px',
+          }}
+        >
+          {/* 왼쪽: 아이콘 + 문구 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ fontSize: '28px', flexShrink: 0 }}>📲</span>
+            <div>
+              <p style={{ fontSize: '14px', fontWeight: 700, color: '#ffffff', marginBottom: '2px' }}>
+                앱처럼 저장하고 바로 열어보세요
+              </p>
+              <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.85)' }}>
+                홈 화면에 추가하면 언제든 빠르게 접속할 수 있어요
+              </p>
+            </div>
+          </div>
 
-      {/* iOS 안내 시트 */}
+          {/* 오른쪽: 버튼 */}
+          <button
+            onClick={handleClick}
+            style={{
+              flexShrink: 0,
+              padding: '10px 18px',
+              background: '#ffffff',
+              color: '#177A5E',
+              borderRadius: '10px',
+              border: 'none',
+              fontSize: '13px',
+              fontWeight: 800,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+            }}
+          >
+            앱 다운로드
+          </button>
+        </div>
+      </div>
+
+      {/* iOS / 기타 안내 시트 */}
       {showSheet && (
         <>
-          {/* 딤 */}
           <div
             onClick={() => setShowSheet(false)}
             style={{
@@ -89,8 +112,6 @@ export default function AddToHomeScreen() {
               backdropFilter: 'blur(3px)',
             }}
           />
-
-          {/* 안내 카드 */}
           <div
             style={{
               position: 'fixed',
@@ -155,7 +176,6 @@ export default function AddToHomeScreen() {
             </button>
           </div>
 
-          {/* iOS: 하단 화살표 */}
           {isIOS && (
             <div
               style={{
