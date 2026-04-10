@@ -9,7 +9,6 @@ import TopBar from '@/components/TopBar';
 import AdSense from '@/components/AdSense';
 import NewsletterCTA from '@/components/NewsletterCTA';
 import DailyHealthTip from '@/components/DailyHealthTip';
-import AppDownloadBanner from '@/components/AppDownloadBanner';
 
 export const revalidate = 1800;
 
@@ -54,9 +53,6 @@ export default async function HomePage() {
       <Suspense fallback={null}>
         <DailyHealthTip />
       </Suspense>
-
-      {/* 앱 다운로드 배너 */}
-      <AppDownloadBanner />
 
       {/* 메인 콘텐츠 */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">

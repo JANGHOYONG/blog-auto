@@ -29,10 +29,19 @@ function AppDownloadHeaderBtn() {
 
   const handleClick = async () => {
     if (prompt) {
+      // Android: 네이티브 설치 다이얼로그
       prompt.prompt();
       await prompt.userChoice;
       setPrompt(null);
+    } else if (navigator.share) {
+      // iOS Safari 등: Web Share API → 공유시트 바로 오픈
+      try {
+        await navigator.share({ url: window.location.href });
+      } catch (_) {
+        // 사용자가 취소한 경우 무시
+      }
     } else {
+      // fallback: 안내 시트
       setShowSheet(true);
     }
   };
