@@ -20,17 +20,24 @@ function CopyLinkRow() {
   const copy = () => {
     navigator.clipboard.writeText('https://smartinfoblog.co.kr').then(() => {
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => setCopied(false), 3000);
     });
   };
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-      <p style={{ flex: 1, fontSize: '12px', color: '#555', background: '#fff', borderRadius: '8px', padding: '7px 10px', border: '1px solid #C5E8DA', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-        smartinfoblog.co.kr
-      </p>
-      <button onClick={copy} style={{ flexShrink: 0, padding: '7px 12px', background: copied ? '#aaa' : 'linear-gradient(90deg,#177A5E,#1E9E7A)', color: '#fff', borderRadius: '8px', border: 'none', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
-        {copied ? '복사됨 ✓' : '링크 복사'}
-      </button>
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <p style={{ flex: 1, fontSize: '12px', color: '#555', background: '#fff', borderRadius: '8px', padding: '7px 10px', border: '1px solid #C5E8DA', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          smartinfoblog.co.kr
+        </p>
+        <button onClick={copy} style={{ flexShrink: 0, padding: '7px 12px', background: 'linear-gradient(90deg,#177A5E,#1E9E7A)', color: '#fff', borderRadius: '8px', border: 'none', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
+          링크 복사
+        </button>
+      </div>
+      {copied && (
+        <p style={{ marginTop: '6px', fontSize: '12px', color: '#1E9E7A', fontWeight: 600 }}>
+          ✓ 링크가 복사되었습니다. Safari에 붙여넣기 해주세요!
+        </p>
+      )}
     </div>
   );
 }
