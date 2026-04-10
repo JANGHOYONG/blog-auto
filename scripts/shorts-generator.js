@@ -480,11 +480,99 @@ function concatClips(clipPaths, outPath) {
   });
 }
 
-// ─── 8. 첫 슬라이드 프레임 추출 (썸네일용) ────────────────────────────────────
-function extractFirstFrame(videoPath, outPath) {
+// ─── 8. 썸네일 전용 HTML (제목·키워드가 크게 보이는 타이틀 카드) ──────────────
+function makeThumbnailHtml(youtubeTitle, keyword) {
+  const kwFontSize = keyword.length > 8 ? 84 : 100;
+  return `<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  width:${W}px; height:${H}px;
+  background:transparent; overflow:hidden;
+  font-family:${FONT};
+}
+.top-bar {
+  position:absolute; top:0; left:0; right:0; height:200px;
+  background:#ffffff;
+  border-bottom:5px solid rgba(30,158,122,0.3);
+  display:flex; align-items:center; justify-content:center; gap:18px;
+}
+.brand-icon { font-size:56px; line-height:1; }
+.brand-text  { font-size:50px; font-weight:900; color:#1E9E7A; letter-spacing:0.5px; }
+.keyword-wrap {
+  position:absolute; top:260px; left:60px; right:60px;
+  display:flex; flex-direction:column; align-items:center; gap:28px;
+}
+.topic-badge {
+  background:linear-gradient(135deg,#1E9E7A,#177A5E);
+  color:#fff; font-size:38px; font-weight:800;
+  padding:18px 56px; border-radius:60px; letter-spacing:0.5px;
+  box-shadow:0 6px 24px rgba(0,0,0,0.35);
+}
+.keyword-text {
+  font-size:${kwFontSize}px; font-weight:900;
+  color:#FFD700; line-height:1.2;
+  word-break:keep-all; text-align:center;
+  text-shadow:
+    0 4px 8px rgba(0,0,0,0.95), 0 8px 40px rgba(0,0,0,0.85),
+    -3px -3px 0 rgba(0,0,0,0.7), 3px -3px 0 rgba(0,0,0,0.7),
+    -3px  3px 0 rgba(0,0,0,0.7), 3px  3px 0 rgba(0,0,0,0.7);
+  letter-spacing:-1px;
+}
+.title-bar {
+  position:absolute; bottom:240px; left:0; right:0;
+  background:#ffffff; padding:44px 64px 36px;
+  border-top:6px solid #1E9E7A;
+}
+.title-text {
+  font-size:58px; font-weight:900; color:#1B3A32;
+  line-height:1.35; word-break:keep-all; text-align:center;
+  letter-spacing:-0.5px;
+}
+.site-url {
+  font-size:30px; font-weight:700; color:#1E9E7A;
+  text-align:center; margin-top:18px; opacity:0.85;
+}
+.bottom-pad {
+  position:absolute; bottom:0; left:0; right:0; height:240px;
+  background:#ffffff;
+  border-top:2px solid rgba(30,158,122,0.15);
+}
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <span class="brand-icon">🏥</span>
+  <span class="brand-text">시니어 건강백과</span>
+</div>
+<div class="keyword-wrap">
+  <div class="topic-badge">🎯 오늘의 건강 정보</div>
+  <div class="keyword-text">${keyword}</div>
+</div>
+<div class="title-bar">
+  <div class="title-text">${youtubeTitle}</div>
+  <div class="site-url">smartinfoblog.co.kr</div>
+</div>
+<div class="bottom-pad"></div>
+</body>
+</html>`;
+}
+
+// ─── 8-b. 배경 이미지 + 썸네일 오버레이 합성 → JPEG ────────────────────────────
+function compositeThumbnail(bgPath, overlayPath, outPath) {
   return new Promise((resolve, reject) => {
-    ffmpeg(videoPath)
-      .outputOptions(['-vframes', '1', '-ss', '0.3'])
+    ffmpeg()
+      .input(bgPath)
+      .input(overlayPath)
+      .complexFilter([
+        `[0:v]scale=${W}:${H}:force_original_aspect_ratio=increase,crop=${W}:${H},setsar=1[bg]`,
+        `[bg][1:v]overlay=0:0[out]`,
+      ])
+      .map('[out]')
+      .outputOptions(['-frames:v', '1', '-q:v', '2'])
       .output(outPath)
       .on('end', resolve)
       .on('error', reject)
@@ -566,6 +654,18 @@ async function main() {
       console.log(`     ✅ 완료\n`);
     }
 
+    // 썸네일 오버레이 PNG — 브라우저 닫기 전에 생성
+    const thumbOverlayPath = path.join(tmpDir, 'thumb_overlay.png');
+    try {
+      const thumbHtml = makeThumbnailHtml(script.youtubeTitle, slides[0]?.keyword || script.keyword || '');
+      await page.setContent(thumbHtml, { waitUntil: 'domcontentloaded', timeout: 10000 });
+      await new Promise(r => setTimeout(r, 500));
+      await page.screenshot({ path: thumbOverlayPath, omitBackground: true });
+      console.log('  📸 썸네일 오버레이 생성 완료\n');
+    } catch (e) {
+      console.log(`  ⚠️ 썸네일 오버레이 생성 실패: ${e.message}\n`);
+    }
+
     await browser.close();
     console.log(`총 ${slides.length}슬라이드 | 예상 길이: ~${totalDuration.toFixed(0)}초\n`);
 
@@ -599,12 +699,13 @@ async function main() {
         categoryId: '26',
       });
 
-      // 첫 슬라이드 프레임을 썸네일로 설정
+      // 타이틀 카드 썸네일 업로드 (배경 이미지 + 오버레이 합성)
       try {
-        const thumbPath = path.join(tmpDir, 'thumbnail.jpg');
-        console.log('  썸네일 추출 중...');
-        await extractFirstFrame(clipPaths[0], thumbPath);
-        await uploadThumbnail({ videoId, thumbnailPath: thumbPath });
+        const thumbJpgPath = path.join(tmpDir, 'thumbnail.jpg');
+        const firstImagePath = path.join(tmpDir, 'image_0.jpg');
+        console.log('  썸네일 합성 중...');
+        await compositeThumbnail(firstImagePath, thumbOverlayPath, thumbJpgPath);
+        await uploadThumbnail({ videoId, thumbnailPath: thumbJpgPath });
         console.log('  썸네일 업로드 완료 ✅');
       } catch (thumbErr) {
         console.log(`  썸네일 업로드 실패 (건너뜀): ${thumbErr.message}`);
