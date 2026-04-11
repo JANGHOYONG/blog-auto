@@ -198,7 +198,7 @@ export default function Header() {
         <div className="flex items-center h-16 gap-4">
 
           {/* 로고 */}
-          <Link href="/" className="shrink-0 flex items-center gap-2">
+          <Link href="/" className="shrink-0 flex items-center gap-2" onClick={() => { window.location.href = '/'; }}>
             <span className="text-xl">🏥</span>
             <span className="font-bold text-lg tracking-tight" style={{ color: 'var(--primary)' }}>
               시니어 건강백과
