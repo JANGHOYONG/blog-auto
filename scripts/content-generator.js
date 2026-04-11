@@ -237,22 +237,22 @@ function injectBodyImages(content, images) {
 // health 카테고리 7개 → knowledge 카테고리 8개 순으로 이어짐
 const HEALTH_TOPICS = [
   // ── health 카테고리 (쿠팡 시트 연동) ──────────────────────────────────────
-  { id: 'blood_sugar',    label: '혈당·당뇨',         category: 'health',    words: ['혈당', '당뇨', '인슐린', '혈액당', '공복혈당'] },
-  { id: 'blood_pressure', label: '혈압·심장',         category: 'health',    words: ['혈압', '심장', '심혈관', '고혈압', '심근', '부정맥', '콜레스테롤', '동맥경화', '심부전'] },
-  { id: 'joint',          label: '관절·근육',         category: 'health',    words: ['관절', '무릎', '연골', '허리', '척추', '근육', '근감소', '골다공증', '어깨', '힘줄', '류마티스'] },
-  { id: 'sleep',          label: '수면·피로',         category: 'health',    words: ['수면', '불면', '피로', '수면장애', '잠', '멜라토닌', '불면증', '만성피로', '졸음'] },
-  { id: 'brain',          label: '뇌건강·치매',       category: 'health',    words: ['치매', '뇌', '기억력', '인지', '파킨슨', '뇌졸중', '알츠하이머', '뇌건강', '인지저하'] },
-  { id: 'menopause',      label: '갱년기',            category: 'health',    words: ['갱년기', '폐경', '호르몬', '안면홍조', '골밀도', '에스트로겐', '남성갱년기'] },
-  { id: 'nutrition',      label: '영양·식이',         category: 'health',    words: ['영양', '영양제', '비타민', '식이', '음식', '식단', '건강식', '단백질', '오메가', '식품', '보충제'] },
+  { id: 'blood_sugar',    label: '혈당·당뇨',         category: 'health',    words: ['혈당', '당뇨', '인슐린', '혈액당', '공복혈당', '혈당관리', '혈당수치', '당뇨병', '당화혈색소', '저혈당', '고혈당', '혈당스파이크', '당뇨전단계', '내당능', '혈당조절'] },
+  { id: 'blood_pressure', label: '혈압·심장',         category: 'health',    words: ['혈압', '심장', '심혈관', '고혈압', '심근', '부정맥', '콜레스테롤', '동맥경화', '심부전', '혈압관리', '혈압수치', '심근경색', '협심증', '심방세동', '뇌졸중', '중성지방', '이완기', '수축기'] },
+  { id: 'joint',          label: '관절·근육',         category: 'health',    words: ['관절', '무릎', '연골', '허리', '척추', '근육', '근감소', '골다공증', '어깨', '힘줄', '류마티스', '관절염', '퇴행성', '디스크', '오십견', '근력', '고관절', '관절통', '관절염증', '근육통'] },
+  { id: 'sleep',          label: '수면·피로',         category: 'health',    words: ['수면', '불면', '피로', '수면장애', '잠', '멜라토닌', '불면증', '만성피로', '졸음', '수면질', '수면시간', '수면부족', '야간뇨', '코골이', '수면무호흡', '낮잠', '피로감', '만성피로증후군'] },
+  { id: 'brain',          label: '뇌건강·치매',       category: 'health',    words: ['치매', '뇌', '기억력', '인지', '파킨슨', '뇌졸중', '알츠하이머', '뇌건강', '인지저하', '건망증', '인지기능', '치매예방', '뇌혈관', '기억력저하', '경도인지장애', '뇌경색', '뇌출혈'] },
+  { id: 'menopause',      label: '갱년기',            category: 'health',    words: ['갱년기', '폐경', '호르몬', '안면홍조', '골밀도', '에스트로겐', '남성갱년기', '갱년기증상', '폐경기', '갱년기장애', '갱년기우울', '갱년기불면', '갱년기비만', '갱년기체중', '테스토스테론', '여성호르몬', '호르몬치료', '갱년기관리'] },
+  { id: 'nutrition',      label: '영양·식이',         category: 'health',    words: ['영양', '영양제', '비타민', '식이', '음식', '식단', '건강식', '단백질', '오메가', '식품', '보충제', '영양소', '무기질', '칼슘', '마그네슘', '아연', '철분', '엽산', '항산화', '건강기능식품'] },
   // ── knowledge 카테고리 (다이나믹 배너) ────────────────────────────────────
-  { id: 'immunity',       label: '면역력·감염',       category: 'knowledge', words: ['면역', '면역력', '감기', '독감', '폐렴', '바이러스', '항체', '항바이러스', '감염'] },
-  { id: 'digestion',      label: '소화·장건강',       category: 'knowledge', words: ['소화', '위염', '역류성', '장건강', '변비', '대장', '위장', '장내세균', '과민성', '위산', '헬리코박터'] },
-  { id: 'eye',            label: '눈건강·시력',       category: 'knowledge', words: ['눈', '시력', '노안', '황반', '백내장', '안구건조', '녹내장', '망막', '눈건강'] },
-  { id: 'skin',           label: '피부·노화',         category: 'knowledge', words: ['피부', '주름', '노화', '검버섯', '피부탄력', '콜라겐', '자외선', '피부노화'] },
-  { id: 'oral',           label: '구강·치아',         category: 'knowledge', words: ['치아', '잇몸', '구강', '치주염', '임플란트', '구취', '치석', '구강건강', '틀니'] },
-  { id: 'liver',          label: '간·해독',           category: 'knowledge', words: ['간', '지방간', '간수치', '간건강', '해독', '간염', '간경화', 'ALT', 'AST'] },
-  { id: 'lung',           label: '폐·호흡기',         category: 'knowledge', words: ['폐', '호흡기', '기관지', '폐기능', '폐건강', '천식', '만성기침', 'COPD'] },
-  { id: 'mental',         label: '정신건강·스트레스', category: 'knowledge', words: ['우울', '불안', '스트레스', '정신건강', '노년우울', '무기력', '공황', '불안장애'] },
+  { id: 'immunity',       label: '면역력·감염',       category: 'knowledge', words: ['면역', '면역력', '감기', '독감', '폐렴', '바이러스', '항체', '항바이러스', '감염', '면역계', '면역세포', '면역저하', '백신', '자연살해세포', '림프구', '면역강화'] },
+  { id: 'digestion',      label: '소화·장건강',       category: 'knowledge', words: ['소화', '위염', '역류성', '장건강', '변비', '대장', '위장', '장내세균', '과민성', '위산', '헬리코박터', '소화불량', '위궤양', '장염', '복통', '설사', '장내미생물', '프로바이오틱스', '위식도역류'] },
+  { id: 'eye',            label: '눈건강·시력',       category: 'knowledge', words: ['눈', '시력', '노안', '황반', '백내장', '안구건조', '녹내장', '망막', '눈건강', '눈피로', '비문증', '눈충혈', '안압', '황반변성', '당뇨망막병증', '눈영양제'] },
+  { id: 'skin',           label: '피부·노화',         category: 'knowledge', words: ['피부', '주름', '노화', '검버섯', '피부탄력', '콜라겐', '자외선', '피부노화', '건조피부', '피부관리', '색소침착', '기미', '잡티', '피부재생', '히알루론산', '레티놀'] },
+  { id: 'oral',           label: '구강·치아',         category: 'knowledge', words: ['치아', '잇몸', '구강', '치주염', '임플란트', '구취', '치석', '구강건강', '틀니', '충치', '잇몸병', '치은염', '치료', '스케일링', '구강위생', '치아미백'] },
+  { id: 'liver',          label: '간·해독',           category: 'knowledge', words: ['간', '지방간', '간수치', '간건강', '해독', '간염', '간경화', 'ALT', 'AST', '간기능', 'GOT', 'GPT', '간질환', '알코올성지방간', '비알코올성지방간', '간섬유화'] },
+  { id: 'lung',           label: '폐·호흡기',         category: 'knowledge', words: ['폐', '호흡기', '기관지', '폐기능', '폐건강', '천식', '만성기침', 'COPD', '폐렴', '기관지염', '폐기종', '폐섬유증', '폐활량', '호흡곤란', '기침'] },
+  { id: 'mental',         label: '정신건강·스트레스', category: 'knowledge', words: ['우울', '불안', '스트레스', '정신건강', '노년우울', '무기력', '공황', '불안장애', '우울증', '정서', '심리', '외로움', '고립감', '번아웃', '수면우울', '노인우울'] },
 ];
 
 // 7개 주제 ID 순서 배열
@@ -529,7 +529,7 @@ ${angleInfo ? `콘텐츠 각도: ${angleInfo.angle}
   const contentRes = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
     temperature: 0.75,
-    max_tokens: 5000,
+    max_tokens: 9000,
     messages: [
       { role: 'system', content: `${systemPrompt}\nHTML 형식의 블로그 본문만 작성합니다. JSON 없이 HTML만 출력합니다.` },
       {
@@ -546,16 +546,17 @@ ${angleInfo ? `
   - ${angleInfo.focus[1]}
   - ${angleInfo.focus[2]}
 ` : ''}
-위 구성으로 핵심만 담은 간결하고 완성도 높은 블로그 본문 HTML을 작성하세요.
+위 구성으로 깊이 있고 완성도 높은 블로그 본문 HTML을 작성하세요.
 
 [필수 조건]
-1. 순수 텍스트 기준 1,800~2,500자 (HTML 태그 제외) — 간결하고 핵심만 담아야 합니다
-2. 각 섹션 300~400자 내외 — 핵심 정보만 압축
-3. 구체적 수치(연구 결과, 통계, %) 1~2개씩 포함
-4. 문단은 2~3문장 단위로 짧고 명확하게
+1. 순수 텍스트 기준 3,500~4,500자 (HTML 태그 제외) — 충분한 깊이와 근거로 독자가 만족할 분량
+2. 각 섹션 500~700자 내외 — 핵심 정보 + 부연 설명 + 실천 팁까지 충분히 다룰 것
+3. 구체적 수치(연구 결과, 통계, %, 기간) 각 섹션마다 1~2개씩 반드시 포함
+4. 문단은 3~4문장 단위로 작성 — 짧은 두 줄로 끝내지 말 것
 5. ⚠️ 뻔한 상식(운동하세요, 균형 잡힌 식단, 금연 등)은 절대 쓰지 말 것
-6. 독자가 스크롤 없이 5분 안에 끝까지 읽을 수 있는 분량
-7. 각 섹션은 핵심 포인트 1~2개에 집중 — 여러 가지 나열 금지
+6. 전문적인 근거와 메커니즘까지 풀어서 설명 (왜 그런지 원리 포함)
+7. 실제 사례나 구체적 상황 묘사로 독자가 공감하게 작성
+8. 각 섹션은 주제를 충분히 다루되 핵심에서 벗어나지 않을 것
 
 HTML 구조 (반드시 이 순서로, </article>로 반드시 닫을 것):
 <article>
@@ -563,61 +564,72 @@ HTML 구조 (반드시 이 순서로, </article>로 반드시 닫을 것):
 <section class="intro">
   <div class="summary-box">
     <ul>
-      <li>핵심 포인트 1 (한 줄)</li>
-      <li>핵심 포인트 2 (한 줄)</li>
-      <li>핵심 포인트 3 (한 줄)</li>
+      <li>핵심 포인트 1 (한 줄 — 독자가 몰랐을 반전 정보)</li>
+      <li>핵심 포인트 2 (한 줄 — 구체적 수치 또는 메커니즘)</li>
+      <li>핵심 포인트 3 (한 줄 — 오늘 당장 실천 가능한 것)</li>
     </ul>
   </div>
-  <p>서론 (독자 공감 + 글 방향, 2~3문장)</p>
+  <p>서론 (독자 공감 + 문제 제기, 3~4문장. 독자가 겪는 구체적 상황 묘사)</p>
+  <p>이 글에서 다룰 내용 예고 (2문장)</p>
 </section>
 
 <section>
-  <h2>${meta.sections[0] || '핵심 원인'}</h2>
-  <p>핵심 내용 (3문장, 수치/근거 포함)</p>
-  <div class="info-box"><p>핵심 요약 1줄</p></div>
+  <h2>${meta.sections[0] || '핵심 원인과 메커니즘'}</h2>
+  <p>이 현상이 생기는 생리적·과학적 메커니즘 설명 (3~4문장, 연구/통계 포함)</p>
+  <p>일반적으로 알려진 상식과 다른 점, 반전 정보 (3문장)</p>
+  <div class="info-box"><p>📌 핵심 요약: [이 섹션의 핵심을 1~2문장으로 압축]</p></div>
+  <p>이 정보가 50~60대에게 특히 중요한 이유 (2문장)</p>
 </section>
 
 <section>
-  <h2>${meta.sections[1] || '당장 실천하는 방법'}</h2>
-  <p>핵심 방법 설명 (2~3문장)</p>
+  <h2>${meta.sections[1] || '당장 실천하는 올바른 방법'}</h2>
+  <p>올바른 방법의 근거와 원리 설명 (3~4문장)</p>
   <ol>
-    <li><strong>방법 1:</strong> 구체적 설명 (1~2문장)</li>
-    <li><strong>방법 2:</strong> 구체적 설명 (1~2문장)</li>
-    <li><strong>방법 3:</strong> 구체적 설명 (1~2문장)</li>
+    <li><strong>방법 1:</strong> 구체적 설명 + 실천 방법 (2~3문장)</li>
+    <li><strong>방법 2:</strong> 구체적 설명 + 주의사항 포함 (2~3문장)</li>
+    <li><strong>방법 3:</strong> 구체적 설명 + 효과 기간/수치 (2~3문장)</li>
   </ol>
+  <p>위 방법을 실천할 때 놓치기 쉬운 포인트 (2문장)</p>
 </section>
 
 <section>
-  <h2>${meta.sections[2] || '많이 하는 실수'}</h2>
-  <p>흔한 오해 설명 (2~3문장, 반전 정보 포함)</p>
+  <h2>${meta.sections[2] || '많이 하는 실수와 오해'}</h2>
+  <p>가장 흔한 오해와 그 오해가 생긴 이유 (3~4문장, 반전 정보 포함)</p>
   <div class="warning-box">
     <ul>
-      <li>주의사항 1 — 이유 한 줄</li>
-      <li>주의사항 2 — 이유 한 줄</li>
+      <li>❌ 실수 1: [구체적 상황] — 왜 문제인지 이유</li>
+      <li>❌ 실수 2: [구체적 상황] — 왜 문제인지 이유</li>
+      <li>❌ 실수 3: [구체적 상황] — 올바른 대안</li>
     </ul>
   </div>
+  <p>이 실수들이 장기적으로 미치는 영향 (2~3문장)</p>
 </section>
 
 <section>
-  <h2>${meta.sections[3] || '병원 가야 할 신호'}</h2>
-  <p>위험 신호 설명 (2~3문장)</p>
+  <h2>${meta.sections[3] || '전문가가 권장하는 실전 팁'}</h2>
+  <p>실제 현장에서 효과가 검증된 방법 소개 (3문장)</p>
   <div class="tip-box">
     <ul>
-      <li>즉시 병원 가야 할 증상 1</li>
-      <li>즉시 병원 가야 할 증상 2</li>
-      <li>즉시 병원 가야 할 증상 3</li>
+      <li>💡 팁 1: 구체적 수치/방법 포함</li>
+      <li>💡 팁 2: 구체적 수치/방법 포함</li>
+      <li>💡 팁 3: 즉시 실천 가능한 것</li>
+      <li>💡 팁 4: 병원 가야 할 기준 또는 장기 관리법</li>
     </ul>
   </div>
+  <p>이 팁들을 적용할 때 개인차가 있을 수 있는 부분 언급 (2문장)</p>
 </section>
 
 <section>
-  <h2>자주 묻는 질문</h2>
-  <div class="faq-item"><p class="faq-q">Q. 자주 묻는 질문 1?</p><p>A. 간결한 답변 (2문장)</p></div>
-  <div class="faq-item"><p class="faq-q">Q. 자주 묻는 질문 2?</p><p>A. 간결한 답변 (2문장)</p></div>
+  <h2>자주 묻는 질문 (FAQ)</h2>
+  <div class="faq-item"><p class="faq-q">Q. 자주 묻는 질문 1? (구체적이고 실용적인 질문)</p><p>A. 명확하고 근거 있는 답변 (3~4문장, 수치 포함)</p></div>
+  <div class="faq-item"><p class="faq-q">Q. 자주 묻는 질문 2? (독자가 헷갈려하는 것)</p><p>A. 명확하고 근거 있는 답변 (3~4문장)</p></div>
+  <div class="faq-item"><p class="faq-q">Q. 자주 묻는 질문 3? (심화 질문)</p><p>A. 전문적이지만 쉬운 답변 (3~4문장)</p></div>
 </section>
 
 <section class="conclusion">
-  <div class="info-box"><p>핵심 한 줄 요약: <strong>[오늘 당장 실천할 것]</strong></p></div>
+  <h2>마무리 — 오늘부터 바꿀 한 가지</h2>
+  <p>이 글의 핵심 내용을 다시 한번 정리 (3~4문장)</p>
+  <div class="info-box"><p>✅ 오늘 당장 실천할 것: <strong>[구체적이고 즉시 실천 가능한 행동 1가지]</strong></p></div>
   <div class="cta-box">
     <p class="cta-title">📌 이 글이 도움이 되셨나요?</p>
     <div class="cta-buttons">
@@ -764,18 +776,19 @@ async function main() {
       if (pool.length > 0) {
         kw = pool[0];
       } else {
-        // 해당 주제 키워드가 없으면 미분류 키워드 중 아무거나
-        const fallback = keywords.find(
-          (k) => !usedKeywordSet.has(k.keyword) && !targetTopics.slice(0, success).includes(getSubTopic(k.keyword))
-        );
+        // 해당 주제 키워드가 없으면 — 이미 이번 실행에서 쓴 주제 제외하고 미사용 키워드 아무거나
+        // ⚠️ 단, topic은 targetTopic으로 강제해서 로테이션 순서 유지
+        const fallback = keywords.find((k) => !usedKeywordSet.has(k.keyword));
         if (!fallback) {
           console.log(`  ⚠️  [${HEALTH_TOPICS.find((h) => h.id === targetTopic)?.label}] 사용 가능한 키워드 없음. 건너뜀.`);
           continue;
         }
         kw = fallback;
+        console.log(`  ℹ️  [${HEALTH_TOPICS.find((h) => h.id === targetTopic)?.label}] 키워드 pool 부족 → fallback 키워드 사용 (주제 각도는 유지)`);
       }
 
-      const topic = getSubTopic(kw.keyword) || targetTopic;
+      // topic은 항상 targetTopic으로 강제 — 로테이션 순서 절대 보장
+      const topic = targetTopic;
       const topicLabel = HEALTH_TOPICS.find((h) => h.id === topic)?.label || topic;
       console.log(`[${success + 1}/${generateCount}] [${topicLabel}] "${kw.keyword}" 생성 중...`);
 
