@@ -101,6 +101,8 @@ export default async function DailyHealthTip() {
   }
 
   const postHref = post ? `/${post.category.slug}/${post.slug}` : '/health';
+  // "답 확인하기"는 질문의 query 키워드로 검색 결과 페이지로 연결
+  const answerHref = `/search?q=${encodeURIComponent(tip.query)}`;
   const thumbnail = post?.thumbnail ?? null;
 
   return (
@@ -154,28 +156,26 @@ export default async function DailyHealthTip() {
               </p>
             </div>
 
-            {/* CTA */}
-            {post && (
-              <Link
-                href={postHref}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  background: 'linear-gradient(90deg, #177A5E, #1E9E7A)',
-                  color: '#fff',
-                  fontWeight: 700,
-                  fontSize: '14px',
-                  padding: '11px 20px',
-                  borderRadius: '12px',
-                  textDecoration: 'none',
-                  alignSelf: 'flex-start',
-                  minHeight: '44px',
-                }}
-              >
-                답 확인하기 →
-              </Link>
-            )}
+            {/* CTA — 질문 키워드 검색 결과로 연결 */}
+            <Link
+              href={answerHref}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: 'linear-gradient(90deg, #177A5E, #1E9E7A)',
+                color: '#fff',
+                fontWeight: 700,
+                fontSize: '14px',
+                padding: '11px 20px',
+                borderRadius: '12px',
+                textDecoration: 'none',
+                alignSelf: 'flex-start',
+                minHeight: '44px',
+              }}
+            >
+              답 확인하기 →
+            </Link>
           </div>
 
           {/* 오른쪽: 추천 글 카드 */}
