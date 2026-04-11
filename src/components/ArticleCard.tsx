@@ -88,7 +88,7 @@ export default function ArticleCard({ post, size = 'default' }: Props) {
             {post.readTime && <span>⏱ {post.readTime}분</span>}
             <span>👁 {post.viewCount.toLocaleString()}</span>
           </div>
-          <Link href={href} className="font-semibold text-xs transition-opacity hover:opacity-70 py-1 px-2" style={{ color: 'var(--primary)', minHeight: '32px', display: 'flex', alignItems: 'center' }}>
+          <Link href={href} className="font-semibold text-xs transition-opacity hover:opacity-70 py-2 px-3" style={{ color: 'var(--primary)', minHeight: '44px', display: 'flex', alignItems: 'center' }}>
             읽기 →
           </Link>
         </div>

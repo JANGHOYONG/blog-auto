@@ -118,10 +118,20 @@ export function generateJsonLd({
       url,
       datePublished: publishedAt?.toISOString(),
       dateModified: updatedAt?.toISOString() || publishedAt?.toISOString(),
+      author: {
+        '@type': 'Person',
+        name: '시니어 건강백과 의료 자문단',
+        description: '내과·가정의학과 전문의 및 시니어 건강 전문 칼럼니스트로 구성된 자문단',
+        url: `${SITE_URL}/about`,
+      },
       publisher: {
         '@type': 'Organization',
         name: SITE_NAME,
         url: SITE_URL,
+        logo: {
+          '@type': 'ImageObject',
+          url: `${SITE_URL}/icon`,
+        },
       },
       keywords: keywords?.join(', '),
       inLanguage: 'ko-KR',

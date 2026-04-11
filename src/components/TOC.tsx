@@ -31,7 +31,7 @@ export default function TOC({ headings }: Props) {
     <li key={id}>
       <a
         href={`#${id}`}
-        className="block leading-snug transition-colors py-1"
+        className="block leading-snug transition-colors py-2.5 px-2 rounded-lg"
         style={{
           color: active === id ? 'var(--primary)' : 'var(--text-muted)',
           fontWeight: active === id ? 600 : 400,

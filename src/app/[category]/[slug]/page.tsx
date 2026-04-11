@@ -188,6 +188,14 @@ export default async function PostPage({ params }: Props) {
               </div>
             </header>
 
+            {/* 의료 면책 조항 — YMYL 건강 콘텐츠 */}
+            <div className="mb-6 px-4 py-3 rounded-xl text-sm flex gap-2 items-start" style={{ background: 'var(--bg-bar)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+              <span className="shrink-0 mt-0.5">⚕️</span>
+              <p className="m-0 leading-relaxed">
+                본 콘텐츠는 <strong>건강 정보 제공 목적</strong>으로 작성되었으며, 의료 전문가의 진단·처방을 대체하지 않습니다. 건강 이상 증상이 있을 경우 반드시 병원을 방문하세요.
+              </p>
+            </div>
+
             {/* 본문 상단 광고 */}
             <div className="mb-6">
               <AdSense slot="top-banner" format="horizontal" />
