@@ -393,23 +393,32 @@ ${keyword ? `<div class="keyword-area"><div class="keyword-text${isHook ? ' hook
 </html>`;
 }
 
-// ─── 4. TTS 생성 (Google Cloud TTS - ko-KR-Standard-C) ───────────────────────
+// ─── 이모티콘 제거 (TTS 전달 전 사용) ───────────────────────────────────────
+function stripEmoji(str) {
+  return String(str || '')
+    .replace(/[\u{1F000}-\u{1FFFF}]/gu, '')
+    .replace(/[\u2600-\u27FF]/gu, '')
+    .replace(/[\uFE00-\uFE0F]/gu, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
+// ─── 4. TTS 생성 (Google Cloud TTS - ko-KR-Wavenet-D, 1.2x) ─────────────────
 async function generateAudio(narration, outPath) {
   const apiKey = process.env.GOOGLE_TTS_API_KEY;
   if (!apiKey) throw new Error('GOOGLE_TTS_API_KEY 환경변수가 없습니다.');
 
-  // \n → ", " 변환: TTS가 끊어 읽도록 자연스러운 쉼 삽입
-  const ttsText = narration.replace(/\n/g, ', ');
+  // 이모티콘 제거 + \n → ", " 변환 (자연스러운 쉼 삽입)
+  const ttsText = stripEmoji(narration.replace(/\n/g, ', '));
 
   const res = await axios.post(
     `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`,
     {
       input: { text: ttsText },
-      voice: { languageCode: 'ko-KR', name: 'ko-KR-Standard-C' },
+      voice: { languageCode: 'ko-KR', name: 'ko-KR-Wavenet-D' },
       audioConfig: {
         audioEncoding: 'MP3',
-        speakingRate: 1.10,   // 0.90 → 1.10: 자연스럽게 빠른 속도
-        pitch: -2.0,          // 약간 낮은 피치: 또박또박 느낌 감소
+        speakingRate: 1.2,
       },
     }
   );
