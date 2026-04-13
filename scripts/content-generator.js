@@ -255,22 +255,35 @@ const HEALTH_TOPICS = [
   { id: 'mental',         label: '정신건강·스트레스', category: 'knowledge', words: ['우울', '불안', '스트레스', '정신건강', '노년우울', '무기력', '공황', '불안장애', '우울증', '정서', '심리', '외로움', '고립감', '번아웃', '수면우울', '노인우울'] },
 ];
 
-// 7개 주제 ID 순서 배열
-const TOPIC_ROTATION = HEALTH_TOPICS.map((t) => t.id);
+// ─── 로테이션 순서: health/knowledge 교차 배치 ───────────────────────────────
+// 기존: health 7개 → knowledge 8개 (같은 카테고리 연속 발행 문제)
+// 변경: health-knowledge 교대로 골고루 분배
+const TOPIC_ROTATION = [
+  'blood_sugar',    // health
+  'immunity',       // knowledge
+  'blood_pressure', // health
+  'digestion',      // knowledge
+  'joint',          // health
+  'eye',            // knowledge
+  'sleep',          // health
+  'skin',           // knowledge
+  'brain',          // health
+  'oral',           // knowledge
+  'menopause',      // health
+  'liver',          // knowledge
+  'nutrition',      // health
+  'lung',           // knowledge
+  'mental',         // knowledge (15번째)
+];
 
 function getSubTopic(keyword) {
   for (const topic of HEALTH_TOPICS) {
     if (topic.words.some((w) => keyword.includes(w))) return topic.id;
   }
-  return null; // 분류 불가
+  return null;
 }
 
-// 다음 로테이션 주제 결정
-function getNextTopic(lastTopicId) {
-  if (!lastTopicId) return TOPIC_ROTATION[0];
-  const idx = TOPIC_ROTATION.indexOf(lastTopicId);
-  return TOPIC_ROTATION[(idx + 1) % TOPIC_ROTATION.length];
-}
+// (구버전 lastTopicId 추론 방식 제거 — publishedCount 기반으로 대체)
 
 // ─── 슬러그 생성 ──────────────────────────────────────────────────────────────
 function generateSlug(title) {
@@ -739,22 +752,17 @@ async function main() {
       recentPublished.flatMap((p) => JSON.parse(p.keywords || '[]'))
     );
 
-    // 마지막 발행 글의 주제 파악 → 다음 주제 결정
-    let lastTopicId = null;
-    for (const p of recentPublished) {
-      const kws = JSON.parse(p.keywords || '[]');
-      const found = kws.map(getSubTopic).find((t) => t !== null);
-      if (found) { lastTopicId = found; break; }
-    }
+    // ── 로테이션 위치 결정: 발행 글 총 수 기준 (키워드 텍스트 추론 제거) ──────
+    // 키워드 매칭 실패로 lastTopicId=null → 항상 같은 주제 발행되던 버그 해결
+    const publishedCount = await prisma.post.count({ where: { status: 'PUBLISHED' } });
+    const startIdx  = publishedCount % TOPIC_ROTATION.length;
 
     // 이번 실행에서 순서대로 발행할 주제 목록 결정
     const targetTopics = [];
-    let nextTopic = getNextTopic(lastTopicId);
     for (let i = 0; i < generateCount; i++) {
-      targetTopics.push(nextTopic);
-      nextTopic = getNextTopic(nextTopic);
+      targetTopics.push(TOPIC_ROTATION[(startIdx + i) % TOPIC_ROTATION.length]);
     }
-    console.log(`\n마지막 발행 주제: ${lastTopicId || '없음'}`);
+    console.log(`\n총 발행 글 수: ${publishedCount}개 → 로테이션 시작 인덱스: ${startIdx}`);
     console.log(`이번 발행 순서: ${targetTopics.map((t) => HEALTH_TOPICS.find((h) => h.id === t)?.label).join(' → ')}\n`);
 
     // 주제별로 키워드 미리 분류
