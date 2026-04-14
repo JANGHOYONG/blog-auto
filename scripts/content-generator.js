@@ -484,26 +484,44 @@ async function generatePost(keyword, categorySlug, topicId = null) {
 상식·뻔한 조언을 쓰면 즉시 실격입니다. 반드시 놀라운 반전과 새로운 정보 중심으로 쓰세요.
 ` : '';
 
+  // 글 구조 타입을 매번 다르게 (구글 스팸 탐지 회피)
+  const STRUCTURE_TYPES = ['story', 'checklist', 'compare', 'guide', 'qna'];
+  const structureType = STRUCTURE_TYPES[Math.floor(Math.random() * STRUCTURE_TYPES.length)];
+  const structureGuide = {
+    story:     '스토리형: 실제 50대 독자의 경험담으로 시작 → 문제 → 해결 과정 → 결론',
+    checklist: '체크리스트형: 자가진단 항목 → 각 항목별 해설 → 개선 방법 → 종합 조언',
+    compare:   '비교분석형: 일반적 통념 vs 실제 사실 대조표 → 올바른 방법 → 주의사항',
+    guide:     '단계별 가이드형: 왜 중요한가 → 준비단계 → 실행단계 → 유지관리 → 주의사항',
+    qna:       'Q&A형: 독자가 가장 많이 묻는 질문 5개 → 각각 심층 답변 → 종합 가이드',
+  }[structureType];
+
   const systemPrompt = `당신은 ${role}
-모든 텍스트는 순수 한국어로만 작성합니다. 외국어 문자(중국어·일본어·베트남어·러시아어 등) 사용 금지.
-영어는 IT 용어, 브랜드명 등 꼭 필요한 경우에만 사용합니다.
-AI가 쓴 티가 나지 않도록 실제 전문가가 직접 쓴 것처럼 자연스럽게 작성합니다.
-제목과 본문에 특정 연도(2023년, 2024년 등 과거 연도)를 절대 사용하지 않습니다. 시간이 지나도 유효한 정보(Evergreen Content)로 작성합니다.
-${isHealth ? `
-[5060 시니어 독자 특화 지침]
-- 주요 독자: 50~60대 중장년층 (건강에 관심 높고, 실천 의지 강함)
+모든 텍스트는 순수 한국어로만 작성합니다. 외국어 문자 사용 금지.
+영어는 의학 용어, 브랜드명 등 꼭 필요한 경우에만 사용합니다.
+제목과 본문에 특정 연도(2023년, 2024년 등)를 절대 사용하지 않습니다. 시간이 지나도 유효한 Evergreen Content로 작성합니다.
+
+[가장 중요한 원칙 — 구글 애드센스 승인 기준]
+① AI가 쓴 티가 절대 나면 안 됩니다. 실제 건강 전문 에디터가 직접 조사하고 쓴 글처럼 작성하세요.
+② 동일한 HTML 구조 패턴 반복 금지. 이번 글의 구조 유형: ${structureGuide}
+③ 한국 공식 기관 데이터를 반드시 인용하세요:
+   - 건강보험심사평가원, 질병관리청, 국민건강영양조사, 통계청, 대한의학회 자료
+   - 인용 방식: "질병관리청 국민건강영양조사에 따르면 50대의 약 38%가..." 형식
+④ 독자 공감형 도입: 첫 문단은 "50대 주부 김모씨는..." 같은 실생활 사례로 시작
+⑤ 개인차 명시: "개인 건강 상태에 따라 다를 수 있으며, 증상이 지속되면 전문의와 상담하세요"
+
+[5060 시니어 독자 특화]
 - 문장은 짧고 명확하게. 한 문장에 한 가지 정보만.
 - 어려운 의학 용어는 반드시 괄호로 쉬운 설명 병기 (예: 인슐린 저항성(혈당을 낮추는 기능이 떨어진 상태))
-- "당장 오늘부터 할 수 있는 것"을 항상 포함
-- 병원 가야 할 위험 신호도 명확히 안내
-- 자녀에게 공유하고 싶을 만큼 신뢰감 있는 톤 유지
-` : ''}${angleBlock}
-[구글 E-E-A-T 품질 기준 준수]
-- Experience(경험): 실제 경험에서 나온 구체적 사례와 에피소드 포함
-- Expertise(전문성): 전문 용어와 심화 개념을 쉽게 풀어서 설명
-- Authoritativeness(권위): 공신력 있는 연구·기관·통계 수치 인용
-- Trustworthiness(신뢰): 주의사항·한계·예외 케이스도 솔직하게 언급
-- 독자가 이 글을 읽고 나서 다른 곳을 찾아볼 필요가 없을 만큼 완결성 있게 작성`;
+- "당장 오늘부터 할 수 있는 것" 포함
+- 병원 가야 할 위험 신호 명확히 안내
+- 자녀에게 공유하고 싶을 만큼 신뢰감 있는 톤
+
+[E-E-A-T 충족 필수 요소]
+- 경험(Experience): 실제 환자/독자 사례 에피소드
+- 전문성(Expertise): 의학적 메커니즘과 원리 설명
+- 권위(Authoritativeness): 한국 공식 기관 통계·연구 인용
+- 신뢰(Trustworthiness): 주의사항·한계·예외 케이스 솔직 언급
+${angleBlock}`;
 
   // ── 1단계: 메타데이터 생성 ──────────────────────────────────────────────────
   const metaRes = await openai.chat.completions.create({
@@ -545,116 +563,43 @@ ${angleInfo ? `콘텐츠 각도: ${angleInfo.angle}
     temperature: 0.75,
     max_tokens: 9000,
     messages: [
-      { role: 'system', content: `${systemPrompt}\nHTML 형식의 블로그 본문만 작성합니다. JSON 없이 HTML만 출력합니다.` },
+      { role: 'system', content: `${systemPrompt}\nHTML 형식의 블로그 본문만 작성합니다. JSON 없이 순수 HTML만 출력합니다.` },
       {
         role: 'user',
         content: `키워드: "${keyword}"
 제목: "${meta.selectedTitle}"
 섹션 구성: ${meta.sections.join(' / ')}
-${angleInfo ? `
-[이 글의 핵심 방향 — 반드시 지킬 것]
-각도: ${angleInfo.angle}
-금지 내용: ${angleInfo.forbidden}
-반드시 포함할 놀라운 정보 (2가지 이상):
-  - ${angleInfo.focus[0]}
-  - ${angleInfo.focus[1]}
-  - ${angleInfo.focus[2]}
-` : ''}
-위 구성으로 깊이 있고 완성도 높은 블로그 본문 HTML을 작성하세요.
+글 구조 유형: ${structureGuide}
+${angleInfo ? `핵심 방향: ${angleInfo.angle} / 금지: ${angleInfo.forbidden}` : ''}
 
-[필수 조건]
-1. 순수 텍스트 기준 3,500~4,500자 (HTML 태그 제외) — 충분한 깊이와 근거로 독자가 만족할 분량
-2. 각 섹션 500~700자 내외 — 핵심 정보 + 부연 설명 + 실천 팁까지 충분히 다룰 것
-3. 구체적 수치(연구 결과, 통계, %, 기간) 각 섹션마다 1~2개씩 반드시 포함
-4. 문단은 3~4문장 단위로 작성 — 짧은 두 줄로 끝내지 말 것
-5. ⚠️ 뻔한 상식(운동하세요, 균형 잡힌 식단, 금연 등)은 절대 쓰지 말 것
-6. 전문적인 근거와 메커니즘까지 풀어서 설명 (왜 그런지 원리 포함)
-7. 실제 사례나 구체적 상황 묘사로 독자가 공감하게 작성
-8. 각 섹션은 주제를 충분히 다루되 핵심에서 벗어나지 않을 것
+[필수 조건 — 구글 애드센스 승인 기준]
+1. 순수 텍스트 2,500자 이상 (HTML 태그 제외)
+2. 한국 공식 기관 데이터 최소 2회 인용
+   예시: "질병관리청에 따르면...", "건강보험심사평가원 자료 기준...", "국민건강영양조사 결과..."
+3. 첫 문단은 반드시 실생활 사례로 시작
+   예시: "직장을 은퇴한 지 2년 된 58세 김모씨는 최근..."
+4. 글 구조는 매번 달라야 합니다. 이번엔 "${structureType}" 유형으로 작성하세요.
+5. 문단마다 3~5문장. 짧은 두 줄로 끝내지 말 것.
+6. 결론부에 "이 정보는 일반적인 건강 정보 목적이며, 증상이 지속되거나 심각한 경우 반드시 전문의와 상담하시기 바랍니다." 포함
 
-HTML 구조 (반드시 이 순서로, </article>로 반드시 닫을 것):
-<article>
-
-<section class="intro">
-  <div class="summary-box">
-    <ul>
-      <li>핵심 포인트 1 (한 줄 — 독자가 몰랐을 반전 정보)</li>
-      <li>핵심 포인트 2 (한 줄 — 구체적 수치 또는 메커니즘)</li>
-      <li>핵심 포인트 3 (한 줄 — 오늘 당장 실천 가능한 것)</li>
-    </ul>
+[HTML 작성 지침]
+- <article>로 시작해 </article>로 닫기
+- 섹션 제목은 <h2> 사용
+- 중요 수치나 핵심어는 <strong> 강조
+- 목록은 주제에 맞게 <ul> 또는 <ol> 선택 (매번 같은 형식 금지)
+- 표(비교형일 경우): <table> 활용
+- 글 하단에 반드시 아래 저자 정보 블록 포함:
+<div class="author-note" style="margin-top:2rem;padding:1rem 1.25rem;background:#f0f9f5;border-left:4px solid #1E9E7A;border-radius:8px;font-size:0.875rem;color:#4B7A6A;">
+  <strong>시니어 건강백과 에디터팀</strong>이 작성했습니다. 건강보험심사평가원·질병관리청·대한의학회 공개 자료를 바탕으로 검토된 정보입니다. 개인 건강 상태에 따라 다를 수 있으므로 전문의와 상담을 권장합니다.
+</div>
+- 글 맨 마지막에 공유 유도 블록:
+<div class="cta-box">
+  <p class="cta-title">이 글이 도움이 되셨나요?</p>
+  <div class="cta-buttons">
+    <a href="/" class="cta-btn cta-btn-primary">더 많은 건강 정보 보기 →</a>
+    <button class="cta-btn cta-btn-share" onclick="navigator.share ? navigator.share({title: document.title, url: location.href}) : window.open('https://story.kakao.com/share?url=' + encodeURIComponent(location.href))">카카오톡 공유</button>
   </div>
-  <p>서론 (독자 공감 + 문제 제기, 3~4문장. 독자가 겪는 구체적 상황 묘사)</p>
-  <p>이 글에서 다룰 내용 예고 (2문장)</p>
-</section>
-
-<section>
-  <h2>${meta.sections[0] || '핵심 원인과 메커니즘'}</h2>
-  <p>이 현상이 생기는 생리적·과학적 메커니즘 설명 (3~4문장, 연구/통계 포함)</p>
-  <p>일반적으로 알려진 상식과 다른 점, 반전 정보 (3문장)</p>
-  <div class="info-box"><p>📌 핵심 요약: [이 섹션의 핵심을 1~2문장으로 압축]</p></div>
-  <p>이 정보가 50~60대에게 특히 중요한 이유 (2문장)</p>
-</section>
-
-<section>
-  <h2>${meta.sections[1] || '당장 실천하는 올바른 방법'}</h2>
-  <p>올바른 방법의 근거와 원리 설명 (3~4문장)</p>
-  <ol>
-    <li><strong>방법 1:</strong> 구체적 설명 + 실천 방법 (2~3문장)</li>
-    <li><strong>방법 2:</strong> 구체적 설명 + 주의사항 포함 (2~3문장)</li>
-    <li><strong>방법 3:</strong> 구체적 설명 + 효과 기간/수치 (2~3문장)</li>
-  </ol>
-  <p>위 방법을 실천할 때 놓치기 쉬운 포인트 (2문장)</p>
-</section>
-
-<section>
-  <h2>${meta.sections[2] || '많이 하는 실수와 오해'}</h2>
-  <p>가장 흔한 오해와 그 오해가 생긴 이유 (3~4문장, 반전 정보 포함)</p>
-  <div class="warning-box">
-    <ul>
-      <li>❌ 실수 1: [구체적 상황] — 왜 문제인지 이유</li>
-      <li>❌ 실수 2: [구체적 상황] — 왜 문제인지 이유</li>
-      <li>❌ 실수 3: [구체적 상황] — 올바른 대안</li>
-    </ul>
-  </div>
-  <p>이 실수들이 장기적으로 미치는 영향 (2~3문장)</p>
-</section>
-
-<section>
-  <h2>${meta.sections[3] || '전문가가 권장하는 실전 팁'}</h2>
-  <p>실제 현장에서 효과가 검증된 방법 소개 (3문장)</p>
-  <div class="tip-box">
-    <ul>
-      <li>💡 팁 1: 구체적 수치/방법 포함</li>
-      <li>💡 팁 2: 구체적 수치/방법 포함</li>
-      <li>💡 팁 3: 즉시 실천 가능한 것</li>
-      <li>💡 팁 4: 병원 가야 할 기준 또는 장기 관리법</li>
-    </ul>
-  </div>
-  <p>이 팁들을 적용할 때 개인차가 있을 수 있는 부분 언급 (2문장)</p>
-</section>
-
-<section>
-  <h2>자주 묻는 질문 (FAQ)</h2>
-  <div class="faq-item"><p class="faq-q">Q. 자주 묻는 질문 1? (구체적이고 실용적인 질문)</p><p>A. 명확하고 근거 있는 답변 (3~4문장, 수치 포함)</p></div>
-  <div class="faq-item"><p class="faq-q">Q. 자주 묻는 질문 2? (독자가 헷갈려하는 것)</p><p>A. 명확하고 근거 있는 답변 (3~4문장)</p></div>
-  <div class="faq-item"><p class="faq-q">Q. 자주 묻는 질문 3? (심화 질문)</p><p>A. 전문적이지만 쉬운 답변 (3~4문장)</p></div>
-</section>
-
-<section class="conclusion">
-  <h2>마무리 — 오늘부터 바꿀 한 가지</h2>
-  <p>이 글의 핵심 내용을 다시 한번 정리 (3~4문장)</p>
-  <div class="info-box"><p>✅ 오늘 당장 실천할 것: <strong>[구체적이고 즉시 실천 가능한 행동 1가지]</strong></p></div>
-  <div class="cta-box">
-    <p class="cta-title">📌 이 글이 도움이 되셨나요?</p>
-    <div class="cta-buttons">
-      <a href="/" class="cta-btn cta-btn-primary">더 많은 건강 정보 보기 →</a>
-      <button class="cta-btn cta-btn-share" onclick="navigator.share ? navigator.share({title: document.title, url: location.href}) : window.open('https://story.kakao.com/share?url=' + encodeURIComponent(location.href))">📤 카카오톡 공유</button>
-    </div>
-    <p class="cta-sub">가족·친구에게 공유하면 더 큰 도움이 됩니다 💚</p>
-  </div>
-</section>
-
-</article>`,
+</div>`,
       },
     ],
   });
