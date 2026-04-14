@@ -164,8 +164,7 @@ export default function AboutPage() {
         <h2 className="text-2xl font-bold mb-6" style={{ color: 'var(--text)' }}>이 블로그의 특징</h2>
         <ul className="space-y-4">
           {[
-            { icon: '📅', text: '매일 5편 · 365일 꾸준히 발행되는 건강 정보' },
-            { icon: '🩺', text: '국공립 기관 공식 데이터를 근거로 작성된 신뢰 콘텐츠' },
+{ icon: '🩺', text: '국공립 기관 공식 데이터를 근거로 작성된 신뢰 콘텐츠' },
             { icon: '📱', text: '50·60대에 최적화된 큰 글씨, 모바일 친화 디자인' },
             { icon: '📋', text: '목차 제공으로 긴 글도 원하는 부분만 빠르게 탐색' },
             { icon: '🎬', text: '유튜브 쇼츠·롱폼 영상으로 이동 중에도 건강 정보 확인' },
