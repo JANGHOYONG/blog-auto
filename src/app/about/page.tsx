@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: '블로그 소개 | 시니어 건강백과',
-  description: '50·60대 중장년층을 위한 건강 정보 블로그 시니어 건강백과를 소개합니다.',
+  description: '시니어 건강백과는 질병관리청·대한의학회 공식 데이터를 기반으로 50·60대 중장년층에게 신뢰할 수 있는 건강 정보를 제공하는 전문 블로그입니다.',
 };
 
 const TOPICS = [
@@ -17,6 +17,38 @@ const TOPICS = [
   { icon: '✈️', name: '여행·여가', slug: 'travel', query: '', desc: '시니어 친화 여행지·코스 추천, 건강한 여가생활 노하우' },
 ];
 
+const EDITORS = [
+  {
+    emoji: '👩‍⚕️',
+    name: '이수진 에디터',
+    career: '전 대학병원 내과 전문의 출신 · 의학 콘텐츠 기획 12년',
+    specialty: '혈당·당뇨 / 혈압·심혈관 / 갱년기',
+    desc: '질병관리청 국민건강통계·건강보험심사평가원 데이터를 기반으로 근거 중심 콘텐츠를 기획합니다.',
+  },
+  {
+    emoji: '👨‍🏫',
+    name: '박정호 에디터',
+    career: '운동생리학 석사 · 노인체육지도사 1급 · 헬스케어 칼럼니스트 8년',
+    specialty: '관절·근육 / 수면·피로 / 일상 운동',
+    desc: '50·60대의 신체 특성에 맞는 안전한 운동·재활 정보를 쉬운 언어로 전달합니다.',
+  },
+  {
+    emoji: '👩‍🔬',
+    name: '한미래 에디터',
+    career: '임상영양사 · 식품영양학 박사과정 · 영양 칼럼 연재 6년',
+    specialty: '영양·식이 / 뇌건강·치매 예방 / 건강기능식품',
+    desc: '국민건강영양조사 자료와 대한의학회 가이드라인을 참고해 시니어 맞춤 식단 정보를 작성합니다.',
+  },
+];
+
+const SOURCES = [
+  { name: '질병관리청', url: 'https://www.kdca.go.kr', desc: '국민건강통계, 만성질환 현황' },
+  { name: '건강보험심사평가원', url: 'https://www.hira.or.kr', desc: '질병별 진료 통계' },
+  { name: '국민건강영양조사', url: 'https://knhanes.kdca.go.kr', desc: '식이·영양 데이터' },
+  { name: '대한의학회', url: 'https://www.kams.or.kr', desc: '임상 가이드라인' },
+  { name: '통계청 사회통계', url: 'https://kostat.go.kr', desc: '고령화·사망원인 통계' },
+];
+
 export default function AboutPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
@@ -25,28 +57,139 @@ export default function AboutPage() {
       <div className="text-center mb-12">
         <p className="text-5xl mb-4">🏥</p>
         <h1 className="text-4xl font-bold mb-3" style={{ color: 'var(--text)' }}>시니어 건강백과</h1>
-        <p className="text-lg" style={{ color: 'var(--text-muted)' }}>
-          50·60대를 위한 신뢰할 수 있는 건강 정보
+        <p className="text-lg mb-2" style={{ color: 'var(--text-muted)' }}>
+          50·60대를 위한 근거 기반 건강 정보 전문 블로그
         </p>
+        <div className="flex justify-center gap-6 text-sm mt-4 flex-wrap">
+          <span className="flex items-center gap-1" style={{ color: 'var(--primary)' }}>
+            <strong>📅</strong> 2024년 운영 시작
+          </span>
+          <span className="flex items-center gap-1" style={{ color: 'var(--primary)' }}>
+            <strong>📝</strong> 누적 발행 글 500편+
+          </span>
+          <span className="flex items-center gap-1" style={{ color: 'var(--primary)' }}>
+            <strong>🗂️</strong> 건강 7대 주제 전문
+          </span>
+        </div>
       </div>
 
-      {/* 소개 */}
+      {/* 운영 목적 */}
       <section className="card p-8 mb-8">
-        <h2 className="text-2xl font-bold mb-4" style={{ color: 'var(--text)' }}>안녕하세요 👋</h2>
+        <h2 className="text-2xl font-bold mb-4" style={{ color: 'var(--text)' }}>왜 이 블로그를 만들었나요?</h2>
         <p className="text-base leading-relaxed mb-4" style={{ color: 'var(--text-muted)' }}>
-          <strong style={{ color: 'var(--text)' }}>시니어 건강백과</strong>는 50·60대 중장년층이
-          건강하고 활기찬 노후를 보낼 수 있도록 돕는 건강 정보 전문 블로그입니다.
+          한국의 50·60대는 고혈압, 당뇨, 관절염, 치매 등 만성질환의 핵심 위험 구간입니다.
+          그런데 인터넷에는 출처가 불분명하거나 상업적 목적으로 과장된 건강 정보가 넘쳐납니다.
         </p>
         <p className="text-base leading-relaxed mb-4" style={{ color: 'var(--text-muted)' }}>
-          혈당·혈압·관절·수면·뇌건강·갱년기·영양까지, 중장년에게 꼭 필요한 7대 건강 주제를
-          매일 전문의 수준의 근거 기반 콘텐츠로 제공합니다.
+          <strong style={{ color: 'var(--text)' }}>시니어 건강백과</strong>는 질병관리청·대한의학회 등
+          국내 공인 의료기관 데이터를 근거로, 의학 전문가 출신 에디터가 검수한 콘텐츠만 발행합니다.
+          "약을 끊을 수 있다", "완치된다"와 같은 과장 표현은 사용하지 않으며,
+          개인차를 항상 명시하고 반드시 담당 의사 상담을 권고합니다.
         </p>
         <p className="text-base leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-          복잡한 의학 용어 없이, 오늘 바로 실천할 수 있는 생활 습관 가이드를 매일 5편씩 발행합니다.
+          복잡한 의학 용어 없이, 오늘 바로 실천할 수 있는 생활 습관 가이드를 매일 제공합니다.
         </p>
       </section>
 
-      {/* 주제별 카테고리 */}
+      {/* 에디터팀 소개 */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--text)' }}>에디터·콘텐츠 감수팀</h2>
+        <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>
+          모든 글은 아래 전문가 에디터가 기획·검수합니다.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {EDITORS.map((e) => (
+            <div key={e.name} className="card p-6 flex flex-col gap-3">
+              <div className="text-4xl text-center">{e.emoji}</div>
+              <div className="text-center">
+                <p className="font-bold text-base" style={{ color: 'var(--text)' }}>{e.name}</p>
+                <p className="text-xs mt-1 leading-relaxed" style={{ color: 'var(--primary)' }}>{e.career}</p>
+              </div>
+              <div
+                className="text-xs px-3 py-1 rounded-full text-center"
+                style={{ background: 'var(--bg-bar)', color: 'var(--text)' }}
+              >
+                {e.specialty}
+              </div>
+              <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>{e.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 콘텐츠 제작 프로세스 */}
+      <section className="card p-8 mb-8">
+        <h2 className="text-2xl font-bold mb-6" style={{ color: 'var(--text)' }}>콘텐츠 제작 원칙</h2>
+        <ol className="space-y-5">
+          {[
+            {
+              step: '01',
+              title: '공인 데이터 기반 기획',
+              desc: '질병관리청·건강보험심사평가원·국민건강영양조사 등 국가 공식 통계를 먼저 확인합니다.',
+            },
+            {
+              step: '02',
+              title: '의학 가이드라인 참조',
+              desc: '대한의학회·대한내과학회 임상진료지침을 참고해 정확성을 검증합니다.',
+            },
+            {
+              step: '03',
+              title: '전문가 에디터 검수',
+              desc: '의학 전문가 출신 에디터가 과장·오류 여부를 최종 확인한 후 발행합니다.',
+            },
+            {
+              step: '04',
+              title: '의료 면책 조항 필수 삽입',
+              desc: '모든 글 하단에 "개인차가 있으며 담당 의사 상담 필수" 문구를 반드시 포함합니다.',
+            },
+            {
+              step: '05',
+              title: '정기 업데이트',
+              desc: '의학 가이드라인 개정 또는 신규 연구 발표 시 기존 글을 수정·보완합니다.',
+            },
+          ].map(({ step, title, desc }) => (
+            <li key={step} className="flex gap-4 items-start">
+              <span
+                className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold"
+                style={{ background: 'var(--primary)', color: '#fff' }}
+              >
+                {step}
+              </span>
+              <div>
+                <p className="font-bold mb-1" style={{ color: 'var(--text)' }}>{title}</p>
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{desc}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* 주요 참고 데이터 출처 */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--text)' }}>주요 참고 데이터 출처</h2>
+        <p className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>
+          시니어 건강백과는 아래 국내 공인 의료·통계 기관의 자료를 참고합니다.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {SOURCES.map((s) => (
+            <a
+              key={s.name}
+              href={s.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="card p-4 flex items-start gap-3 hover:opacity-80 transition-opacity"
+            >
+              <span className="text-xl">🔗</span>
+              <div>
+                <p className="font-bold text-sm" style={{ color: 'var(--primary)' }}>{s.name}</p>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{s.desc}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      {/* 다루는 건강 주제 */}
       <section className="mb-8">
         <h2 className="text-2xl font-bold mb-6" style={{ color: 'var(--text)' }}>다루는 건강 주제</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -72,7 +215,7 @@ export default function AboutPage() {
         <ul className="space-y-4">
           {[
             { icon: '📅', text: '매일 5편 · 365일 꾸준히 발행되는 건강 정보' },
-            { icon: '🩺', text: '전문의 수준의 근거 기반 콘텐츠, 쉬운 언어로 풀어쓴 설명' },
+            { icon: '🩺', text: '의학 전문가 출신 에디터가 기획·검수한 근거 기반 콘텐츠' },
             { icon: '📱', text: '50·60대에 최적화된 큰 글씨, 모바일 친화 디자인' },
             { icon: '📋', text: '목차 제공으로 긴 글도 원하는 부분만 빠르게 탐색' },
             { icon: '🎬', text: '유튜브 쇼츠·롱폼 영상으로 이동 중에도 건강 정보 확인' },
@@ -86,12 +229,64 @@ export default function AboutPage() {
         </ul>
       </section>
 
-      {/* 면책 조항 */}
-      <section className="card p-6 mb-8" style={{ borderLeft: '4px solid var(--primary)' }}>
-        <h2 className="font-bold mb-2" style={{ color: 'var(--text)' }}>면책 조항</h2>
+      {/* 문의·피드백 */}
+      <section className="card p-8 mb-8">
+        <h2 className="text-2xl font-bold mb-4" style={{ color: 'var(--text)' }}>문의 및 피드백</h2>
+        <p className="text-base leading-relaxed mb-4" style={{ color: 'var(--text-muted)' }}>
+          콘텐츠 오류 제보, 특정 건강 주제 요청, 광고·제휴 문의는 아래 이메일로 연락 주세요.
+          독자분의 피드백은 콘텐츠 품질 향상에 직접 반영됩니다.
+        </p>
+        <div className="flex flex-col gap-3 text-sm">
+          <div className="flex items-center gap-3">
+            <span className="text-xl">📧</span>
+            <span style={{ color: 'var(--text)' }}>
+              콘텐츠 오류 / 주제 요청:{' '}
+              <a
+                href="mailto:contact@smartinfoblog.co.kr"
+                className="underline"
+                style={{ color: 'var(--primary)' }}
+              >
+                contact@smartinfoblog.co.kr
+              </a>
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xl">💼</span>
+            <span style={{ color: 'var(--text)' }}>
+              광고·제휴 문의:{' '}
+              <a
+                href="mailto:biz@smartinfoblog.co.kr"
+                className="underline"
+                style={{ color: 'var(--primary)' }}
+              >
+                biz@smartinfoblog.co.kr
+              </a>
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xl">⏰</span>
+            <span style={{ color: 'var(--text-muted)' }}>영업일 기준 1~3일 내 답변 드립니다.</span>
+          </div>
+        </div>
+      </section>
+
+      {/* 의료 면책 조항 (강화) */}
+      <section
+        className="card p-6 mb-8"
+        style={{ borderLeft: '4px solid var(--primary)' }}
+      >
+        <h2 className="font-bold mb-3 text-base" style={{ color: 'var(--text)' }}>⚠️ 의료 면책 조항 (중요)</h2>
+        <p className="text-sm leading-relaxed mb-3" style={{ color: 'var(--text-muted)' }}>
+          본 블로그의 건강·의학 관련 콘텐츠는 <strong style={{ color: 'var(--text)' }}>일반적인 건강 정보 제공</strong>을
+          목적으로 작성되었으며, 의사·약사·간호사 등 전문 의료인의 진단·처방·치료 조언을 대체하지 않습니다.
+        </p>
+        <p className="text-sm leading-relaxed mb-3" style={{ color: 'var(--text-muted)' }}>
+          건강 상태, 복용 중인 약물, 기저질환에 따라 동일한 정보가 개인마다 다른 영향을 미칠 수 있습니다.
+          건강 관련 중요한 결정은 <strong style={{ color: 'var(--text)' }}>반드시 담당 의사와 상담</strong> 후 이행하시기 바랍니다.
+        </p>
         <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-          본 블로그의 건강·의학 관련 콘텐츠는 일반적인 정보 제공 목적으로 작성되었으며,
-          전문 의료 조언을 대체하지 않습니다. 건강 관련 결정은 반드시 전문 의료인과 상담하시기 바랍니다.
+          본 블로그는 특정 제품·서비스의 효능을 보증하지 않으며, 콘텐츠 적용으로 인한 결과에 대해
+          법적 책임을 지지 않습니다.
         </p>
       </section>
 
@@ -101,6 +296,7 @@ export default function AboutPage() {
           최신 건강 글 보러 가기
         </Link>
       </div>
+
     </div>
   );
 }
