@@ -1,12 +1,6 @@
 name: Auto Publish Blog Post
 
 on:
-  schedule:
-    - cron: '0 0 * * *'   # 오전  9시 KST (UTC 00:00)
-    - cron: '0 4 * * *'   # 오후  1시 KST (UTC 04:00)
-    - cron: '0 8 * * *'   # 오후  5시 KST (UTC 08:00) ← 누락 복구
-    - cron: '0 12 * * *'  # 오후  9시 KST (UTC 12:00)
-    - cron: '0 16 * * *'  # 오전  1시 KST (UTC 16:00)
   workflow_dispatch:       # 수동 실행 버튼
 
 jobs:

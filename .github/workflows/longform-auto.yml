@@ -1,8 +1,6 @@
 name: Auto Generate YouTube Longform
 
 on:
-  schedule:
-    - cron: '30 0 * * *'  # 오전 9시 30분 KST (UTC 00:30) - 첫 블로그 발행 직후
   workflow_dispatch:
     inputs:
       post_id:
@@ -15,7 +13,7 @@ jobs:
     timeout-minutes: 60
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
+    if: ${{ github.event_name == 'workflow_dispatch' }}
 
     steps:
       - name: Checkout

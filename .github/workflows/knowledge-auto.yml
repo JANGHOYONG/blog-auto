@@ -1,8 +1,6 @@
 name: Auto Publish Knowledge Post
 
 on:
-  schedule:
-    - cron: '0 8 * * *'   # 오후  5시 KST (UTC 08:00) — 건강지식 1개/일
   workflow_dispatch:       # 수동 실행 버튼
 
 jobs:
