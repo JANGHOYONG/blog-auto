@@ -594,9 +594,25 @@ async function main() {
   console.log('=== 유튜브 쇼츠 v7 (바이럴 5슬라이드, 25~35초) ===\n');
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shorts-'));
 
+  // GitHub Actions: 시스템 Chrome 우선 사용, 없으면 Puppeteer 번들 Chrome 사용
+  const executablePath = (() => {
+    const candidates = [
+      '/usr/bin/google-chrome-stable',
+      '/usr/bin/google-chrome',
+      '/usr/bin/chromium-browser',
+      '/usr/bin/chromium',
+    ];
+    for (const p of candidates) {
+      if (fs.existsSync(p)) return p;
+    }
+    return undefined; // Puppeteer 번들 Chrome 자동 사용
+  })();
+  if (executablePath) console.log(`  Chrome 경로: ${executablePath}`);
+
   const browser = await puppeteer.launch({
-    headless: 'new',
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
+    headless: true,
+    executablePath,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--single-process'],
   });
   const page = await browser.newPage();
   await page.setViewport({ width: W, height: H, deviceScaleFactor: 1 });
@@ -676,6 +692,8 @@ async function main() {
     }
 
     await browser.close();
+    // browser 정상 종료 플래그 — finally에서 이중 close 방지
+    browser._closed = true;
     console.log(`총 ${slides.length}슬라이드 | 예상 길이: ~${totalDuration.toFixed(0)}초\n`);
 
     // 3. 최종 합성
@@ -699,16 +717,28 @@ async function main() {
       `${(script.tags || []).map((t) => '#' + t.replace(/\s/g, '')).join(' ')} #Shorts #건강정보 #시니어건강 #5060건강`;
 
     if (process.env.YOUTUBE_REFRESH_TOKEN) {
+      console.log('[4/4] YouTube 업로드 시작...');
       const { uploadToYouTube, uploadThumbnail, postComment } = require('./youtube-uploader');
-      const videoId = await uploadToYouTube({
-        videoPath: finalPath,
-        title: script.youtubeTitle,
-        description: fullDesc,
-        tags: [...(script.tags || []), '건강', '시니어', '건강정보', 'Shorts'],
-        categoryId: '26',
-      });
+      let videoId;
+      try {
+        videoId = await uploadToYouTube({
+          videoPath: finalPath,
+          title: script.youtubeTitle,
+          description: fullDesc,
+          tags: [...(script.tags || []), '건강', '시니어', '건강정보', 'Shorts'],
+          categoryId: '26',
+        });
+      } catch (uploadErr) {
+        console.error(`\n❌ YouTube 업로드 실패: ${uploadErr.message}`);
+        if (uploadErr.message.includes('invalid_grant') || uploadErr.message.includes('Token')) {
+          console.error('⚠️  YOUTUBE_REFRESH_TOKEN이 만료됐을 가능성이 높습니다.');
+          console.error('   get-refresh-token.js 로 토큰을 재발급하고 GitHub Secrets를 업데이트하세요.');
+        }
+        console.error(uploadErr.stack || '');
+        throw uploadErr;
+      }
 
-      // 타이틀 카드 썸네일 업로드 (배경 이미지 + 오버레이 합성)
+      // 타이틀 카드 썸네일 업로드
       try {
         const thumbJpgPath = path.join(tmpDir, 'thumbnail.jpg');
         const firstImagePath = path.join(tmpDir, 'image_0.jpg');
@@ -720,7 +750,7 @@ async function main() {
         console.log(`  썸네일 업로드 실패 (건너뜀): ${thumbErr.message}`);
       }
 
-      // 댓글로 블로그 링크 게시 — 채널 규모 무관하게 항상 클릭 가능
+      // 댓글로 블로그 링크 게시
       try {
         await postComment({
           videoId,
@@ -728,7 +758,6 @@ async function main() {
         });
         console.log('  블로그 링크 댓글 게시 완료 ✅');
       } catch (commentErr) {
-        // 댓글 스코프(youtube.force-ssl) 없으면 조용히 건너뜀
         console.log(`  댓글 게시 건너뜀: ${commentErr.message}`);
       }
 
@@ -738,6 +767,7 @@ async function main() {
       });
       console.log(`✅ 업로드 완료! https://youtube.com/shorts/${videoId}`);
     } else {
+      console.log('⚠️  YOUTUBE_REFRESH_TOKEN 없음 — 로컬 파일로 저장합니다.');
       const outDir = path.join(process.cwd(), 'shorts-output');
       if (!fs.existsSync(outDir)) fs.mkdirSync(outDir);
       const savePath = path.join(outDir, `${post.slug}.mp4`);
@@ -750,7 +780,7 @@ async function main() {
     console.error('\n오류:', e.message);
     if (process.env.DEBUG) console.error(e.stack);
   } finally {
-    await browser.close().catch(() => {});
+    if (!browser._closed) await browser.close().catch(() => {});
     fs.rmSync(tmpDir, { recursive: true, force: true });
     await prisma.$disconnect();
   }
