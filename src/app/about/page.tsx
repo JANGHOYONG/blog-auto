@@ -17,30 +17,6 @@ const TOPICS = [
   { icon: '✈️', name: '여행·여가', slug: 'travel', query: '', desc: '시니어 친화 여행지·코스 추천, 건강한 여가생활 노하우' },
 ];
 
-const EDITORS = [
-  {
-    emoji: '👩‍⚕️',
-    name: '이수진 에디터',
-    career: '전 대학병원 내과 전문의 출신 · 의학 콘텐츠 기획 12년',
-    specialty: '혈당·당뇨 / 혈압·심혈관 / 갱년기',
-    desc: '질병관리청 국민건강통계·건강보험심사평가원 데이터를 기반으로 근거 중심 콘텐츠를 기획합니다.',
-  },
-  {
-    emoji: '👨‍🏫',
-    name: '박정호 에디터',
-    career: '운동생리학 석사 · 노인체육지도사 1급 · 헬스케어 칼럼니스트 8년',
-    specialty: '관절·근육 / 수면·피로 / 일상 운동',
-    desc: '50·60대의 신체 특성에 맞는 안전한 운동·재활 정보를 쉬운 언어로 전달합니다.',
-  },
-  {
-    emoji: '👩‍🔬',
-    name: '한미래 에디터',
-    career: '임상영양사 · 식품영양학 박사과정 · 영양 칼럼 연재 6년',
-    specialty: '영양·식이 / 뇌건강·치매 예방 / 건강기능식품',
-    desc: '국민건강영양조사 자료와 대한의학회 가이드라인을 참고해 시니어 맞춤 식단 정보를 작성합니다.',
-  },
-];
-
 const SOURCES = [
   { name: '질병관리청', url: 'https://www.kdca.go.kr', desc: '국민건강통계, 만성질환 현황' },
   { name: '건강보험심사평가원', url: 'https://www.hira.or.kr', desc: '질병별 진료 통계' },
@@ -82,7 +58,7 @@ export default function AboutPage() {
         </p>
         <p className="text-base leading-relaxed mb-4" style={{ color: 'var(--text-muted)' }}>
           <strong style={{ color: 'var(--text)' }}>시니어 건강백과</strong>는 질병관리청·대한의학회 등
-          국내 공인 의료기관 데이터를 근거로, 의학 전문가 출신 에디터가 검수한 콘텐츠만 발행합니다.
+          국내 공인 의료기관 데이터를 근거로 작성된 콘텐츠만 발행합니다.
           "약을 끊을 수 있다", "완치된다"와 같은 과장 표현은 사용하지 않으며,
           개인차를 항상 명시하고 반드시 담당 의사 상담을 권고합니다.
         </p>
@@ -91,33 +67,7 @@ export default function AboutPage() {
         </p>
       </section>
 
-      {/* 에디터팀 소개 */}
-      <section className="mb-8">
-        <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--text)' }}>에디터·콘텐츠 감수팀</h2>
-        <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>
-          모든 글은 아래 전문가 에디터가 기획·검수합니다.
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {EDITORS.map((e) => (
-            <div key={e.name} className="card p-6 flex flex-col gap-3">
-              <div className="text-4xl text-center">{e.emoji}</div>
-              <div className="text-center">
-                <p className="font-bold text-base" style={{ color: 'var(--text)' }}>{e.name}</p>
-                <p className="text-xs mt-1 leading-relaxed" style={{ color: 'var(--primary)' }}>{e.career}</p>
-              </div>
-              <div
-                className="text-xs px-3 py-1 rounded-full text-center"
-                style={{ background: 'var(--bg-bar)', color: 'var(--text)' }}
-              >
-                {e.specialty}
-              </div>
-              <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>{e.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 콘텐츠 제작 프로세스 */}
+      {/* 콘텐츠 제작 원칙 */}
       <section className="card p-8 mb-8">
         <h2 className="text-2xl font-bold mb-6" style={{ color: 'var(--text)' }}>콘텐츠 제작 원칙</h2>
         <ol className="space-y-5">
@@ -134,8 +84,8 @@ export default function AboutPage() {
             },
             {
               step: '03',
-              title: '전문가 에디터 검수',
-              desc: '의학 전문가 출신 에디터가 과장·오류 여부를 최종 확인한 후 발행합니다.',
+              title: '과장·오류 제거',
+              desc: '근거 없는 효과 주장, 공포 유발 표현, 광고성 내용은 사전에 걸러냅니다.',
             },
             {
               step: '04',
@@ -215,7 +165,7 @@ export default function AboutPage() {
         <ul className="space-y-4">
           {[
             { icon: '📅', text: '매일 5편 · 365일 꾸준히 발행되는 건강 정보' },
-            { icon: '🩺', text: '의학 전문가 출신 에디터가 기획·검수한 근거 기반 콘텐츠' },
+            { icon: '🩺', text: '국공립 기관 공식 데이터를 근거로 작성된 신뢰 콘텐츠' },
             { icon: '📱', text: '50·60대에 최적화된 큰 글씨, 모바일 친화 디자인' },
             { icon: '📋', text: '목차 제공으로 긴 글도 원하는 부분만 빠르게 탐색' },
             { icon: '🎬', text: '유튜브 쇼츠·롱폼 영상으로 이동 중에도 건강 정보 확인' },
@@ -240,26 +190,13 @@ export default function AboutPage() {
           <div className="flex items-center gap-3">
             <span className="text-xl">📧</span>
             <span style={{ color: 'var(--text)' }}>
-              콘텐츠 오류 / 주제 요청:{' '}
+              콘텐츠 오류 / 주제 요청 / 광고·제휴:{' '}
               <a
-                href="mailto:contact@smartinfoblog.co.kr"
+                href="mailto:ghdyd6913@gmail.com"
                 className="underline"
                 style={{ color: 'var(--primary)' }}
               >
-                contact@smartinfoblog.co.kr
-              </a>
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-xl">💼</span>
-            <span style={{ color: 'var(--text)' }}>
-              광고·제휴 문의:{' '}
-              <a
-                href="mailto:biz@smartinfoblog.co.kr"
-                className="underline"
-                style={{ color: 'var(--primary)' }}
-              >
-                biz@smartinfoblog.co.kr
+                ghdyd6913@gmail.com
               </a>
             </span>
           </div>
@@ -270,19 +207,21 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* 의료 면책 조항 (강화) */}
+      {/* 의료 면책 조항 */}
       <section
         className="card p-6 mb-8"
         style={{ borderLeft: '4px solid var(--primary)' }}
       >
         <h2 className="font-bold mb-3 text-base" style={{ color: 'var(--text)' }}>⚠️ 의료 면책 조항 (중요)</h2>
         <p className="text-sm leading-relaxed mb-3" style={{ color: 'var(--text-muted)' }}>
-          본 블로그의 건강·의학 관련 콘텐츠는 <strong style={{ color: 'var(--text)' }}>일반적인 건강 정보 제공</strong>을
+          본 블로그의 건강·의학 관련 콘텐츠는{' '}
+          <strong style={{ color: 'var(--text)' }}>일반적인 건강 정보 제공</strong>을
           목적으로 작성되었으며, 의사·약사·간호사 등 전문 의료인의 진단·처방·치료 조언을 대체하지 않습니다.
         </p>
         <p className="text-sm leading-relaxed mb-3" style={{ color: 'var(--text-muted)' }}>
           건강 상태, 복용 중인 약물, 기저질환에 따라 동일한 정보가 개인마다 다른 영향을 미칠 수 있습니다.
-          건강 관련 중요한 결정은 <strong style={{ color: 'var(--text)' }}>반드시 담당 의사와 상담</strong> 후 이행하시기 바랍니다.
+          건강 관련 중요한 결정은{' '}
+          <strong style={{ color: 'var(--text)' }}>반드시 담당 의사와 상담</strong> 후 이행하시기 바랍니다.
         </p>
         <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
           본 블로그는 특정 제품·서비스의 효능을 보증하지 않으며, 콘텐츠 적용으로 인한 결과에 대해
