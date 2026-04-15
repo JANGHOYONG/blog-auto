@@ -6,7 +6,7 @@ import { generateJsonLd } from '@/lib/seo';
 import ArticleCard from '@/components/ArticleCard';
 import SkeletonCard from '@/components/SkeletonCard';
 import TopBar from '@/components/TopBar';
-import AdSense from '@/components/AdSense';
+import AdFitSlot from '@/components/AdFitSlot';
 import NewsletterCTA from '@/components/NewsletterCTA';
 import DailyHealthTip from '@/components/DailyHealthTip';
 
@@ -59,7 +59,7 @@ export default async function HomePage() {
 
         {/* 상단 광고 */}
         <div className="mb-8">
-          <AdSense slot="top-banner" format="horizontal" />
+          <AdFitSlot slot="top" />
         </div>
 
         {/* 최신 글 헤더 */}
@@ -104,7 +104,7 @@ export default async function HomePage() {
             {/* 중간 광고 */}
             {recentPosts.length > 8 && (
               <div className="my-8">
-                <AdSense slot="home-middle" format="horizontal" />
+                <AdFitSlot slot="middle" />
               </div>
             )}
 

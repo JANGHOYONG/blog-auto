@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { prisma } from '@/lib/db';
 import ArticleCard from '@/components/ArticleCard';
-import AdSense from '@/components/AdSense';
+import AdFitSlot from '@/components/AdFitSlot';
 
 export const revalidate = 3600;
 
@@ -144,7 +144,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* 상단 광고 */}
-        <AdSense slot="category-top" format="horizontal" className="mb-8" />
+        <AdFitSlot slot="top" className="mb-8" />
 
         {posts.length === 0 ? (
           <div className="text-center py-16 text-gray-400">
@@ -161,7 +161,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
             {/* 중간 광고 */}
             {posts.length > 6 && (
-              <AdSense slot="category-middle" format="horizontal" className="my-8" />
+              <AdFitSlot slot="middle" className="my-8" />
             )}
 
             {/* 7번 이후 글 */}
@@ -196,7 +196,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         )}
 
         {/* 하단 광고 */}
-        <AdSense slot="category-bottom" format="horizontal" className="mt-8" />
+        <AdFitSlot slot="bottom" className="mt-8" />
       </div>
     </>
   );

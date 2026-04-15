@@ -3,7 +3,8 @@ import type { Metadata } from 'next';
 import { prisma } from '@/lib/db';
 import { generateMetadata as genMeta, generateJsonLd } from '@/lib/seo';
 import { processContent } from '@/lib/content';
-import AdSense from '@/components/AdSense';
+import AdFitSlot from '@/components/AdFitSlot';
+import InsuranceCTA from '@/components/InsuranceCTA';
 import RelatedPosts from '@/components/RelatedPosts';
 import TOC from '@/components/TOC';
 import ShareButtons from '@/components/ShareButtons';
@@ -198,7 +199,7 @@ export default async function PostPage({ params }: Props) {
 
             {/* 본문 상단 광고 */}
             <div className="mb-6">
-              <AdSense slot="top-banner" format="horizontal" />
+              <AdFitSlot slot="top" />
             </div>
 
             {/* 본문 전반부 */}
@@ -247,9 +248,12 @@ export default async function PostPage({ params }: Props) {
             {/* 뉴스레터 CTA */}
             <NewsletterCTA className="my-8" />
 
+            {/* 보험·건강검진 제휴 CTA */}
+            <InsuranceCTA />
+
             {/* 본문 중간 광고 */}
             <div className="my-8">
-              <AdSense slot="post-middle" format="rectangle" />
+              <AdFitSlot slot="middle" />
             </div>
 
             {/* 키워드 태그 */}
@@ -285,7 +289,7 @@ export default async function PostPage({ params }: Props) {
 
             {/* 하단 광고 */}
             <div className="mt-8">
-              <AdSense slot="post-bottom" format="horizontal" />
+              <AdFitSlot slot="bottom" />
             </div>
           </div>
 
@@ -294,7 +298,7 @@ export default async function PostPage({ params }: Props) {
             <TOC headings={headings} />
             {/* 쿠팡 상품 카드 (health 카테고리 신규 글) */}
             {coupangProduct && <CoupangProductCard product={coupangProduct} />}
-            <AdSense slot="post-sidebar" format="rectangle" />
+            <AdFitSlot slot="sidebar" />
           </aside>
         </div>
 
