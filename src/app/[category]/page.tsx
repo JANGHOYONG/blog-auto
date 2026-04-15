@@ -70,10 +70,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export async function generateStaticParams() {
-  const categories = await prisma.category.findMany();
-  return categories.map((cat) => ({ category: cat.slug }));
-}
 
 export default async function CategoryPage({ params, searchParams }: Props) {
   const category = await prisma.category.findUnique({
