@@ -881,8 +881,14 @@ async function main() {
 
         if (success < generateCount) await new Promise((r) => setTimeout(r, 2000));
       } catch (e) {
-        fail++;
-        console.error(`  ✗ 실패: ${e.message}\n`);
+        // keywordId 중복 오류 → 이미 해당 키워드로 DRAFT/글 존재. used=true 처리 후 스킵
+        if (e.message && e.message.includes('keywordId')) {
+          console.log(`  ⚠ 키워드 중복 (이미 생성된 글 있음) → used 처리 후 스킵: ${kw.keyword}\n`);
+          try { await prisma.keyword.update({ where: { id: kw.id }, data: { used: true } }); } catch {}
+        } else {
+          fail++;
+          console.error(`  ✗ 실패: ${e.message}\n`);
+        }
       }
     }
 
