@@ -149,17 +149,11 @@ async function main() {
       console.log(`예약 발행 ${scheduledPublished}개 처리 완료`);
     }
 
-    // 오늘 발행 수 확인
+    // 오늘 발행 수 확인 (일일 한도 없음 — runLimit만 적용)
     const todayCount = await getTodayPublishCount();
-    const dailyRemaining = dailyLimit - todayCount;
-    const remaining = Math.min(runLimit, dailyRemaining);
+    const remaining = runLimit;
 
-    console.log(`오늘 발행: ${todayCount}/${dailyLimit} (이번 실행 최대: ${runLimit}개, 일일 잔여: ${dailyRemaining}개)`);
-
-    if (dailyRemaining <= 0) {
-      console.log('오늘 일일 발행 한도에 도달했습니다.');
-      return;
-    }
+    console.log(`오늘 발행: ${todayCount}개 (이번 실행 최대: ${runLimit}개, 일일 한도 없음)`);
 
     // DRAFT 글 가져오기 (생성 순)
     const drafts = await prisma.post.findMany({

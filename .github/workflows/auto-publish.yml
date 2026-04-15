@@ -62,4 +62,4 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
           REVALIDATE_SECRET: ${{ secrets.REVALIDATE_SECRET }}
-          DAILY_POST_LIMIT: '5'  # 하루 최대 5개 (limit=3은 드래프트 백로그 빠르게 소진)
+          # DAILY_POST_LIMIT 제거 — 일일 한도 없음, runLimit(--limit)만 적용
