@@ -39,17 +39,17 @@ jobs:
           node -e "
           const { PrismaClient } = require('@prisma/client');
           const prisma = new PrismaClient();
-          prisma.keyword.count({ where: { used: false, category: { slug: 'health' } } }).then(n => {
-            console.log('건강 미사용 키워드 수:', n);
+          prisma.keyword.count({ where: { used: false } }).then(n => {
+            console.log('미사용 키워드 수:', n);
             process.exit(n < 20 ? 1 : 0);
           }).finally(() => prisma.\$disconnect());
-          " && echo "키워드 충분" || (echo "키워드 부족 — 건강 키워드 자동 수집 시작" && node scripts/keyword-collector.js --category=health --count=30)
+          " && echo "키워드 충분" || (echo "키워드 부족 — 키워드 자동 수집 시작" && node scripts/keyword-collector.js --count=30)
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
       - name: Generate content
-        run: node scripts/content-generator.js --count=1 --category=health
+        run: node scripts/content-generator.js --count=1
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

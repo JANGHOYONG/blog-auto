@@ -260,7 +260,16 @@ async function main() {
       console.log(`\n[${cat.name}] 키워드 ${targetCount}개 수집 중...`);
 
       try {
-        const { keywords } = await collectKeywords(cat.name, targetCount);
+        const HEALTH_SUBTOPIC_BY_SLUG = Object.fromEntries(HEALTH_SUBTOPICS.map((t) => [t.id, t]));
+        let keywords;
+        const directSubtopic = HEALTH_SUBTOPIC_BY_SLUG[cat.slug];
+        if (directSubtopic) {
+          const result = await collectKeywordsForSubtopic(cat.name, directSubtopic, targetCount);
+          keywords = result.keywords;
+        } else {
+          const result = await collectKeywords(cat.name, targetCount);
+          keywords = result.keywords;
+        }
         let saved = 0;
 
         for (const kw of keywords) {

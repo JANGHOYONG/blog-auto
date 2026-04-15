@@ -167,15 +167,14 @@ function AppDownloadHeaderBtn() {
 }
 
 const TOPICS = [
-  { name: '혈당·당뇨', query: '혈당' },
-  { name: '혈압·심장', query: '혈압' },
-  { name: '관절·근육', query: '관절' },
-  { name: '수면·피로', query: '수면' },
-  { name: '뇌건강·치매', query: '치매' },
-  { name: '갱년기', query: '갱년기' },
-  { name: '영양·식이', query: '영양' },
-  { name: '건강지식', href: '/knowledge' },
-  { name: '여행·여가', href: '/travel' },
+  { name: '혈당·당뇨',   href: '/blood_sugar' },
+  { name: '혈압·심장',   href: '/blood_pressure' },
+  { name: '관절·근육',   href: '/joint' },
+  { name: '수면·피로',   href: '/sleep' },
+  { name: '뇌건강·치매', href: '/brain' },
+  { name: '갱년기',      href: '/menopause' },
+  { name: '영양·식이',   href: '/nutrition' },
+  { name: '건강지식',    href: '/knowledge' },
 ];
 
 export default function Header() {

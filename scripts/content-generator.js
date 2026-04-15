@@ -237,13 +237,13 @@ function injectBodyImages(content, images) {
 // health 카테고리 7개 → knowledge 카테고리 8개 순으로 이어짐
 const HEALTH_TOPICS = [
   // ── health 카테고리 (쿠팡 시트 연동) ──────────────────────────────────────
-  { id: 'blood_sugar',    label: '혈당·당뇨',         category: 'health',    words: ['혈당', '당뇨', '인슐린', '혈액당', '공복혈당', '혈당관리', '혈당수치', '당뇨병', '당화혈색소', '저혈당', '고혈당', '혈당스파이크', '당뇨전단계', '내당능', '혈당조절'] },
-  { id: 'blood_pressure', label: '혈압·심장',         category: 'health',    words: ['혈압', '심장', '심혈관', '고혈압', '심근', '부정맥', '콜레스테롤', '동맥경화', '심부전', '혈압관리', '혈압수치', '심근경색', '협심증', '심방세동', '뇌졸중', '중성지방', '이완기', '수축기'] },
-  { id: 'joint',          label: '관절·근육',         category: 'health',    words: ['관절', '무릎', '연골', '허리', '척추', '근육', '근감소', '골다공증', '어깨', '힘줄', '류마티스', '관절염', '퇴행성', '디스크', '오십견', '근력', '고관절', '관절통', '관절염증', '근육통'] },
-  { id: 'sleep',          label: '수면·피로',         category: 'health',    words: ['수면', '불면', '피로', '수면장애', '잠', '멜라토닌', '불면증', '만성피로', '졸음', '수면질', '수면시간', '수면부족', '야간뇨', '코골이', '수면무호흡', '낮잠', '피로감', '만성피로증후군'] },
-  { id: 'brain',          label: '뇌건강·치매',       category: 'health',    words: ['치매', '뇌', '기억력', '인지', '파킨슨', '뇌졸중', '알츠하이머', '뇌건강', '인지저하', '건망증', '인지기능', '치매예방', '뇌혈관', '기억력저하', '경도인지장애', '뇌경색', '뇌출혈'] },
-  { id: 'menopause',      label: '갱년기',            category: 'health',    words: ['갱년기', '폐경', '호르몬', '안면홍조', '골밀도', '에스트로겐', '남성갱년기', '갱년기증상', '폐경기', '갱년기장애', '갱년기우울', '갱년기불면', '갱년기비만', '갱년기체중', '테스토스테론', '여성호르몬', '호르몬치료', '갱년기관리'] },
-  { id: 'nutrition',      label: '영양·식이',         category: 'health',    words: ['영양', '영양제', '비타민', '식이', '음식', '식단', '건강식', '단백질', '오메가', '식품', '보충제', '영양소', '무기질', '칼슘', '마그네슘', '아연', '철분', '엽산', '항산화', '건강기능식품'] },
+  { id: 'blood_sugar',    label: '혈당·당뇨',         category: 'blood_sugar',    words: ['혈당', '당뇨', '인슐린', '혈액당', '공복혈당', '혈당관리', '혈당수치', '당뇨병', '당화혈색소', '저혈당', '고혈당', '혈당스파이크', '당뇨전단계', '내당능', '혈당조절'] },
+  { id: 'blood_pressure', label: '혈압·심장',         category: 'blood_pressure', words: ['혈압', '심장', '심혈관', '고혈압', '심근', '부정맥', '콜레스테롤', '동맥경화', '심부전', '혈압관리', '혈압수치', '심근경색', '협심증', '심방세동', '뇌졸중', '중성지방', '이완기', '수축기'] },
+  { id: 'joint',          label: '관절·근육',         category: 'joint',          words: ['관절', '무릎', '연골', '허리', '척추', '근육', '근감소', '골다공증', '어깨', '힘줄', '류마티스', '관절염', '퇴행성', '디스크', '오십견', '근력', '고관절', '관절통', '관절염증', '근육통'] },
+  { id: 'sleep',          label: '수면·피로',         category: 'sleep',          words: ['수면', '불면', '피로', '수면장애', '잠', '멜라토닌', '불면증', '만성피로', '졸음', '수면질', '수면시간', '수면부족', '야간뇨', '코골이', '수면무호흡', '낮잠', '피로감', '만성피로증후군'] },
+  { id: 'brain',          label: '뇌건강·치매',       category: 'brain',          words: ['치매', '뇌', '기억력', '인지', '파킨슨', '뇌졸중', '알츠하이머', '뇌건강', '인지저하', '건망증', '인지기능', '치매예방', '뇌혈관', '기억력저하', '경도인지장애', '뇌경색', '뇌출혈'] },
+  { id: 'menopause',      label: '갱년기',            category: 'menopause',      words: ['갱년기', '폐경', '호르몬', '안면홍조', '골밀도', '에스트로겐', '남성갱년기', '갱년기증상', '폐경기', '갱년기장애', '갱년기우울', '갱년기불면', '갱년기비만', '갱년기체중', '테스토스테론', '여성호르몬', '호르몬치료', '갱년기관리'] },
+  { id: 'nutrition',      label: '영양·식이',         category: 'nutrition',      words: ['영양', '영양제', '비타민', '식이', '음식', '식단', '건강식', '단백질', '오메가', '식품', '보충제', '영양소', '무기질', '칼슘', '마그네슘', '아연', '철분', '엽산', '항산화', '건강기능식품'] },
   // ── knowledge 카테고리 (다이나믹 배너) ────────────────────────────────────
   { id: 'immunity',       label: '면역력·감염',       category: 'knowledge', words: ['면역', '면역력', '감기', '독감', '폐렴', '바이러스', '항체', '항바이러스', '감염', '면역계', '면역세포', '면역저하', '백신', '자연살해세포', '림프구', '면역강화'] },
   { id: 'digestion',      label: '소화·장건강',       category: 'knowledge', words: ['소화', '위염', '역류성', '장건강', '변비', '대장', '위장', '장내세균', '과민성', '위산', '헬리코박터', '소화불량', '위궤양', '장염', '복통', '설사', '장내미생물', '프로바이오틱스', '위식도역류'] },
@@ -689,10 +689,14 @@ async function main() {
   let success = 0, fail = 0;
 
   try {
+    const HEALTH_SLUGS = ['blood_sugar', 'blood_pressure', 'joint', 'sleep', 'brain', 'menopause', 'nutrition', 'knowledge'];
     const keywords = await prisma.keyword.findMany({
       where: {
         used: false,
-        ...(targetCategory && { category: { slug: targetCategory } }),
+        ...(targetCategory
+          ? { category: { slug: targetCategory } }
+          : { category: { slug: { in: HEALTH_SLUGS } } }
+        ),
       },
       include: { category: true },
       orderBy: [{ priority: 'asc' }, { searchVolume: 'desc' }],
@@ -712,7 +716,20 @@ async function main() {
       update: {},
       create: { name: '건강지식', slug: 'knowledge', description: '면역력·소화·눈건강·피부 등 다양한 건강 정보' },
     });
-    const knownSlugs = ['health', 'tech', 'economy', 'lifestyle', 'travel', 'knowledge'];
+    // 7개 health 서브 카테고리 자동 생성
+    const HEALTH_CATEGORY_DEFS = [
+      { slug: 'blood_sugar',    name: '혈당·당뇨',   description: '혈당 관리, 당뇨병 예방·관리 정보' },
+      { slug: 'blood_pressure', name: '혈압·심장',   description: '고혈압·심혈관 건강 관리 정보' },
+      { slug: 'joint',          name: '관절·근육',   description: '관절·척추·근육 건강 관리 정보' },
+      { slug: 'sleep',          name: '수면·피로',   description: '수면의 질 개선·피로 해소 정보' },
+      { slug: 'brain',          name: '뇌건강·치매', description: '치매 예방·뇌 건강 관리 정보' },
+      { slug: 'menopause',      name: '갱년기',      description: '갱년기 증상 관리·호르몬 건강 정보' },
+      { slug: 'nutrition',      name: '영양·식이',   description: '영양제·식이요법·건강식품 정보' },
+    ];
+    for (const def of HEALTH_CATEGORY_DEFS) {
+      await prisma.category.upsert({ where: { slug: def.slug }, update: {}, create: def });
+    }
+    const knownSlugs = ['health', 'blood_sugar', 'blood_pressure', 'joint', 'sleep', 'brain', 'menopause', 'nutrition', 'knowledge', 'tech', 'economy', 'lifestyle', 'travel'];
 
     // 알 수 없는 카테고리 키워드 → travel로 재배정
     for (const kw of keywords) {
@@ -823,11 +840,18 @@ async function main() {
           }
         }
 
-        // knowledge 토픽이면 knowledge 카테고리로 저장
+        // 토픽별 카테고리 결정 — knowledge 토픽은 knowledge, health 서브토픽은 각 독립 카테고리
         const knowledgeTopicIds = ['immunity', 'digestion', 'eye', 'skin', 'oral', 'liver', 'lung', 'mental'];
-        const postCategoryId = knowledgeTopicIds.includes(topic)
-          ? knowledgeCat.id
-          : kw.categoryId;
+        const healthSubtopicSlugs = ['blood_sugar', 'blood_pressure', 'joint', 'sleep', 'brain', 'menopause', 'nutrition'];
+        let postCategoryId;
+        if (knowledgeTopicIds.includes(topic)) {
+          postCategoryId = knowledgeCat.id;
+        } else if (healthSubtopicSlugs.includes(topic)) {
+          const topicCat = await prisma.category.findUnique({ where: { slug: topic } });
+          postCategoryId = topicCat ? topicCat.id : kw.categoryId;
+        } else {
+          postCategoryId = kw.categoryId;
+        }
 
         const slug = generateSlug(gen.selectedTitle);
         const post = await prisma.post.create({
