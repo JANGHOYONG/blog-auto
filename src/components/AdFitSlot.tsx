@@ -2,11 +2,18 @@ import AdFit from './AdFit';
 
 type Slot = 'top' | 'middle' | 'bottom' | 'sidebar';
 
-// 카카오 AdFit 단일 유닛 ID (320×50) — adfit.kakao.com 에서 발급
-// 모든 슬롯 동일 유닛 사용 (추가 유닛 발급 시 슬롯별 분리 가능)
-const ADFIT_UNIT = 'DAN-gGACvVerrv2TwXYJ';
-const AD_WIDTH  = 320;
-const AD_HEIGHT = 50;
+// ─── 카카오 AdFit 광고 단위 ────────────────────────────────────────────────────
+// 모바일 배너 (320×50) — 상단·하단
+const UNIT_BANNER = { id: 'DAN-gGACvVerrv2TwXYJ', width: 320, height: 50 };
+// PC·모바일 겸용 직사각형 (300×250) — 본문 중간·사이드바 (클릭률 최고)
+const UNIT_RECT   = { id: 'DAN-d0PQygd7Wr3dydYQ', width: 300, height: 250 };
+
+const SLOT_CONFIG: Record<Slot, typeof UNIT_BANNER> = {
+  top:     UNIT_BANNER,
+  middle:  UNIT_RECT,
+  bottom:  UNIT_BANNER,
+  sidebar: UNIT_RECT,
+};
 
 interface Props {
   slot: Slot;
@@ -14,5 +21,6 @@ interface Props {
 }
 
 export default function AdFitSlot({ slot, className }: Props) {
-  return <AdFit unit={ADFIT_UNIT} width={AD_WIDTH} height={AD_HEIGHT} className={className} />;
+  const { id, width, height } = SLOT_CONFIG[slot];
+  return <AdFit unit={id} width={width} height={height} className={className} />;
 }
