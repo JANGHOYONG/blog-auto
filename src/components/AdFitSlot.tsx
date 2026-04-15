@@ -3,15 +3,13 @@ import AdFit from './AdFit';
 type Slot = 'top' | 'middle' | 'bottom' | 'sidebar';
 
 // ─── 카카오 AdFit 광고 단위 ────────────────────────────────────────────────────
-// 모바일 배너 (320×50) — 상단·하단
-const UNIT_BANNER = { id: 'DAN-gGACvVerrv2TwXYJ', width: 320, height: 50 };
-// PC·모바일 겸용 직사각형 (300×250) — 본문 중간·사이드바 (클릭률 최고)
-const UNIT_RECT   = { id: 'DAN-d0PQygd7Wr3dydYQ', width: 300, height: 250 };
+// PC·모바일 겸용 직사각형 (300×250) — 전 슬롯 통일 (클릭률 최고)
+const UNIT_RECT = { id: 'DAN-d0PQygd7Wr3dydYQ', width: 300, height: 250 };
 
-const SLOT_CONFIG: Record<Slot, typeof UNIT_BANNER> = {
-  top:     UNIT_BANNER,
+const SLOT_CONFIG: Record<Slot, typeof UNIT_RECT> = {
+  top:     UNIT_RECT,
   middle:  UNIT_RECT,
-  bottom:  UNIT_BANNER,
+  bottom:  UNIT_RECT,
   sidebar: UNIT_RECT,
 };
 
