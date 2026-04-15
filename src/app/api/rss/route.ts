@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com';
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || 'Smart Info Blog';
 
