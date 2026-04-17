@@ -44,13 +44,6 @@ const nextConfig = {
         destination: '/icon',
         permanent: true,
       },
-      // www → non-www
-      {
-        source: '/:path*',
-        has: [{ type: 'host', value: 'www.smartinfoblog.co.kr' }],
-        destination: 'https://smartinfoblog.co.kr/:path*',
-        permanent: true,
-      },
     ];
   },
 };
