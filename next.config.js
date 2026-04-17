@@ -38,7 +38,12 @@ const nextConfig = {
   // 리다이렉트 (www → non-www 또는 반대)
   async redirects() {
     return [
-      // 필요 시 www 리다이렉트 추가
+      // favicon.ico → /icon (Next.js App Router icon.tsx가 /icon 경로로 서빙)
+      {
+        source: '/favicon.ico',
+        destination: '/icon',
+        permanent: true,
+      },
     ];
   },
 };
