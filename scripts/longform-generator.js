@@ -573,7 +573,7 @@ async function main() {
     const post = postId
       ? await prisma.post.findUnique({ where: { id: parseInt(postId) }, include: { category: true } })
       : await prisma.post.findFirst({
-          where: { status: 'PUBLISHED', category: { slug: 'health' }, longformGenerated: false },
+          where: { status: 'PUBLISHED', category: { slug: { in: ['health', 'blood_sugar', 'blood_pressure', 'joint', 'sleep', 'brain', 'menopause', 'nutrition', 'knowledge'] } }, longformGenerated: false },
           orderBy: { publishedAt: 'desc' },
           include: { category: true },
         });
