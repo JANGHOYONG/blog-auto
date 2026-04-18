@@ -73,7 +73,7 @@ export default function CoupangCategoryBanner({ categorySlug }: { categorySlug: 
         justifyContent: 'space-between',
       }}>
         <span style={{ color: '#fff', fontWeight: 700, fontSize: '13px' }}>🛒 관련 상품 추천</span>
-        <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: '11px' }}>쿠팡파트너스</span>
+        <span style={{ background: 'rgba(255,255,255,0.25)', color: '#fff', fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '20px' }}>🔥 오늘의 특가</span>
       </div>
 
       {/* 상품 3개 그리드 */}
