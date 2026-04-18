@@ -9,7 +9,7 @@ import RelatedPosts from '@/components/RelatedPosts';
 import TOC from '@/components/TOC';
 import ShareButtons from '@/components/ShareButtons';
 import ArticleCard from '@/components/ArticleCard';
-import CoupangDynamicBanner from '@/components/CoupangDynamicBanner';
+import CoupangCategoryBanner from '@/components/CoupangCategoryBanner';
 import CoupangProductCard, { type CoupangProduct } from '@/components/CoupangProductCard';
 import NewsletterCTA from '@/components/NewsletterCTA';
 import FontSizeControl from '@/components/FontSizeControl';
@@ -216,7 +216,7 @@ export default async function PostPage({ params }: Props) {
                 <CoupangProductCard product={coupangProduct} />
               </div>
             ) : (
-              <CoupangDynamicBanner />
+              <CoupangCategoryBanner categorySlug={post.category.slug} />
             )}
 
             {/* 본문 후반부 */}
