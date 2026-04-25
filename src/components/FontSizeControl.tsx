@@ -8,10 +8,10 @@ const SIZES = [
 ];
 
 export default function FontSizeControl() {
-  const [size, setSize] = useState(1);
+  const [size, setSize] = useState(1.15);
 
   useEffect(() => {
-    const saved = parseFloat(localStorage.getItem('fontScale') || '1');
+    const saved = parseFloat(localStorage.getItem('fontScale') || '1.15');
     setSize(saved);
     document.documentElement.style.setProperty('--font-scale', String(saved));
   }, []);
