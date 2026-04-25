@@ -17,6 +17,7 @@ export default function ApproveRejectButtons({
   const [loading, setLoading] = useState(false);
   const [showReject, setShowReject] = useState(false);
   const [rejectNote, setRejectNote] = useState('');
+  const [publishedPath, setPublishedPath] = useState<string | null>(null);
   const router = useRouter();
 
   const handleApprove = async () => {
@@ -29,8 +30,8 @@ export default function ApproveRejectButtons({
         body: JSON.stringify({ postId }),
       });
       if (res.ok) {
-        alert('✅ 발행 완료! 블로그에 즉시 게시되었습니다.');
-        router.push('/admin/review');
+        const data = await res.json();
+        setPublishedPath(data.postPath || null);
       } else {
         const err = await res.json();
         alert('오류: ' + (err.error || '알 수 없는 오류'));
@@ -60,6 +61,26 @@ export default function ApproveRejectButtons({
       setLoading(false);
     }
   };
+
+  if (publishedPath) {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || '';
+    return (
+      <div style={{ padding: '16px 20px', background: '#D5F5E3', borderRadius: '12px',
+        color: '#1E8449', fontWeight: 700, fontSize: '14px', marginBottom: '20px',
+        display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+        <span>✅ 발행 완료!</span>
+        <a href={`${siteUrl}${publishedPath}`} target="_blank" rel="noopener noreferrer"
+          style={{ color: '#1E9E7A', textDecoration: 'underline', fontWeight: 700 }}>
+          발행된 글 바로 보기 →
+        </a>
+        <button onClick={() => router.push('/admin/review')}
+          style={{ marginLeft: 'auto', padding: '6px 14px', background: '#1E9E7A', color: '#fff',
+            border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '13px' }}>
+          목록으로
+        </button>
+      </div>
+    );
+  }
 
   if (currentStatus === 'PUBLISHED') {
     return (
