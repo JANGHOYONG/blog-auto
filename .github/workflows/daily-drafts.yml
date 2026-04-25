@@ -1,0 +1,52 @@
+name: Daily Drafts (초안 1건 · v3)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 21 * * *'   # 06:00 KST (매일)
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Auto-replenish keywords if low
+        run: |
+          node -e "
+          const { PrismaClient } = require('@prisma/client');
+          const prisma = new PrismaClient();
+          prisma.keyword.count({ where: { used: false } }).then(n => {
+            console.log('미사용 키워드 수:', n);
+            process.exit(n < 10 ? 1 : 0);
+          }).finally(() => prisma.\$disconnect());
+          " && echo "키워드 충분" || (echo "키워드 부족 — 키워드 자동 수집 시작" && node scripts/keyword-collector.js --count=30)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Generate v3 draft (REVIEW_REQUIRED)
+        run: node scripts/content-generator-v3.js --count=1
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}

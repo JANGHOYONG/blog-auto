@@ -1,13 +1,9 @@
 name: Auto Publish Blog Post
+# ⚠️ v3 전환 후 스케줄 비활성화 — 발행은 /admin/review 승인 즉시 처리
+# 수동 실행(workflow_dispatch)은 유지 (기존 DRAFT 글 일괄 발행 등 비상 용도)
 
 on:
-  workflow_dispatch:       # 수동 실행 버튼
-  schedule:
-    - cron: '0 0 * * *'   # 09:00 KST
-    - cron: '0 4 * * *'   # 13:00 KST
-    - cron: '0 8 * * *'   # 17:00 KST
-    - cron: '0 12 * * *'  # 21:00 KST
-    - cron: '0 16 * * *'  # 01:00 KST (다음날)
+  workflow_dispatch:
 
 jobs:
   publish:
@@ -34,32 +30,9 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
-      - name: Auto-replenish keywords if low
-        run: |
-          node -e "
-          const { PrismaClient } = require('@prisma/client');
-          const prisma = new PrismaClient();
-          prisma.keyword.count({ where: { used: false } }).then(n => {
-            console.log('미사용 키워드 수:', n);
-            process.exit(n < 20 ? 1 : 0);
-          }).finally(() => prisma.\$disconnect());
-          " && echo "키워드 충분" || (echo "키워드 부족 — 키워드 자동 수집 시작" && node scripts/keyword-collector.js --count=30)
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-
-      - name: Generate content
-        run: node scripts/content-generator.js --count=1
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
-
-      - name: Publish post
+      - name: Publish DRAFT posts (emergency use only)
         run: node scripts/publisher.js --mode=immediate --limit=3
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
           REVALIDATE_SECRET: ${{ secrets.REVALIDATE_SECRET }}
-          # DAILY_POST_LIMIT 제거 — 일일 한도 없음, runLimit(--limit)만 적용

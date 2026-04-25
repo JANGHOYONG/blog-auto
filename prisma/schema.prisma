@@ -40,7 +40,7 @@ model Keyword {
 }
 
 // 게시글 모델
-// status 값: DRAFT | SCHEDULED | PUBLISHED | ARCHIVED
+// status 값: DRAFT | REVIEW_REQUIRED | APPROVED | PUBLISHED | ARCHIVED
 model Post {
   id              Int       @id @default(autoincrement())
   title           String
@@ -55,12 +55,19 @@ model Post {
   scheduledAt     DateTime?
   viewCount       Int       @default(0)
   readTime        Int?
-  thumbnail         String?   // Unsplash 대표 이미지 URL
+  thumbnail         String?   // Pexels 대표 이미지 URL
   shortsGenerated   Boolean   @default(false)  // YouTube Shorts 생성 여부
   shortsVideoId     String?   // YouTube Shorts 영상 ID
   longformGenerated Boolean   @default(false)  // YouTube 장편 영상 생성 여부
   longformVideoId   String?   // YouTube 장편 영상 ID
   coupangProduct    String?   // JSON: {name, url, image?, price?, ctaText?}
+
+  // 품질 관리 필드 (v3 파이프라인)
+  qualityScore  Int?       // 0~100 (checkQualityV3)
+  rejectReasons String[]   // 품질 미달 사유 목록
+  reviewNotes   String?    @db.Text  // 감수자 메모
+  reviewedAt    DateTime?  // 감수 완료 시각
+  reviewedBy    String?    // 감수자 (관리자 식별)
 
   categoryId  Int
   category    Category @relation(fields: [categoryId], references: [id])
@@ -77,6 +84,21 @@ model Post {
   @@index([status, publishedAt])
   @@index([categoryId])
   @@index([slug])
+}
+
+// 에디토리얼 캘린더 (선택 주제 관리)
+model Topic {
+  id           Int       @id @default(autoincrement())
+  title        String
+  categoryId   String?   // category slug
+  keyword      String
+  searchVolume Int?
+  difficulty   Int?
+  priority     Int       @default(5)
+  plannedDate  DateTime?
+  status       String    @default("PENDING") // PENDING | DRAFTED | PUBLISHED
+  notes        String?
+  createdAt    DateTime  @default(now())
 }
 
 // 게시글 관련 글 연결
