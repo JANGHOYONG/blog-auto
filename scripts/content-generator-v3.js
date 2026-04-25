@@ -26,46 +26,9 @@ const TOPIC_OVERRIDE = getArg('topic');
 const IS_DRY_RUN    = args.includes('--dry-run');
 const COUNT         = parseInt(getArg('count') || process.env.DAILY_DRAFT_COUNT || '1');
 
-// ─── 쿠팡파트너스 (7개 주제별 시트 유지) ─────────────────────────────────────
-const COUPANG_SHEET_ID = '19oPpfTbJaeTn6YtHS7QTRv1Q1XiZuMSCfO7PRU4bL-I';
-const TOPIC_TO_SHEET = {
-  blood_sugar:    '혈당당뇨',
-  blood_pressure: '혈압심장',
-  joint:          '관절근육',
-  sleep:          '수면피로',
-  brain:          '뇌건강',
-  menopause:      '갱년기',
-  nutrition:      '영양식이',
-};
-const TOPIC_CTA_TEXT = {
-  blood_sugar:    '혈당·당뇨 건강 추천 제품',
-  blood_pressure: '혈압·혈관 건강 추천 제품',
-  joint:          '관절·연골 건강 추천 제품',
-  sleep:          '수면·피로 개선 추천 제품',
-  brain:          '뇌건강·기억력 추천 제품',
-  menopause:      '갱년기 건강 추천 제품',
-  nutrition:      '영양·건강식품 추천 제품',
-};
-
-async function fetchCoupangProducts(topicId) {
-  const sheetName = TOPIC_TO_SHEET[topicId];
-  if (!sheetName) return [];
-  try {
-    const url = `https://docs.google.com/spreadsheets/d/${COUPANG_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
-    const res = await fetch(url);
-    if (!res.ok) return [];
-    const csv = await res.text();
-    return csv.trim().split('\n').slice(1).map((line) => {
-      const cols = line.match(/(".*?"|[^,]+)(?=\s*,|\s*$)/g) || [];
-      const c = (v) => (v || '').replace(/^"|"$/g, '').trim();
-      const name = c(cols[0]); const url2 = c(cols[1]);
-      const image = c(cols[2]);
-      const rawPrice = c(cols[3]);
-      const price = rawPrice ? rawPrice.replace(/₩/g, '').replace(/원$/, '').trim().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '원' : null;
-      return name && url2 ? { name, url: url2, image: image || null, price } : null;
-    }).filter(Boolean);
-  } catch { return []; }
-}
+// ─── 쿠팡파트너스 ──────────────────────────────────────────────────────────────
+// 글 본문에 직접 삽입하지 않음 — 페이지 컴포넌트(CoupangCategoryBanner)가 렌더링
+// coupangProduct DB 필드는 null → 페이지에서 자동으로 3개 그리드 배너 표시
 
 // ─── Pexels 이미지 ────────────────────────────────────────────────────────────
 async function fetchPexelsImage(query) {
@@ -141,21 +104,9 @@ function imgHtml(img) {
 </figure>`;
 }
 
-// 쿠팡 배너 HTML
-function makeCoupangHtml(product, topicId) {
-  const ctaText = TOPIC_CTA_TEXT[topicId] || '건강 추천 제품';
-  return `<div style="margin:2rem 0;">
-  <a href="${product.url}" target="_blank" rel="noopener sponsored"
-    style="display:flex;align-items:center;justify-content:space-between;text-decoration:none;padding:1rem 1.25rem;border-radius:16px;background:linear-gradient(90deg,#1E9E7A 0%,#27AE60 100%);box-shadow:0 3px 12px rgba(30,158,122,0.22);">
-    <span style="color:#ffffff;font-size:1.1875rem;font-weight:700;line-height:1.3;">🛒 ${ctaText}</span>
-    <span style="background:#ffffff;color:#1E9E7A;padding:0.5rem 1rem;border-radius:12px;font-weight:700;font-size:0.875rem;white-space:nowrap;margin-left:0.75rem;flex-shrink:0;">쿠팡에서 보기 →</span>
-  </a>
-  <p style="font-size:0.75rem;margin-top:0.5rem;margin-bottom:0;color:#AAAAAA;line-height:1.6;">이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
-</div>`;
-}
-
 // JSON 응답을 HTML 본문으로 조립
-async function assembleHtml(article, topicId) {
+// 쿠팡 배너는 페이지 컴포넌트(CoupangCategoryBanner)가 렌더링 — 여기선 삽입하지 않음
+async function assembleHtml(article) {
   const parts = [];
 
   // 도입부 (hook + lead_answer)
@@ -206,15 +157,6 @@ async function assembleHtml(article, topicId) {
   <h2 style="font-size:1.2rem;font-weight:700;color:#1B3A2D;margin-bottom:1rem">⚠️ 많은 분들이 놓치는 부분</h2>
   <ol style="margin:0;padding-left:1.5rem;line-height:1.9">\n${items}\n  </ol>
 </section>`);
-  }
-
-  // 쿠팡 배너 (health 카테고리만)
-  if (topicId && TOPIC_TO_SHEET[topicId]) {
-    const products = await fetchCoupangProducts(topicId);
-    if (products.length) {
-      const product = products[Math.floor(Math.random() * products.length)];
-      parts.push(makeCoupangHtml(product, topicId));
-    }
   }
 
   // FAQ
@@ -562,7 +504,7 @@ async function main() {
       const thumbnail = thumbImg?.url || null;
 
       // HTML 조립 (쿠팡 배너 포함)
-      const content = await assembleHtml(article, subTopicId);
+      const content = await assembleHtml(article);
 
       const textLen = content.replace(/<[^>]*>/g, '').length;
       const readTime = Math.max(1, Math.ceil(textLen / 500));
