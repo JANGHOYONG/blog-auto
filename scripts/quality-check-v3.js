@@ -155,11 +155,11 @@ function checkQualityV3(article) {
   // 참고: 조립된 HTML(stop_signals·faq·expectations 박스 포함) 기준으로는
   //       약 1.5~2배 더 길어지므로, 마크다운 기준 1,200자를 최소로 설정
   // ─────────────────────────────────────────────────────────────────────────
-  // sections.body는 마크다운 기준 — 조립 HTML로는 약 2배 길어지므로 임계값 800자
+  // sections.body는 마크다운 기준 — 조립 HTML로는 약 2배 길어지므로 임계값 1,200자
   const bodyCharCount = fullBody.replace(/\s+/g, ' ').trim().length;
-  if (bodyCharCount < 800) {
+  if (bodyCharCount < 1200) {
     score -= 15;
-    failed.push(`원칙13: 본문 분량 미달 (${bodyCharCount}자 / 최소 800자)`);
+    failed.push(`원칙13: 본문 분량 미달 (${bodyCharCount}자 / 최소 1,200자)`);
   }
 
   return {

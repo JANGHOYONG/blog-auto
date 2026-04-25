@@ -375,7 +375,8 @@ const SYSTEM_PROMPT_V3 = `당신은 내과·가정의학과 전문의 자격 기
 12. 글 마지막은 "오늘부터 할 구체적 행동 한 가지"로 마무리한다.
     요약 반복 금지.
 
-13. 분량: 본문 2,500~3,500자. 이 범위를 벗어나면 재작성.
+13. 분량: 본문 3,000~4,500자. 이 범위를 벗어나면 재작성.
+    각 섹션 body는 최소 800자 이상. 짧게 쓰면 실패.
 
 14. 톤: 신뢰할 수 있는 의학 전문가. 반말 금지.
     "~습니다" 기본, 가끔 "~어요"로 리듬 조절.
@@ -392,7 +393,8 @@ function buildUserPrompt(topic, categoryLabel) {
 이 주제로 50~60대 독자가 실제로 검색해서 클릭한 이유 — 즉 "이 글에서 반드시 답을 얻어야 하는 질문"을 3~5개 먼저 상상하고, 그 질문들을 모두 해결하는 본문을 작성하세요.
 
 [작성 기준 — JSON 값으로 출력하지 말 것, 이 기준에 맞게 내용을 채울 것]
-- sections: 4개 작성, 각 body는 600자 이상의 실제 내용 (지시문·메타 설명 절대 포함 금지)
+- sections: 4개 작성, 각 body는 800자 이상의 실제 내용 (지시문·메타 설명 절대 포함 금지)
+  각 섹션에 최소 2개의 단락과 구체 사례 1개 이상 포함
 - 각 body에 구체 수치(g·mg·mmHg·분·회·% 등) 최소 3개 포함
 - 상황별 분기("~이라면", "~인 경우" 등 한국어 조건문)를 body에 자연스럽게 1개 이상 포함 (영어 레이블 IF-THEN 금지)
 - 한국 공식 기관(질병관리청·건강보험심사평가원·대한의학회) 데이터 최소 1회 인용
@@ -546,9 +548,11 @@ async function main() {
     }
 
     try {
-      const categoryId = await resolveCategoryId(topicInfo.categorySlug);
-      const subTopicId = topicInfo.categorySlug ? getSubTopicId(topicInfo.keyword) || topicInfo.categorySlug.replace(/-/g, '_') : getSubTopicId(topicInfo.keyword);
-      const categoryLabel = topicInfo.categorySlug || '시니어 건강';
+      // 키워드에서 건강 주제 자동 감지 → 카테고리 슬러그 결정
+      const subTopicId = getSubTopicId(topicInfo.keyword);
+      const effectiveCategorySlug = topicInfo.categorySlug || subTopicId || null;
+      const categoryId = await resolveCategoryId(effectiveCategorySlug);
+      const categoryLabel = effectiveCategorySlug || '시니어 건강';
 
       const { article, qualityReport } = await generateArticle(topicInfo, categoryLabel);
 
