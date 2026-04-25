@@ -58,14 +58,100 @@ const ALL_PRODUCTS: Record<string, Product[]> = {
 // 기본값 (health 또는 매핑 없는 카테고리)
 const DEFAULT_PRODUCTS: Product[] = ALL_PRODUCTS.blood_sugar;
 
-export default function CoupangCategoryBanner({ categorySlug }: { categorySlug: string }) {
+const GRADIENT = 'linear-gradient(90deg, #1E9E7A 0%, #158060 100%)';
+
+export default function CoupangCategoryBanner({
+  categorySlug,
+  sidebar,
+}: {
+  categorySlug: string;
+  sidebar?: boolean;
+}) {
   const products = ALL_PRODUCTS[categorySlug] ?? DEFAULT_PRODUCTS;
 
+  /* ── 사이드바 모드: 상품 1개 세로 카드 (데스크톱 전용) ── */
+  if (sidebar) {
+    const p = products[0];
+    return (
+      <div style={{ margin: '1rem 0' }}>
+        <div style={{
+          background: GRADIENT,
+          borderRadius: '12px 12px 0 0',
+          padding: '8px 14px',
+        }}>
+          <span style={{ color: '#fff', fontWeight: 700, fontSize: '12px' }}>🛒 추천 상품</span>
+        </div>
+        <a
+          href={p.url}
+          target="_blank"
+          rel="noopener sponsored"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '16px 12px',
+            background: 'var(--bg)',
+            border: '1px solid var(--border)',
+            borderTop: 'none',
+            borderRadius: '0 0 12px 12px',
+            textDecoration: 'none',
+          }}
+        >
+          <img
+            src={p.image}
+            alt={p.name}
+            style={{
+              width: '100px',
+              height: '100px',
+              objectFit: 'contain',
+              borderRadius: '8px',
+              background: '#fff',
+              border: '1px solid var(--border)',
+            }}
+          />
+          <p style={{
+            fontSize: '12px',
+            color: 'var(--text)',
+            textAlign: 'center',
+            lineHeight: 1.4,
+            display: '-webkit-box',
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            margin: 0,
+            fontWeight: 500,
+          }}>
+            {p.name}
+          </p>
+          <p style={{ fontSize: '14px', fontWeight: 800, color: '#E53E3E', margin: 0 }}>
+            {p.price}
+          </p>
+          <span style={{
+            fontSize: '12px',
+            background: GRADIENT,
+            color: '#fff',
+            borderRadius: '20px',
+            padding: '4px 14px',
+            fontWeight: 600,
+            whiteSpace: 'nowrap',
+          }}>
+            바로가기 →
+          </span>
+        </a>
+        <p style={{ fontSize: '10px', color: '#AAAAAA', textAlign: 'center', marginTop: '6px', lineHeight: 1.5 }}>
+          이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.
+        </p>
+      </div>
+    );
+  }
+
+  /* ── 본문 모드: 상품 3개 그리드 ── */
   return (
     <div style={{ margin: '2rem 0' }}>
       {/* 헤더 */}
       <div style={{
-        background: 'linear-gradient(90deg, #1E9E7A 0%, #158060 100%)',
+        background: GRADIENT,
         borderRadius: '12px 12px 0 0',
         padding: '10px 16px',
         display: 'flex',
@@ -134,7 +220,7 @@ export default function CoupangCategoryBanner({ categorySlug }: { categorySlug: 
             </p>
             <span style={{
               fontSize: '11px',
-              background: 'linear-gradient(90deg, #1E9E7A, #158060)',
+              background: GRADIENT,
               color: '#fff',
               borderRadius: '20px',
               padding: '3px 10px',

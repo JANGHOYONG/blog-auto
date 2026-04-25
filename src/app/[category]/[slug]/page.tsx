@@ -208,16 +208,8 @@ export default async function PostPage({ params }: Props) {
               dangerouslySetInnerHTML={{ __html: contentFirst }}
             />
 
-            {/* ── 본문 중간 쿠팡 영역 ────────────────────────────────────────
-                 · 상품카드 있음: 모바일=상품카드 / 데스크톱=숨김(사이드바에 있음)
-                 · 상품카드 없음: 모바일+데스크톱 모두 다이나믹 배너           */}
-            {coupangProduct ? (
-              <div className="my-6 block lg:hidden">
-                <CoupangProductCard product={coupangProduct} />
-              </div>
-            ) : (
-              <CoupangCategoryBanner categorySlug={post.category.slug} />
-            )}
+            {/* ── 본문 중간 쿠팡 영역: 항상 3개 그리드 (모바일+데스크톱) ── */}
+            <CoupangCategoryBanner categorySlug={post.category.slug} />
 
             {/* 본문 후반부 */}
             {contentSecond && (
@@ -296,8 +288,10 @@ export default async function PostPage({ params }: Props) {
           {/* 사이드바 */}
           <aside className="space-y-5 lg:sticky lg:top-20 lg:self-start">
             <TOC headings={headings} />
-            {/* 쿠팡 상품 카드 (health 카테고리 신규 글) */}
-            {coupangProduct && <CoupangProductCard product={coupangProduct} />}
+            {/* 쿠팡 추천 상품 1개 카드 — 데스크톱 전용 */}
+            <div className="hidden lg:block">
+              <CoupangCategoryBanner categorySlug={post.category.slug} sidebar />
+            </div>
             <AdFitSlot slot="sidebar" />
           </aside>
         </div>
