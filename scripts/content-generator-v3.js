@@ -128,34 +128,14 @@ async function assembleHtml(article) {
     parts.push(sectionHtml);
   }
 
-  // 위험 신호 — 주제별 맞춤 제목 + 문장체 본문
-  if (article.stop_signals?.length) {
-    const title = article.stop_signals_title || '이런 증상이 나타나면 병원에서 확인하세요';
-    const paras = article.stop_signals.map((s) => `<p style="line-height:1.9;margin:0.75rem 0">${s}</p>`).join('\n');
-    parts.push(`<section style="margin:2.5rem 0">
-  <h2 style="font-size:1.3rem;font-weight:700;color:#1B3A2D;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:2px solid #C8E6C9">${title}</h2>
-${paras}
+  // 추가 심층 섹션 — GPT가 이 주제에 맞게 자유 선택
+  if (article.extra_sections?.length) {
+    for (const sec of article.extra_sections) {
+      parts.push(`<section style="margin:2.5rem 0">
+  <h2 style="font-size:1.3rem;font-weight:700;color:#1B3A2D;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:2px solid #C8E6C9">${sec.h2}</h2>
+${mdToHtml(sec.body)}
 </section>`);
-  }
-
-  // 현실적 기대치 — 주제별 맞춤 제목 + 문장체 본문
-  if (article.realistic_expectations) {
-    const title = article.realistic_expectations_title || '현실적으로 기대할 수 있는 변화';
-    const re = article.realistic_expectations;
-    parts.push(`<section style="margin:2.5rem 0">
-  <h2 style="font-size:1.3rem;font-weight:700;color:#1B3A2D;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:2px solid #C8E6C9">${title}</h2>
-  <p style="line-height:1.9;margin:0.75rem 0">${re.time} ${re.magnitude} 다만 ${re.what_not_to_expect}</p>
-</section>`);
-  }
-
-  // 흔한 실수 — 주제별 맞춤 제목 + 문장체 본문
-  if (article.common_mistakes?.length) {
-    const title = article.common_mistakes_title || '많은 분들이 놓치는 부분';
-    const paras = article.common_mistakes.map((m) => `<p style="line-height:1.9;margin:0.75rem 0">${m}</p>`).join('\n');
-    parts.push(`<section style="margin:2.5rem 0">
-  <h2 style="font-size:1.3rem;font-weight:700;color:#1B3A2D;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:2px solid #C8E6C9">${title}</h2>
-${paras}
-</section>`);
+    }
   }
 
   // FAQ — 문장체 본문 (h3 + p)
@@ -338,12 +318,10 @@ function buildUserPrompt(topic, categoryLabel) {
 - 각 body에 구체 수치(g·mg·mmHg·분·회·% 등) 최소 3개 포함
 - 상황별 분기("~이라면", "~인 경우" 등 한국어 조건문)를 body에 자연스럽게 1개 이상 포함 (영어 레이블 IF-THEN 금지)
 - 한국 공식 기관(질병관리청·건강보험심사평가원·대한의학회) 데이터 최소 1회 인용
-- stop_signals_title: 이 글의 주제에 꼭 맞는 고유한 h2 제목 (매번 달라야 함. 예: "혈당 관리 중 이 신호가 오면 즉시 병원으로", "무릎에서 이 느낌이 오면 운동을 멈추세요")
-- stop_signals: 구체 증상 5개 이상. 각 항목을 완전한 서술 문장으로 작성 (예: "안정 시 혈압이 180mmHg 이상으로 지속된다면 즉시 병원을 찾아야 합니다.")
-- common_mistakes_title: 이 글의 주제에 꼭 맞는 고유한 h2 제목 (매번 달라야 함. 예: "수면제 없이 잠드려는 분들이 가장 많이 틀리는 것", "혈압약 먹으면서 놓치기 쉬운 생활 습관")
-- common_mistakes: 각 실수를 단순 명사구가 아닌 설명 문장으로 작성 (예: "혈압약을 복용하면서 소금 섭취량을 전혀 확인하지 않는 경우가 많습니다. 약만 믿고 식단을 방치하면...")
-- realistic_expectations_title: 이 글의 주제에 꼭 맞는 고유한 h2 제목 (매번 달라야 함. 예: "4주 후 실제로 달라지는 것들", "독서 습관이 뇌에 영향을 주기까지")
-- realistic_expectations: time/magnitude/what_not_to_expect 각각 완전한 서술 문장으로 작성
+- extra_sections: 이 주제에서만 다룰 수 있는 고유한 각도 2~3개를 자유롭게 선택해 작성하세요.
+  '경고 신호', '기대치', '흔한 실수'라는 고정 틀을 쓰지 마세요.
+  대신 이 주제의 의학적 원리·최신 연구·반직관적 사실·연령별 차이·구체 데이터 등 50~60대 독자가 정말 읽고 싶은 심층 정보를 골라 각 섹션 body를 500자 이상의 서술문으로 작성하세요.
+  예시 각도: "60대에서 이 치료가 효과가 다른 생물학적 이유", "약 없이 수치를 낮춘 사람들의 공통점", "한국인 데이터가 서양 연구와 다른 이유", "증상이 없어도 위험한 진짜 이유"
 - faq: 본문에서 다루지 않은 새 각도 질문 3개, 각 답변은 150자 이상의 자연스러운 서술 문장
 - sources: 한국 공식 기관 또는 저명 저널 2개 이상
 
@@ -362,16 +340,16 @@ function buildUserPrompt(topic, categoryLabel) {
       "image_query": "Pexels 검색용 영어 키워드 2~3단어 (senior health 관련)"
     }
   ],
-  "stop_signals_title": "이 글 주제에 딱 맞는 고유 제목 — 매 글마다 달라야 함",
-  "stop_signals": ["완전한 서술 문장 — 증상과 권고 행동을 포함한 한 문장", "완전한 서술 문장 2", "완전한 서술 문장 3", "완전한 서술 문장 4", "완전한 서술 문장 5"],
-  "realistic_expectations_title": "이 글 주제에 딱 맞는 고유 제목 — 매 글마다 달라야 함",
-  "realistic_expectations": {
-    "time": "언제부터 효과가 나타나는지 구체 기간을 포함한 서술 문장",
-    "magnitude": "얼마나 변화하는지 수치를 포함한 서술 문장",
-    "what_not_to_expect": "기대하면 안 되는 것을 설명하는 서술 문장"
-  },
-  "common_mistakes_title": "이 글 주제에 딱 맞는 고유 제목 — 매 글마다 달라야 함",
-  "common_mistakes": ["실수를 설명하는 서술 문장 1 — 왜 문제인지까지 포함", "서술 문장 2", "서술 문장 3"],
+  "extra_sections": [
+    {
+      "h2": "이 주제에서 독자가 몰랐던 심층 각도 — 고정 틀(경고/기대/실수) 금지, 주제별 고유 제목",
+      "body": "500자 이상의 서술문. 구체 수치·사례·과학적 근거 포함"
+    },
+    {
+      "h2": "두 번째 고유 각도 — 반직관적 사실이나 연령별 비교 데이터 등",
+      "body": "500자 이상의 서술문"
+    }
+  ],
   "today_action": "오늘 당장 할 한 가지 (50자 이내)",
   "faq": [
     {"q": "본문에 없는 새 각도 질문 1", "a": "150자 이상 자연스러운 서술 문장 답변"},

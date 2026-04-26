@@ -16,7 +16,7 @@
  * 원칙 2  금지어 블랙리스트 14개 단어 (단어당 -10점, 최대 -40)
  * 원칙 3  수치(g|kg|L|ml|분|회|%|cm|kcal) 최소 10개         -15점
  * 원칙 5  분기(if_then_branches 합계) 최소 2개               -10점
- * 원칙 7  stop_signals 5개 이상                              -10점
+ * 원칙 7  extra_sections 2개 이상 (주제별 자유 심층 섹션)     -10점
  * 원칙 8  FAQ 최소 2개                                       -10점
  * 원칙 9  본문 중간 "전문가와 상담" 금지 (90% 이전 위치)      -15점
  * 원칙 11 sources 최소 1건                                   -10점
@@ -111,12 +111,12 @@ function checkQualityV3(article) {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // 원칙 7 — stop_signals 5개 이상 (구체 증상 목록)
+  // 원칙 7 — extra_sections 2개 이상 (주제별 자유 심층 섹션)
   // ─────────────────────────────────────────────────────────────────────────
-  const stopSignals = article.stop_signals || [];
-  if (stopSignals.length < 5) {
+  const extraSections = article.extra_sections || [];
+  if (extraSections.length < 2) {
     score -= 10;
-    failed.push(`원칙7: 중단 신호 부족 (${stopSignals.length}개 / 최소 5개)`);
+    failed.push(`원칙7: 심층 섹션 부족 (${extraSections.length}개 / 최소 2개)`);
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -170,7 +170,7 @@ function checkQualityV3(article) {
       bodyLength: bodyCharCount,
       numberCount: numberMatches.length,
       branchCount: totalBranches,
-      stopSignalCount: stopSignals.length,
+      extraSectionCount: extraSections.length,
       faqCount: faq.length,
       sourceCount: sources.length,
     },
