@@ -209,11 +209,18 @@ function getSubTopicId(keyword) {
   return null;
 }
 
+// 시니어 건강 유효 카테고리 슬러그 목록 (로테이션 대상)
+const VALID_HEALTH_SLUGS = [
+  'blood_sugar', 'blood_pressure', 'joint', 'sleep',
+  'brain', 'menopause', 'nutrition', 'knowledge', 'health',
+];
+
 async function getNextTopic() {
   if (TOPIC_OVERRIDE) {
     return { title: TOPIC_OVERRIDE, keyword: TOPIC_OVERRIDE, categorySlug: null, topicId: null };
   }
-  // 1) Topic 테이블
+
+  // 1) Topic 테이블 (에디토리얼 캘린더)
   const topic = await prisma.topic.findFirst({
     where: { status: 'PENDING' },
     orderBy: [{ priority: 'asc' }, { createdAt: 'asc' }],
@@ -221,7 +228,45 @@ async function getNextTopic() {
   if (topic) {
     return { title: topic.title, keyword: topic.keyword, topicId: topic.id, categorySlug: topic.categoryId };
   }
-  // 2) Keyword 테이블 fallback
+
+  // 2) Keyword 테이블 — 카테고리 로테이션 (마지막 발행이 가장 오래된 카테고리 우선)
+  const validCats = await prisma.category.findMany({
+    where: { slug: { in: VALID_HEALTH_SLUGS } },
+    select: { id: true, slug: true, name: true },
+  });
+
+  // 각 카테고리의 마지막 발행일 조회
+  const lastPublished = await prisma.post.groupBy({
+    by: ['categoryId'],
+    where: { status: 'PUBLISHED', categoryId: { in: validCats.map(c => c.id) } },
+    _max: { publishedAt: true },
+  });
+  const lastPubMap = Object.fromEntries(lastPublished.map(r => [r.categoryId, r._max.publishedAt]));
+
+  // 마지막 발행일 기준 오름차순 정렬 (오래됐거나 미발행 카테고리 우선)
+  const orderedCats = [...validCats].sort((a, b) => {
+    const da = lastPubMap[a.id] ? new Date(lastPubMap[a.id]).getTime() : 0;
+    const db = lastPubMap[b.id] ? new Date(lastPubMap[b.id]).getTime() : 0;
+    return da - db; // 오래된 순
+  });
+
+  console.log('  [로테이션] 카테고리 선택 순서:',
+    orderedCats.map(c => `${c.name}(${lastPubMap[c.id] ? new Date(lastPubMap[c.id]).toISOString().slice(5,10) : '미발행'})`).join(' → '));
+
+  // 순서대로 미사용 키워드가 있는 첫 번째 카테고리 선택
+  for (const cat of orderedCats) {
+    const kw = await prisma.keyword.findFirst({
+      where: { used: false, categoryId: cat.id },
+      include: { category: true },
+      orderBy: [{ priority: 'asc' }, { searchVolume: 'desc' }],
+    });
+    if (kw) {
+      console.log(`  [로테이션] 선택된 카테고리: ${cat.name}`);
+      return { title: kw.keyword, keyword: kw.keyword, keywordId: kw.id, categorySlug: kw.category?.slug };
+    }
+  }
+
+  // 폴백: 유효 카테고리 외 아무 미사용 키워드
   const kw = await prisma.keyword.findFirst({
     where: { used: false },
     include: { category: true },
@@ -230,6 +275,7 @@ async function getNextTopic() {
   if (kw) {
     return { title: kw.keyword, keyword: kw.keyword, keywordId: kw.id, categorySlug: kw.category?.slug };
   }
+
   throw new Error('사용 가능한 주제가 없습니다. Topic 또는 Keyword 테이블을 확인하세요.');
 }
 
