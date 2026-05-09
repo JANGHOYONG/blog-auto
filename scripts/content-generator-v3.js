@@ -3,7 +3,7 @@
  * - 모델: gpt-4o-mini (비용 최적화)
  * - 응답: JSON 구조 (12원칙 기반)
  * - 품질 게이트: checkQualityV3 → score < 90 이면 최대 2회 재생성
- * - 저장 상태: 항상 REVIEW_REQUIRED (사람 감수 필수)
+ * - 저장 상태: DRAFT (자동발행 파이프라인 — 감수 없이 바로 발행)
  * - 주제: Topic 테이블(PENDING) → Keyword 테이블 → --topic 인자
  *
  * 실행: node scripts/content-generator-v3.js
@@ -491,10 +491,10 @@ async function linkRelated(postId, categoryId, keywords) {
 async function main() {
   console.log('=== 콘텐츠 생성기 v3 — 시니어 건강백과 (gpt-4o-mini) ===\n');
 
-  // REVIEW_REQUIRED 큐가 이미 7건 이상이면 스킵
-  const queueCount = await prisma.post.count({ where: { status: 'REVIEW_REQUIRED' } });
+  // DRAFT 큐가 이미 7건 이상이면 스킵
+  const queueCount = await prisma.post.count({ where: { status: 'DRAFT' } });
   if (queueCount >= 7) {
-    console.log(`⏭ 감수 대기 큐 ${queueCount}건 — 충분히 쌓여 있어 생성 건너뜀`);
+    console.log(`⏭ DRAFT 대기 큐 ${queueCount}건 — 충분히 쌓여 있어 생성 건너뜀`);
     await prisma.$disconnect();
     return;
   }
@@ -555,7 +555,7 @@ async function main() {
           metaDescription: article.lead_answer || topicInfo.title,
           readTime,
           thumbnail,
-          status: 'REVIEW_REQUIRED',
+          status: 'DRAFT',
           qualityScore: qualityReport.score,
           rejectReasons: qualityReport.failed,
           categoryId,
@@ -574,7 +574,7 @@ async function main() {
       await linkRelated(post.id, categoryId, JSON.stringify(keywords));
 
       success++;
-      console.log(`  ✅ 저장 완료 → Post #${post.id} | 품질: ${qualityReport.score}점 | ${textLen.toLocaleString()}자 | REVIEW_REQUIRED`);
+      console.log(`  ✅ 저장 완료 → Post #${post.id} | 품질: ${qualityReport.score}점 | ${textLen.toLocaleString()}자 | DRAFT`);
 
       if (i < COUNT - 1) await new Promise((r) => setTimeout(r, 2000));
     } catch (e) {
@@ -586,7 +586,7 @@ async function main() {
     data: {
       type: 'CONTENT_GENERATE',
       status: success > 0 ? 'SUCCESS' : 'FAILED',
-      message: `v3 초안 ${success}개 생성 (REVIEW_REQUIRED)`,
+      message: `v3 초안 ${success}개 생성 (DRAFT)`,
     },
   }).catch(() => {});
 

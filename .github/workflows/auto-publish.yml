@@ -1,14 +1,15 @@
-name: Auto Publish Blog Post
-# ⚠️ v3 전환 후 스케줄 비활성화 — 발행은 /admin/review 승인 즉시 처리
-# 수동 실행(workflow_dispatch)은 유지 (기존 DRAFT 글 일괄 발행 등 비상 용도)
+name: Auto Publish (하루 1건 · 랜덤 시간)
+# 매일 KST 09:00 시작 → 랜덤 딜레이 0~5시간 → KST 09:00~14:00 사이 발행
 
 on:
-  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"   # UTC 00:00 = KST 09:00 (매일)
+  workflow_dispatch: {}
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 360   # 최대 6시간 (랜덤 딜레이 포함)
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -30,8 +31,14 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
-      - name: Publish DRAFT posts (emergency use only)
-        run: node scripts/publisher.js --mode=immediate --limit=3
+      - name: Random delay (KST 09:00~14:00 사이 랜덤 발행)
+        run: |
+          DELAY=$((RANDOM % 18000))
+          echo "⏰ 랜덤 딜레이: ${DELAY}초 ($(( DELAY / 3600 ))시간 $(( (DELAY % 3600) / 60 ))분) 대기 후 발행"
+          sleep $DELAY
+
+      - name: Publish 1 DRAFT post
+        run: node scripts/publisher.js --mode=immediate --limit=1
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}

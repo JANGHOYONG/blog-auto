@@ -44,7 +44,7 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
-      - name: Generate v3 draft (REVIEW_REQUIRED)
+      - name: Generate v3 draft (DRAFT)
         run: node scripts/content-generator-v3.js --count=1
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
